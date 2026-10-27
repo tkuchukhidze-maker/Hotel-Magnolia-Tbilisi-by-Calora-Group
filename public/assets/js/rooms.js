@@ -327,7 +327,7 @@
     }
 
     if (state.step === 'choose') {
-      var why = !q.rooms ? 'Add at least one room' : !enough ? 'Add room for everyone first' : '';
+      var why = !state.checkin || state.checkin < today() ? 'Choose a valid check-in date first' : !q.rooms ? 'Add at least one room' : !enough ? 'Add room for everyone first' : '';
       html += '<button type="button" class="btn btn--primary btn--block" data-action="next"' + (why ? ' disabled' : '') + '>' + (why || 'Continue · ' + gel(q.total)) + '</button>';
     }
     return html;
