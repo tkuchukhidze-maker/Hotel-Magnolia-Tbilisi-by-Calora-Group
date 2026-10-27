@@ -21,7 +21,7 @@ class RoomPricingCalendarTest extends TestCase
         $this->assertSame(520, $stay['total']); // 150 + 220 + 150
         $this->assertSame([150,220,150], array_column($stay['nights'], 'price'));
         $this->assertSame(240, RoomPricing::totalForRoom('double','room',2,'2027-06-01',2)['total']);
-        $this->assertSame(300, RoomPricing::totalForRoom('double','room',1,'2027-07-01',3)['total'] - 30);
+        $this->assertSame(300, RoomPricing::totalForRoom('double','room',1,'2027-07-01',3)['total']);
     }
 
     public function test_admin_calendar_writes_month_and_date_range(): void
