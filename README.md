@@ -116,3 +116,18 @@ With `GOOGLE_MAPS_API_KEY` set, the site shows a **brand-styled map** (Explore a
 4. Optional: set `HOTEL_LAT` / `HOTEL_LNG` to the exact pin position (right-click the hotel in Google Maps to copy them). Otherwise the address is looked up in the browser.
 
 Code: `public/assets/js/maps.js`, `resources/views/partials/maps-config.blade.php`, `partials/map.blade.php`.
+
+### Magnolia production setup (Laravel Cloud)
+
+The map integration is already wired into `/explore`, `/contact`, and the guest details form on `/rooms`.
+
+1. In Google Cloud Console, select the project dedicated to Magnolia and ensure a billing account is linked. Enable **Maps JavaScript API** and **Places API (New)**. Enable **Geocoding API** only when `HOTEL_LAT` and `HOTEL_LNG` are not set and the site needs to resolve an address to a location.
+2. Under **APIs & Services > Credentials**, create a dedicated browser API key. Restrict the key to **Websites (HTTP referrers)** and add these referrers:
+   - `https://hotel-magnolia-tbilisi-by-calora-group-production-etjbrn.laravel.cloud/*`
+   - Add `https://your-real-hotel-domain/*` when the custom domain launches (replace the example; do not add a wildcard for arbitrary sites).
+3. Restrict this key to **Maps JavaScript API**, **Places API (New)**, and **Geocoding API** if the latter is used.
+4. Open the Magnolia application in Laravel Cloud > **Environment variables** and add `GOOGLE_MAPS_API_KEY` there. Set `HOTEL_LAT` and `HOTEL_LNG` from the hotel's **verified** pin, rather than estimating a coordinate. Never commit a real API key to GitHub.
+5. Deploy/redeploy the application and clear cached Laravel configuration if necessary (`php artisan config:clear`). Verify the map on `/contact` and `/explore`, click **Get directions**, then proceed through `/rooms` to the guest details step and test autocomplete with a real address.
+6. Verify mobile and desktop layouts; confirm the plain embedded map remains available if the Google script fails. Configure billing budgets/alerts and API quotas in Google Cloud. A budget alert does **not** itself enforce a spending cap.
+
+**Notes:** The guest's home address is optional, and autocomplete must accept international addresses. Google Maps keys used by browser scripts are public by design; domain and API restrictions are therefore essential. This repository does not contain credentials for the Google Cloud or Laravel Cloud consoles, so these account-level steps are not automated by a GitHub commit.
