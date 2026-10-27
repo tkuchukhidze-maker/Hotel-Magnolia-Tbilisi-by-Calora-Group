@@ -178,7 +178,7 @@ class BookingEmailNotificationTest extends TestCase
         config(['hotel.zapier_hook_url' => 'https://hooks.zapier.com/hooks/catch/1/abc/']);
 
         $this->withSession(['magnolia_admin' => true])->post(route('admin.zapier.sample'), ['to' => 'me@example.net'])
-            ->assertSessionHas('success');
+            ->assertSessionHasNoErrors()->assertSessionHas('success');
         \Illuminate\Support\Facades\Http::assertSent(fn ($r) => $r['email'] === 'me@example.net' && str_contains($r['guest_html'], 'MAGNOLIA'));
     }
 }

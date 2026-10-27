@@ -54,9 +54,11 @@ class AdminMailController extends Controller
         $sample = \App\Support\BookingMail::sample();
         $sample->email = (string) ($request->input('to') ?: config('hotel.bookings_email'));
 
-        return \App\Support\BookingWebhook::send($sample)
+        $error = \App\Support\BookingWebhook::send($sample);
+
+        return $error === null
             ? back()->with('success', 'Example booking sent to Zapier. In the Zap, click "Find new records" on step 1.')
-            : back()->withErrors(['mail' => 'Zapier did not accept the example booking. Check HOTEL_ZAPIER_HOOK_URL.']);
+            : back()->withErrors(['mail' => 'Zapier did not get the example booking: '.str($error)->limit(300)]);
     }
 
     public function test(Request $request)

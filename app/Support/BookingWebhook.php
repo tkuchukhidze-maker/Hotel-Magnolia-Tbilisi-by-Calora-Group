@@ -76,20 +76,21 @@ class BookingWebhook
         ];
     }
 
-    public static function send(Booking $b): bool
+    /** @return string|null null when Zapier accepted the booking, otherwise the reason */
+    public static function send(Booking $b): ?string
     {
         $url = (string) config('hotel.zapier_hook_url');
         if ($url === '' || ! str_starts_with($url, 'https://hooks.zapier.com/')) {
-            return false;
+            return 'HOTEL_ZAPIER_HOOK_URL is not a Zapier hook URL.';
         }
         try {
             Http::asJson()->timeout(8)->post($url, self::payload($b))->throw();
 
-            return true;
+            return null;
         } catch (Throwable $e) {
             Log::error('Zapier booking webhook failed', ['reference' => $b->reference, 'error' => $e->getMessage()]);
 
-            return false;
+            return $e->getMessage();
         }
     }
 }
