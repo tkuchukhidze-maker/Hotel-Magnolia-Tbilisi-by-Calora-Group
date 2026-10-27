@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\BookingReceived;
 use App\Models\Booking;
 use App\Support\BookingQuote;
+use App\Support\RoomCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -22,7 +23,7 @@ class BookingController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $rooms = config('hotel.rooms');
+        $rooms = RoomCatalog::all();
 
         $data = $request->validate([
             'items' => ['required', 'array', 'min:1', 'max:'.count($rooms)],
