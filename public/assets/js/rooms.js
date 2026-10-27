@@ -1,24 +1,43 @@
 /* Hotel Magnolia — Rooms & booking flow
-   Guests and nights filter the rooms; choosing a room opens an inline panel:
-   1 rate → 2 guest details → 3 confirmation.
-   Room data and the booking URL come from Laravel (window.MAGNOLIA, see rooms.blade.php).
-   The server recalculates the price; this file only shows it. */
+   1 choose rooms (any types, any number, up to what we have free)
+   → 2 guest details → 3 confirmation.
+   Guests: adults + children (each child with an age). The selected rooms must
+   sleep everyone; if not, we suggest the cheapest combination that does.
+   Room data and limits come from Laravel (window.MAGNOLIA, see rooms.blade.php).
+   The server recalculates the price (App\Support\BookingQuote); this file only shows it. */
 (function () {
   'use strict';
 
   var M = window.MAGNOLIA || {};
   var ROOMS = M.rooms || [];
-  var MAX_GUESTS = M.maxGuests || 3;
+  var MAX_ADULTS = M.maxAdults || 12;
+  var MAX_KIDS = M.maxChildren || 6;
+  var CHILD_MAX_AGE = M.childMaxAge == null ? 17 : M.childMaxAge;
   var MAX_NIGHTS = M.maxNights || 30;
   var CSRF = (document.querySelector('meta[name="csrf-token"]') || {}).content;
+  var BY_ID = {};
+  ROOMS.forEach(function (r) { BY_ID[r.id] = r; });
 
+  var list = document.getElementById('room-list');
+  var aside = document.getElementById('booking-summary');
+  var agesEl = document.querySelector('[data-ages]');
+  var checkinEl = document.getElementById('checkin');
+  var mobileLabel = document.querySelector('[data-mobile-label]');
+  var mobileCta = document.querySelector('[data-mobile-cta]');
+  if (!list || !aside) return;
+
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  function int(v, d) { var n = parseInt(v, 10); return isNaN(n) ? d : n; }
+
+  /* ---------- State (URL params from the home page preselect it) ---------- */
   var params = new URLSearchParams(window.location.search);
   var state = {
-    adults: clamp(parseInt(params.get('adults'), 10) || 2, 1, MAX_GUESTS),
-    kids: clamp(parseInt(params.get('children'), 10) || 0, 0, 2),
+    adults: clamp(int(params.get('adults'), 2), 1, MAX_ADULTS),
+    kids: clamp(int(params.get('children'), 0), 0, MAX_KIDS),
+    ages: [],
     nights: 2,
     checkin: params.get('checkin') || '',
-    openId: params.get('room') || null,
+    qty: {},
     rate: 'room',
     step: 'choose',
     sending: false,
@@ -26,33 +45,83 @@
     result: null,
     form: {}
   };
-  if (state.adults + state.kids > MAX_GUESTS) state.kids = Math.max(0, MAX_GUESTS - state.adults);
+  (params.get('ages') || '').split(',').forEach(function (a, i) {
+    var n = parseInt(a, 10);
+    if (i < state.kids && !isNaN(n)) state.ages[i] = clamp(n, 0, CHILD_MAX_AGE);
+  });
   var checkout = params.get('checkout');
   if (state.checkin && checkout) {
-    var n = Math.round((new Date(checkout) - new Date(state.checkin)) / 86400000);
-    if (n > 0) state.nights = clamp(n, 1, MAX_NIGHTS);
+    var n0 = Math.round((new Date(checkout) - new Date(state.checkin)) / 86400000);
+    if (n0 > 0) state.nights = clamp(n0, 1, MAX_NIGHTS);
+  }
+  var preRoom = params.get('room');
+  if (preRoom && BY_ID[preRoom]) {
+    // Enough of the chosen type to sleep everyone, if we have them.
+    var r0 = BY_ID[preRoom];
+    state.qty[preRoom] = clamp(Math.ceil((state.adults + state.kids) / r0.cap), 1, r0.stock || 1);
   }
 
-  var list = document.getElementById('room-list');
-  var summaryEl = document.getElementById('search-summary');
-  var checkinEl = document.getElementById('checkin');
-  var mobilePrice = document.querySelector('[data-mobile-price]');
-  if (!list) return;
-
-  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  /* ---------- Helpers ---------- */
   function gel(n) { return 'GEL ' + n; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
   function guests() { return state.adults + state.kids; }
   function guestsLabel() { return plural(state.adults, 'adult', 'adults') + (state.kids ? ', ' + plural(state.kids, 'child', 'children') : ''); }
   function nightsLabel() { return plural(state.nights, 'night', 'nights'); }
-  function prices(r) { return guests() === 1 ? { p: r.p1, was: r.w1 } : { p: r.p2, was: r.w2 }; }
+  function today() { return new Date().toISOString().slice(0, 10); }
+  function addDays(iso, d) { var x = new Date(iso + 'T00:00:00'); x.setDate(x.getDate() + d); return x.toISOString().slice(0, 10); }
   function fmtDate(iso) {
     if (!iso) return '';
-    var d = new Date(iso + 'T00:00:00');
-    return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+    return new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
   }
-  function today() { return new Date().toISOString().slice(0, 10); }
+  function ageLabel(a) { return a === 0 ? 'under 1' : a + (a === 1 ? ' year' : ' years'); }
+
+  function items() {
+    return ROOMS.filter(function (r) { return state.qty[r.id] > 0; })
+      .map(function (r) { return { room: r.id, qty: state.qty[r.id] }; });
+  }
+  function roomsCount() { return items().reduce(function (s, i) { return s + i.qty; }, 0); }
+
+  /* Same rule as BookingQuote.php: the 1-guest price only for one room, one guest. */
+  function quote(its, rate) {
+    var rooms = its.reduce(function (s, i) { return s + i.qty; }, 0);
+    var single = rooms === 1 && guests() === 1;
+    var q = { lines: [], capacity: 0, rooms: rooms, nightly: 0 };
+    its.forEach(function (i) {
+      var r = BY_ID[i.room];
+      var p = single ? r.p1 : r.p2;
+      var per = rate === 'bf' ? p[1] : p[0];
+      q.lines.push({ room: r.id, name: r.name, qty: i.qty, nightly: per, subtotal: per * i.qty });
+      q.capacity += r.cap * i.qty;
+      q.nightly += per * i.qty;
+    });
+    q.total = q.nightly * state.nights;
+    return q;
+  }
+
+  /* Cheapest set of rooms that sleeps everyone (fewest rooms on a tie). ~2,400 combinations at most. */
+  function suggest() {
+    var need = guests();
+    var best = null;
+    function walk(i, its, cap, cost, rooms) {
+      if (cap >= need) {
+        if (!best || cost < best.cost || (cost === best.cost && rooms < best.rooms)) best = { its: its.slice(), cost: cost, rooms: rooms };
+        return;
+      }
+      if (i === ROOMS.length) return;
+      var r = ROOMS[i];
+      var max = Math.min(r.stock || 0, Math.ceil(need / r.cap));
+      for (var q = 0; q <= max; q++) {
+        if (q) its.push({ room: r.id, qty: q });
+        walk(i + 1, its, cap + r.cap * q, cost + (need === 1 && q === 1 && rooms === 0 ? r.p1[0] : r.p2[0]) * q, rooms + q);
+        if (q) its.pop();
+      }
+    }
+    walk(0, [], 0, 0, 0);
+    return best;
+  }
+  function itemsText(its) { return its.map(function (i) { return i.qty + ' × ' + BY_ID[i.room].name; }).join(' + '); }
+  function sameItems(a, b) { return itemsText(a) === itemsText(b); }
 
   var ICON = {
     guests: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
@@ -62,166 +131,241 @@
     check: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>'
   };
 
-  function media(r) {
-    var img = r.img
-      ? '<img src="' + esc(r.img) + '" alt="' + esc(r.alt) + '" loading="lazy" width="920" height="600">'
-      : '<div class="room__placeholder">[Room photos coming soon]</div>';
-    return '<div class="room__media">' + img +
-      '<span class="tag tag--deal">−25%</span>' +
-      (r.left ? '<span class="tag tag--left">' + esc(r.left) + '</span>' : '') + '</div>';
-  }
-
-  function stayLine(r) {
-    var dates = state.checkin ? fmtDate(state.checkin) + ' · ' : '';
-    return esc(r.name) + ' · ' + (state.rate === 'bf' ? 'with breakfast' : 'room only') + ' · ' + dates + nightsLabel() + ' · ' + guestsLabel();
-  }
-
-  function panel(r) {
-    var pr = prices(r);
-    var nightly = state.rate === 'bf' ? pr.p[1] : pr.p[0];
-    var total = nightly * state.nights;
-    var stepIdx = { choose: 1, details: 2, done: 3 }[state.step];
-    var steps = ['Room', 'Your details', 'Done'].map(function (s, i) {
-      return '<li class="' + (stepIdx >= i + 1 ? 'is-active' : '') + '"' + (stepIdx === i + 1 ? ' aria-current="step"' : '') + '>' + (i + 1) + ' · ' + s + '</li>';
-    }).join('');
-    var f = state.form;
-    var body = '';
-
-    if (state.step === 'choose') {
-      body =
-        '<div role="group" aria-label="Choose your rate" class="stack" style="gap:10px">' +
-          '<button type="button" class="rate" data-action="rate" data-rate="room" aria-pressed="' + (state.rate === 'room') + '"><span><strong>Room only</strong><small>Free cancellation · pay at the hotel</small></span><strong>' + gel(pr.p[0]) + '</strong></button>' +
-          '<button type="button" class="rate" data-action="rate" data-rate="bf" aria-pressed="' + (state.rate === 'bf') + '"><span><strong>With buffet breakfast</strong><small>+' + gel(pr.p[1] - pr.p[0]) + ' per night · served every morning</small></span><strong>' + gel(pr.p[1]) + '</strong></button>' +
-        '</div>' +
-        '<div class="summary">' +
-          '<div><span>' + gel(nightly) + ' × ' + nightsLabel() + '</span><span>' + gel(total) + '</span></div>' +
-          '<div class="muted"><span>Check-in</span><span>' + (state.checkin ? fmtDate(state.checkin) : 'choose above') + '</span></div>' +
-          '<div class="muted"><span>Guests</span><span>' + guestsLabel() + '</span></div>' +
-          '<div class="muted"><span>Taxes &amp; fees</span><span>Included</span></div>' +
-          '<div class="total"><strong>Total</strong><strong>' + gel(total) + '</strong></div>' +
-          '<p class="ok-note">You pay nothing now. Cancellation: ' + esc((M.cancellation || '').toLowerCase()) + '.</p>' +
-        '</div>' +
-        '<button type="button" class="btn btn--primary btn--block" data-action="next">Continue · ' + gel(total) + '</button>';
-    } else if (state.step === 'details') {
-      body =
-        '<form class="stack" style="gap:12px" data-details novalidate>' +
-          '<p class="small">' + stayLine(r) + ' · <strong style="color:var(--cocoa)">' + gel(total) + '</strong></p>' +
-          (state.checkin ? '' :
-            '<label class="input">Check-in date<input name="checkin" type="date" min="' + today() + '" required></label>') +
-          '<p class="list-title" style="margin:4px 0 0">Your details</p>' +
-          '<div class="form-grid">' +
-            '<label class="input">First name *<input name="first_name" type="text" autocomplete="given-name" required maxlength="80" value="' + esc(f.first_name) + '"></label>' +
-            '<label class="input">Last name *<input name="last_name" type="text" autocomplete="family-name" required maxlength="80" value="' + esc(f.last_name) + '"></label>' +
-          '</div>' +
-          '<div class="form-grid">' +
-            '<label class="input">Email *<input name="email" type="email" autocomplete="email" required maxlength="160" value="' + esc(f.email) + '"></label>' +
-            '<label class="input">Phone / WhatsApp *<input name="phone" type="tel" autocomplete="tel" required placeholder="+995 5XX XX XX XX" maxlength="40" value="' + esc(f.phone) + '"></label>' +
-          '</div>' +
-          '<div class="address-field"><label for="address-input">Home address (optional)</label>' +
-            '<div data-address-host><input id="address-input" name="address_text" type="text" autocomplete="street-address" maxlength="255" placeholder="Start typing your address" value="' + esc(f.address) + '" style="font:500 16px var(--font-text);border:1px solid #D9C7AE;border-radius:12px;padding:12px 14px;background:#fff;color:var(--cocoa);width:100%;box-sizing:border-box"></div>' +
-            '<p class="address-field__picked" data-address-picked' + (f.address ? '' : ' hidden') + '>✓ ' + esc(f.address) + '</p>' +
-            '<input type="hidden" name="address" value="' + esc(f.address) + '"><input type="hidden" name="city" value="' + esc(f.city) + '"><input type="hidden" name="postal_code" value="' + esc(f.postal_code) + '">' +
-          '</div>' +
-          '<div class="form-grid">' +
-            '<label class="input">Country *<input name="country" type="text" autocomplete="country-name" list="countries" required maxlength="80" value="' + esc(f.country) + '"></label>' +
-            '<label class="input">Arrival time<select name="arrival">' + ['I don\'t know yet', 'Morning', 'Afternoon', 'Evening', 'Late night'].map(function (o) { return '<option' + (f.arrival === o ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select></label>' +
-          '</div>' +
-          '<datalist id="countries">' + ['Georgia', 'Armenia', 'Azerbaijan', 'Turkey', 'Israel', 'Russia', 'Ukraine', 'Kazakhstan', 'Germany', 'Poland', 'United Kingdom', 'France', 'Italy', 'Spain', 'Netherlands', 'United States', 'Saudi Arabia', 'United Arab Emirates', 'Iran', 'India', 'China'].map(function (c) { return '<option value="' + c + '">'; }).join('') + '</datalist>' +
-          '<label class="input">Anything we should know? (optional)<textarea name="notes" rows="2" maxlength="1000" placeholder="Late arrival, a baby cot, a quiet room…">' + esc(f.notes) + '</textarea></label>' +
-          '<label style="display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.5;cursor:pointer"><input name="privacy" type="checkbox" required style="width:20px;height:20px;margin-top:1px;accent-color:var(--terracotta)"' + (f.privacy ? ' checked' : '') + '><span>I agree that Hotel Magnolia uses my details to handle this booking, as described in the <a href="' + esc(M.privacyUrl) + '" target="_blank" rel="noopener">privacy policy</a>. *</span></label>' +
-          '<p class="small" data-error role="alert"' + (state.error ? '' : ' hidden') + ' style="color:var(--terracotta);font-weight:700">' + esc(state.error) + '</p>' +
-          '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
-            '<button type="button" class="btn btn--outline" data-action="back">← Back</button>' +
-            '<button type="submit" class="btn btn--primary" style="flex-grow:1"' + (state.sending ? ' disabled aria-busy="true"' : '') + '>' + (state.sending ? 'Sending…' : 'Confirm booking') + '</button>' +
-          '</div>' +
-          '<p class="small">No card needed. You\'ll pay at the hotel.</p>' +
-        '</form>';
-    } else {
-      var res = state.result || {};
-      body =
-        '<div class="stack" role="status" style="gap:14px;align-items:flex-start">' +
-          '<span class="done-icon">' + ICON.check + '</span>' +
-          '<h3 class="h3">You\'re booked. <em>See you in Tbilisi.</em></h3>' +
-          '<p class="lead" style="font-size:15px">' + esc(r.name) + ' · ' + fmtDate(res.checkin) + ' → ' + fmtDate(res.checkout) + ' · ' + guestsLabel() +
-            '<br>Total ' + gel(res.total) + ', paid at the hotel. Booking ref <strong>' + esc(res.reference) + '</strong>.</p>' +
-          '<p class="small">We\'ll confirm by email or WhatsApp shortly. Questions? <a href="' + esc(M.whatsapp) + '">WhatsApp us</a>.</p>' +
-          '<button type="button" class="btn btn--outline" data-action="close">Back to rooms</button>' +
-        '</div>';
-    }
-
-    var thumbs = (r.img ? '<img src="' + esc(r.img) + '" alt="" loading="lazy">' : '<div class="ph">[photo]</div>') +
-      '<img src="' + esc((M.img || {}).bathroom) + '" alt="Private bathroom with patterned tiles" loading="lazy">' +
-      '<img src="' + esc((M.img || {}).tray) + '" alt="Welcome tea and fruit" loading="lazy">';
-
-    return '<div class="panel" id="panel-' + r.id + '">' +
-      '<div class="panel__left">' +
-        '<div class="thumbs">' + thumbs + '</div>' +
-        '<p class="list-title">In your room</p>' +
-        '<ul class="checks"><li>' + esc(r.bed) + '</li><li>' + esc(r.size) + ', ' + esc(String(r.extra).toLowerCase()) + '</li><li>Air conditioning</li><li>Private bathroom, shower</li><li>Flat-screen TV</li><li>Free Wi‑Fi</li><li>City &amp; garden view</li><li>Non-smoking</li></ul>' +
-      '</div>' +
-      '<div class="panel__right"><ol class="steps" aria-label="Booking steps">' + steps + '</ol>' + body + '</div>' +
-    '</div>';
-  }
-
+  /* ---------- Search bar: steppers + children's ages ---------- */
   function setText(sel, txt) { var el = document.querySelector(sel); if (el) el.textContent = txt; }
   function setDisabled(sel, v) { var el = document.querySelector(sel); if (el) el.disabled = v; }
 
-  function render() {
-    var visible = ROOMS.filter(function (r) { return r.cap >= guests(); });
-    if (!visible.some(function (r) { return r.id === state.openId; })) state.openId = null;
-    var hidden = ROOMS.length - visible.length;
-
+  function renderSearch() {
     setText('[data-value="adults"]', state.adults);
     setText('[data-value="kids"]', state.kids);
     setText('[data-value="nights"]', nightsLabel());
-    setDisabled('[data-action="adults-"]', state.adults <= 1);
-    setDisabled('[data-action="adults+"]', guests() >= MAX_GUESTS);
-    setDisabled('[data-action="kids-"]', state.kids <= 0);
-    setDisabled('[data-action="kids+"]', guests() >= MAX_GUESTS || state.kids >= 2);
-    setDisabled('[data-action="nights-"]', state.nights <= 1);
-    setDisabled('[data-action="nights+"]', state.nights >= MAX_NIGHTS);
-    if (summaryEl) summaryEl.textContent = plural(visible.length, 'room fits', 'rooms fit') + ' ' + guestsLabel() + ' · prices for ' + nightsLabel();
+    var locked = state.step !== 'choose';
+    setDisabled('[data-action="adults-"]', locked || state.adults <= 1);
+    setDisabled('[data-action="adults+"]', locked || state.adults >= MAX_ADULTS);
+    setDisabled('[data-action="kids-"]', locked || state.kids <= 0);
+    setDisabled('[data-action="kids+"]', locked || state.kids >= MAX_KIDS);
+    setDisabled('[data-action="nights-"]', locked || state.nights <= 1);
+    setDisabled('[data-action="nights+"]', locked || state.nights >= MAX_NIGHTS);
+    if (checkinEl) checkinEl.disabled = locked;
 
-    var html = visible.map(function (r) {
-      var pr = prices(r);
-      var open = r.id === state.openId;
-      return '<article class="room" id="room-' + r.id + '">' +
-        '<div class="room__main">' + media(r) +
-          '<div class="room__body">' +
-            '<div class="room__info">' +
-              '<h2 class="room__name">' + esc(r.name) + '</h2>' +
-              '<ul class="meta"><li>' + ICON.guests + (r.cap === 1 ? '1 guest' : 'Up to ' + r.cap + ' guests') + '</li><li>' + ICON.size + esc(r.size) + '</li><li>' + ICON.bed + esc(r.bed) + '</li><li>' + ICON.plus + esc(r.extra) + '</li></ul>' +
-              '<p class="lead" style="font-size:16px">' + esc(r.blurb) + '</p>' +
-              '<p class="small" style="font-size:14px">Air conditioning · Private bathroom · TV · Free Wi‑Fi · City &amp; garden view</p>' +
-            '</div>' +
-            '<div class="room__price">' +
-              '<div><span class="small">per night, from</span><div class="big"><s>' + gel(pr.was) + '</s><strong>' + gel(pr.p[0]) + '</strong></div><span class="small">' + gel(pr.p[0] * state.nights) + ' for ' + nightsLabel() + ' · taxes included</span></div>' +
-              (open
-                ? '<button type="button" class="btn btn--outline" data-action="close" aria-expanded="true" aria-controls="panel-' + r.id + '">Close ↑</button>'
-                : '<button type="button" class="btn btn--primary" data-action="open" data-id="' + r.id + '" aria-expanded="false">Choose this room</button>') +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-        (open ? panel(r) : '') +
-      '</article>';
-    }).join('');
-
-    if (hidden > 0) {
-      html += '<div class="hint-box"><span>' + plural(hidden, 'room is', 'rooms are') + ' too small for ' + guestsLabel() + '. Travelling as a bigger group? We\'ll put you in rooms next to each other.</span><a href="' + esc(M.whatsapp) + '" class="link-arrow">Ask us on WhatsApp →</a></div>';
+    if (!agesEl) return;
+    agesEl.hidden = state.kids === 0;
+    // Rebuild only when the number of children changes, so an open select keeps focus.
+    if (agesEl.getAttribute('data-count') !== String(state.kids)) {
+      agesEl.setAttribute('data-count', String(state.kids));
+      var opts = '';
+      for (var a = 0; a <= CHILD_MAX_AGE; a++) opts += '<option value="' + a + '">' + (a === 0 ? 'Under 1' : a) + '</option>';
+      var html = '<p class="ages__title">How old are the children on the day of arrival?</p><div class="ages__grid">';
+      for (var i = 0; i < state.kids; i++) {
+        html += '<label class="input">Child ' + (i + 1) + ' age<select data-age="' + i + '"><option value="">Choose age</option>' + opts + '</select></label>';
+      }
+      agesEl.innerHTML = html + '</div>';
     }
-    list.innerHTML = html;
-    mountAddress();
-
-    if (mobilePrice && visible.length) {
-      mobilePrice.textContent = gel(Math.min.apply(null, visible.map(function (r) { return prices(r).p[0]; })));
-    }
+    agesEl.querySelectorAll('[data-age]').forEach(function (sel) {
+      var i = int(sel.getAttribute('data-age'), 0);
+      sel.value = state.ages[i] == null ? '' : String(state.ages[i]);
+      sel.disabled = locked;
+    });
   }
 
-  function focusPanel(sel) {
-    var el = document.getElementById('room-' + state.openId);
+  /* ---------- Room list ---------- */
+  function media(r, sel) {
+    var img = r.img
+      ? '<img src="' + esc(r.img) + '" alt="' + esc(r.alt) + '" loading="lazy" width="920" height="600">'
+      : '<div class="room__placeholder">[Room photos coming soon]</div>';
+    var left = r.stock > 0 && r.stock <= 3 ? '<span class="tag tag--left">' + (r.stock === 1 ? 'Last one' : r.stock + ' left') + '</span>' : '';
+    return '<div class="room__media">' + img + '<span class="tag tag--deal">−25%</span>' + left +
+      (sel ? '<span class="tag tag--picked">' + ICON.check.replace(/26/g, '14') + ' ' + sel + ' selected</span>' : '') + '</div>';
+  }
+
+  function roomCard(r) {
+    var q = state.qty[r.id] || 0;
+    var single = guests() === 1 && r.cap === 1;
+    var price = single || (guests() === 1 && roomsCount() <= 1) ? r.p1 : r.p2;
+    var was = price === r.p1 ? r.w1 : r.w2;
+    var stock = r.stock || 0;
+    var control;
+    if (stock === 0) {
+      control = '<p class="small" style="font-weight:700">Fully booked for now. <a href="' + esc(M.whatsapp) + '">Ask us</a></p>';
+    } else if (q === 0) {
+      control = '<button type="button" class="btn btn--primary" data-action="qty+" data-id="' + r.id + '">Add this room</button>';
+    } else {
+      control = '<div class="qty" role="group" aria-label="Number of ' + esc(r.name) + 's">' +
+        '<button type="button" class="round-btn" data-action="qty-" data-id="' + r.id + '" aria-label="One ' + esc(r.name) + ' less">−</button>' +
+        '<span class="qty__value"><strong>' + q + '</strong> ' + (q === 1 ? 'room' : 'rooms') + '</span>' +
+        '<button type="button" class="round-btn" data-action="qty+" data-id="' + r.id + '" aria-label="One more ' + esc(r.name) + '"' + (q >= stock ? ' disabled' : '') + '>+</button>' +
+      '</div>' +
+      (q >= stock ? '<span class="small">That\'s all we have of this type.</span>' : '');
+    }
+    return '<article class="room' + (q ? ' is-selected' : '') + '" id="room-' + r.id + '">' +
+      '<div class="room__main">' + media(r, q) +
+        '<div class="room__body">' +
+          '<div class="room__info">' +
+            '<h2 class="room__name">' + esc(r.name) + '</h2>' +
+            '<ul class="meta"><li>' + ICON.guests + (r.cap === 1 ? '1 guest' : 'Up to ' + r.cap + ' guests') + '</li><li>' + ICON.size + esc(r.size) + '</li><li>' + ICON.bed + esc(r.bed) + '</li><li>' + ICON.plus + esc(r.extra) + '</li></ul>' +
+            '<p class="lead" style="font-size:16px">' + esc(r.blurb) + '</p>' +
+            '<p class="small" style="font-size:14px">Air conditioning · Private bathroom · TV · Free Wi‑Fi · City &amp; garden view</p>' +
+          '</div>' +
+          '<div class="room__price">' +
+            '<div><span class="small">per room per night</span><div class="big"><s>' + gel(was) + '</s><strong>' + gel(price[0]) + '</strong></div><span class="small">' + gel(price[1]) + ' with breakfast · taxes included</span></div>' +
+            '<div class="room__ctrl">' + control + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</article>';
+  }
+
+  /* ---------- Details form & confirmation (replace the list) ---------- */
+  function detailsForm(q) {
+    var f = state.form;
+    return '<div class="checkout">' +
+      '<h2 class="h3" style="margin:0">Your details</h2>' +
+      '<p class="small">We only use these to look after your booking.</p>' +
+      '<form class="stack" style="gap:12px" data-details novalidate>' +
+        (state.checkin ? '' :
+          '<label class="input">Check-in date *<input name="checkin" type="date" min="' + today() + '" required></label>') +
+        '<div class="form-grid">' +
+          '<label class="input">First name *<input name="first_name" type="text" autocomplete="given-name" required maxlength="80" value="' + esc(f.first_name) + '"></label>' +
+          '<label class="input">Last name *<input name="last_name" type="text" autocomplete="family-name" required maxlength="80" value="' + esc(f.last_name) + '"></label>' +
+        '</div>' +
+        '<div class="form-grid">' +
+          '<label class="input">Email *<input name="email" type="email" autocomplete="email" required maxlength="160" value="' + esc(f.email) + '"></label>' +
+          '<label class="input">Phone / WhatsApp *<input name="phone" type="tel" autocomplete="tel" required placeholder="+995 5XX XX XX XX" maxlength="40" value="' + esc(f.phone) + '"></label>' +
+        '</div>' +
+        '<div class="address-field"><label for="address-input">Home address (optional)</label>' +
+          '<div data-address-host><input id="address-input" name="address_text" type="text" autocomplete="street-address" maxlength="255" placeholder="Start typing your address" value="' + esc(f.address) + '" style="font:500 16px var(--font-text);border:1px solid #D9C7AE;border-radius:12px;padding:12px 14px;background:#fff;color:var(--cocoa);width:100%;box-sizing:border-box"></div>' +
+          '<p class="address-field__picked" data-address-picked' + (f.address ? '' : ' hidden') + '>✓ ' + esc(f.address) + '</p>' +
+          '<input type="hidden" name="address" value="' + esc(f.address) + '"><input type="hidden" name="city" value="' + esc(f.city) + '"><input type="hidden" name="postal_code" value="' + esc(f.postal_code) + '">' +
+        '</div>' +
+        '<div class="form-grid">' +
+          '<label class="input">Country *<input name="country" type="text" autocomplete="country-name" list="countries" required maxlength="80" value="' + esc(f.country) + '"></label>' +
+          '<label class="input">Arrival time<select name="arrival">' + ['I don\'t know yet', 'Morning', 'Afternoon', 'Evening', 'Late night'].map(function (o) { return '<option' + (f.arrival === o ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select></label>' +
+        '</div>' +
+        '<datalist id="countries">' + ['Georgia', 'Armenia', 'Azerbaijan', 'Turkey', 'Israel', 'Russia', 'Ukraine', 'Kazakhstan', 'Germany', 'Poland', 'United Kingdom', 'France', 'Italy', 'Spain', 'Netherlands', 'United States', 'Saudi Arabia', 'United Arab Emirates', 'Iran', 'India', 'China'].map(function (c) { return '<option value="' + c + '">'; }).join('') + '</datalist>' +
+        '<label class="input">Anything we should know? (optional)<textarea name="notes" rows="2" maxlength="1000" placeholder="' + (state.kids ? 'A baby cot, rooms next to each other, late arrival…' : 'Rooms next to each other, late arrival, a quiet room…') + '">' + esc(f.notes) + '</textarea></label>' +
+        '<label style="display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.5;cursor:pointer"><input name="privacy" type="checkbox" required style="width:20px;height:20px;margin-top:1px;flex:none;accent-color:var(--terracotta)"' + (f.privacy ? ' checked' : '') + '><span>I agree that Hotel Magnolia uses my details to handle this booking, as described in the <a href="' + esc(M.privacyUrl) + '" target="_blank" rel="noopener">privacy policy</a>. *</span></label>' +
+        '<p class="small" data-error role="alert"' + (state.error ? '' : ' hidden') + ' style="color:var(--terracotta);font-weight:700">' + esc(state.error) + '</p>' +
+        '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
+          '<button type="button" class="btn btn--outline" data-action="back">← Change rooms</button>' +
+          '<button type="submit" class="btn btn--primary" style="flex-grow:1"' + (state.sending ? ' disabled aria-busy="true"' : '') + '>' + (state.sending ? 'Sending…' : 'Confirm booking · ' + gel(q.total)) + '</button>' +
+        '</div>' +
+        '<p class="small">No card needed. You\'ll pay at the hotel.</p>' +
+      '</form>' +
+    '</div>';
+  }
+
+  function doneView() {
+    var res = state.result || {};
+    var lines = (res.items || []).map(function (l) { return '<li>' + l.qty + ' × ' + esc(l.name) + '</li>'; }).join('');
+    return '<div class="checkout stack" role="status" style="gap:14px;align-items:flex-start">' +
+      '<span class="done-icon">' + ICON.check + '</span>' +
+      '<h2 class="h3" style="margin:0">You\'re booked. <em>See you in Tbilisi.</em></h2>' +
+      '<p class="lead" style="font-size:16px">' + fmtDate(res.checkin) + ' → ' + fmtDate(res.checkout) + ' · ' + guestsLabel() + '</p>' +
+      '<ul class="checks" style="grid-template-columns:1fr">' + lines + '</ul>' +
+      '<p class="lead" style="font-size:16px">Total ' + gel(res.total) + ', paid at the hotel. Booking ref <strong>' + esc(res.reference) + '</strong>.</p>' +
+      '<p class="small">We\'ll confirm by email or WhatsApp shortly. Questions? <a href="' + esc(M.whatsapp) + '">WhatsApp us</a>.</p>' +
+      '<button type="button" class="btn btn--outline" data-action="restart">Make another booking</button>' +
+    '</div>';
+  }
+
+  /* ---------- Summary (sticky on desktop) ---------- */
+  function agesMissing() {
+    for (var i = 0; i < state.kids; i++) if (state.ages[i] == null) return true;
+    return false;
+  }
+
+  function summary(q) {
+    var stepIdx = { choose: 1, details: 2, done: 3 }[state.step];
+    var steps = ['Rooms', 'Your details', 'Done'].map(function (s, i) {
+      return '<li class="' + (stepIdx >= i + 1 ? 'is-active' : '') + '"' + (stepIdx === i + 1 ? ' aria-current="step"' : '') + '>' + s + '</li>';
+    }).join('');
+    var need = guests();
+    var enough = q.rooms > 0 && q.capacity >= need;
+    var best = suggest();
+    var html = '<ol class="steps" aria-label="Booking steps">' + steps + '</ol>' +
+      '<div class="book-summary__stay">' +
+        '<div><span>Dates</span><strong>' + (state.checkin ? fmtDate(state.checkin) + ' → ' + fmtDate(addDays(state.checkin, state.nights)) : 'Choose check-in') + '</strong></div>' +
+        '<div><span>Stay</span><strong>' + nightsLabel() + '</strong></div>' +
+        '<div><span>Guests</span><strong>' + guestsLabel() + '</strong></div>' +
+        (state.kids && !agesMissing() ? '<div><span>Children\'s ages</span><strong>' + state.ages.slice(0, state.kids).map(ageLabel).join(', ') + '</strong></div>' : '') +
+      '</div>';
+
+    if (state.step === 'done') return html;
+
+    if (!q.rooms) {
+      html += '<p class="small" style="margin:0">No rooms selected yet. Add rooms from the list' + (best ? ', or take our suggestion:' : '.') + '</p>';
+    } else {
+      html += '<ul class="book-summary__lines">' + q.lines.map(function (l) {
+        return '<li><span>' + l.qty + ' × ' + esc(l.name) + '<small>' + gel(l.nightly) + ' per room per night</small></span><strong>' + gel(l.subtotal) + '</strong></li>';
+      }).join('') + '</ul>';
+      var pct = Math.min(100, Math.round(q.capacity / Math.max(need, 1) * 100));
+      html += '<div class="capacity' + (enough ? ' is-ok' : '') + '">' +
+        '<div class="capacity__bar"><span style="width:' + pct + '%"></span></div>' +
+        '<p>' + (enough
+          ? '✓ Sleeps ' + q.capacity + ' · everyone has a bed'
+          : 'These rooms sleep ' + q.capacity + '. You are ' + need + ', so add ' + (need - q.capacity === 1 ? 'a bed for 1 more' : 'beds for ' + (need - q.capacity) + ' more') + '.') + '</p>' +
+      '</div>';
+    }
+
+    if (state.step === 'choose' && best && !(enough && sameItems(items(), best.its)) && (!enough || quote(best.its, state.rate).nightly < q.nightly)) {
+      html += '<div class="suggest"><span class="small">' + (enough ? 'Cheaper option for ' : 'Fits ') + guestsLabel() + '</span>' +
+        '<strong>' + esc(itemsText(best.its)) + '</strong>' +
+        '<span class="small">' + gel(quote(best.its, state.rate).nightly) + ' per night</span>' +
+        '<button type="button" class="btn btn--outline btn--sm" data-action="suggest">Use this</button></div>';
+    } else if (!best) {
+      html += '<div class="suggest"><span class="small">We don\'t have enough free rooms online for ' + guestsLabel() + '. Write to us and we\'ll sort it out.</span><a class="link-arrow" href="' + esc(M.whatsapp) + '">WhatsApp us →</a></div>';
+    }
+
+    if (q.rooms) {
+      var bf = quote(items(), 'bf'), ro = quote(items(), 'room');
+      if (state.step === 'choose') {
+        html += '<div role="group" aria-label="Choose your rate" class="stack" style="gap:8px">' +
+          '<button type="button" class="rate" data-action="rate" data-rate="room" aria-pressed="' + (state.rate === 'room') + '"><span><strong>Room only</strong><small>Free cancellation · pay at the hotel</small></span><strong>' + gel(ro.nightly) + '</strong></button>' +
+          '<button type="button" class="rate" data-action="rate" data-rate="bf" aria-pressed="' + (state.rate === 'bf') + '"><span><strong>With buffet breakfast</strong><small>+' + gel(bf.nightly - ro.nightly) + ' per night, all rooms</small></span><strong>' + gel(bf.nightly) + '</strong></button>' +
+        '</div>';
+      } else {
+        html += '<p class="small" style="margin:0">' + (state.rate === 'bf' ? 'With buffet breakfast' : 'Room only') + '</p>';
+      }
+      html += '<div class="summary">' +
+        '<div><span>' + gel(q.nightly) + ' × ' + nightsLabel() + '</span><span>' + gel(q.total) + '</span></div>' +
+        '<div class="muted"><span>Taxes &amp; fees</span><span>Included</span></div>' +
+        '<div class="total"><strong>Total</strong><strong>' + gel(q.total) + '</strong></div>' +
+        '<p class="ok-note">You pay nothing now. Cancellation: ' + esc((M.cancellation || '').toLowerCase()) + '.</p>' +
+      '</div>';
+    }
+
+    if (state.step === 'choose') {
+      var why = !q.rooms ? 'Add at least one room' : !enough ? 'Add room for everyone first' : agesMissing() ? 'Add the children\'s ages above' : '';
+      html += '<button type="button" class="btn btn--primary btn--block" data-action="next"' + (why ? ' disabled' : '') + '>' + (why || 'Continue · ' + gel(q.total)) + '</button>';
+    }
+    return html;
+  }
+
+  /* ---------- Render ---------- */
+  function render() {
+    var q = quote(items(), state.rate);
+    renderSearch();
+    var layout = list.parentElement;
+    if (layout) layout.classList.toggle('is-checkout', state.step !== 'choose');
+
+    if (state.step === 'choose') list.innerHTML = ROOMS.map(roomCard).join('');
+    else if (state.step === 'details') list.innerHTML = detailsForm(q);
+    else list.innerHTML = doneView();
+    aside.innerHTML = summary(q);
+    if (state.step === 'details') mountAddress();
+
+    if (mobileLabel) {
+      mobileLabel.innerHTML = q.rooms
+        ? plural(q.rooms, 'room', 'rooms') + ' · ' + nightsLabel() + '<strong data-mobile-price>' + gel(q.total) + '</strong>'
+        : 'per night from<strong data-mobile-price>' + gel(Math.min.apply(null, ROOMS.map(function (r) { return guests() === 1 ? r.p1[0] : r.p2[0]; }))) + '</strong>';
+    }
+    if (mobileCta) mobileCta.textContent = state.step === 'details' ? 'Your booking' : q.rooms ? 'Review & book' : 'Choose rooms';
+  }
+
+  function focusIn(el, sel) {
     if (!el) return;
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    var first = el.querySelector(sel || '.panel button, .panel input');
+    var first = el.querySelector(sel);
     if (first) setTimeout(function () { first.focus({ preventScroll: true }); }, 350);
   }
 
@@ -262,24 +406,58 @@
     if (p) state.form.privacy = p.checked;
   }
 
+  /* ---------- Events ---------- */
   document.addEventListener('click', function (e) {
     var btn = e.target.closest('[data-action]');
-    if (!btn) return;
+    if (!btn || btn.disabled) return;
     var a = btn.getAttribute('data-action');
-    if (a === 'adults+' && guests() < MAX_GUESTS) state.adults++;
+    var id = btn.getAttribute('data-id');
+    var r = id && BY_ID[id];
+    if (a === 'adults+' && state.adults < MAX_ADULTS) state.adults++;
     else if (a === 'adults-' && state.adults > 1) state.adults--;
-    else if (a === 'kids+' && guests() < MAX_GUESTS && state.kids < 2) state.kids++;
-    else if (a === 'kids-' && state.kids > 0) state.kids--;
+    else if (a === 'kids+' && state.kids < MAX_KIDS) state.kids++;
+    else if (a === 'kids-' && state.kids > 0) { state.kids--; state.ages.length = state.kids; }
     else if (a === 'nights+' && state.nights < MAX_NIGHTS) state.nights++;
     else if (a === 'nights-' && state.nights > 1) state.nights--;
-    else if (a === 'open') { state.openId = btn.getAttribute('data-id'); state.step = 'choose'; state.rate = 'room'; state.error = ''; render(); focusPanel(); return; }
-    else if (a === 'close') { var id = state.openId; state.openId = null; state.step = 'choose'; render(); var b = document.querySelector('[data-id="' + id + '"]'); if (b) b.focus(); return; }
+    else if (a === 'qty+' && r) {
+      var cur = state.qty[id] || 0;
+      if (cur >= (r.stock || 0)) return;
+      state.qty[id] = cur + 1;
+      render();
+      var ctrl = document.querySelector('#room-' + id + ' [data-action="qty+"]') || document.querySelector('#room-' + id + ' [data-action="qty-"]');
+      if (ctrl) ctrl.focus({ preventScroll: true });
+      return;
+    }
+    else if (a === 'qty-' && r) {
+      state.qty[id] = Math.max(0, (state.qty[id] || 0) - 1);
+      render();
+      var c2 = document.querySelector('#room-' + id + ' [data-action="qty-"]') || document.querySelector('#room-' + id + ' [data-action="qty+"]');
+      if (c2) c2.focus({ preventScroll: true });
+      return;
+    }
+    else if (a === 'suggest') {
+      var best = suggest();
+      if (!best) return;
+      state.qty = {};
+      best.its.forEach(function (i) { state.qty[i.room] = i.qty; });
+    }
     else if (a === 'rate') state.rate = btn.getAttribute('data-rate');
-    else if (a === 'next') { state.step = 'details'; state.error = ''; render(); focusPanel('.panel input'); return; }
-    else if (a === 'back') { rememberForm(); state.step = 'choose'; }
+    else if (a === 'next') { state.step = 'details'; state.error = ''; render(); focusIn(list, 'input'); return; }
+    else if (a === 'back') { rememberForm(); state.step = 'choose'; state.error = ''; render(); focusIn(list, '.room.is-selected button, .room button'); return; }
+    else if (a === 'restart') { state.step = 'choose'; state.qty = {}; state.result = null; render(); focusIn(document.getElementById('search'), 'input, button'); return; }
     else return;
     render();
   });
+
+  if (agesEl) {
+    agesEl.addEventListener('change', function (e) {
+      var sel = e.target.closest('[data-age]');
+      if (!sel) return;
+      var i = int(sel.getAttribute('data-age'), 0);
+      state.ages[i] = sel.value === '' ? null : int(sel.value, 0);
+      render();
+    });
+  }
 
   if (checkinEl) {
     checkinEl.min = today();
@@ -289,11 +467,11 @@
 
   document.addEventListener('submit', function (e) {
     var form = e.target.closest('[data-details]');
-    if (!form || state.sending) return;
+    if (!form) return;
     e.preventDefault();
+    if (state.sending) return;
     rememberForm();
-    var el = form.elements;
-    var inlineCheckin = el.namedItem('checkin');
+    var inlineCheckin = form.elements.namedItem('checkin');
     if (inlineCheckin && inlineCheckin.value) {
       state.checkin = inlineCheckin.value;
       if (checkinEl) checkinEl.value = state.checkin;
@@ -306,24 +484,17 @@
     if (!/^\S+@\S+\.\S+$/.test((f.email || '').trim())) missing.push('a valid email');
     if (!/^[0-9+()\-\s]{6,}$/.test((f.phone || '').trim())) missing.push('a phone number');
     if (!(f.country || '').trim()) missing.push('country');
-    if (missing.length) {
-      state.error = 'Please add your ' + missing.join(', ') + '.';
-      render(); focusPanel('[data-error]');
-      return;
-    }
-    if (!f.privacy) {
-      state.error = 'Please agree to the privacy policy to book.';
-      render(); focusPanel('[data-error]');
-      return;
-    }
+    if (missing.length) state.error = 'Please add your ' + missing.join(', ') + '.';
+    else if (!f.privacy) state.error = 'Please agree to the privacy policy to book.';
+    if (missing.length || !f.privacy) { render(); focusIn(list, '[data-error]'); return; }
 
     state.sending = true; state.error = ''; render();
     fetch(M.bookingUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
       body: JSON.stringify({
-        room: state.openId, rate: state.rate, checkin: state.checkin, nights: state.nights,
-        adults: state.adults, children: state.kids,
+        items: items(), rate: state.rate, checkin: state.checkin, nights: state.nights,
+        adults: state.adults, children: state.kids, children_ages: state.ages.slice(0, state.kids),
         first_name: f.first_name.trim(), last_name: f.last_name.trim(), email: f.email.trim(),
         phone: f.phone.trim(), country: f.country.trim(),
         address: f.address || null, city: f.city || null, postal_code: f.postal_code || null,
@@ -342,14 +513,17 @@
       } else {
         state.error = 'Something went wrong on our side. Please try again, or message us on WhatsApp.';
       }
-      render(); focusPanel(state.step === 'done' ? '.panel button' : '[data-error]');
+      render(); focusIn(list, state.step === 'done' ? 'button' : '[data-error]');
     }).catch(function () {
       state.sending = false;
       state.error = 'No connection. Please try again, or message us on WhatsApp.';
-      render(); focusPanel('[data-error]');
+      render(); focusIn(list, '[data-error]');
     });
   });
 
   render();
-  if (state.openId) focusPanel();
+  if (preRoom && BY_ID[preRoom]) {
+    var pre = document.getElementById('room-' + preRoom);
+    if (pre) pre.scrollIntoView({ block: 'start' });
+  }
 })();

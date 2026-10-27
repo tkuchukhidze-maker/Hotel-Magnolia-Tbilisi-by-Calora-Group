@@ -44,7 +44,7 @@ class SiteTest extends TestCase
     {
         Mail::fake();
 
-        $res = $this->postJson(route('bookings.store'), $this->payload(['room' => 'deluxe', 'rate' => 'bf', 'nights' => 3]));
+        $res = $this->postJson(route('bookings.store'), $this->payload(['items' => [['room' => 'deluxe', 'qty' => 1]], 'rate' => 'bf', 'nights' => 3]));
 
         $res->assertCreated()->assertJsonPath('total', 166 * 3);
         $this->assertDatabaseHas('bookings', ['room' => 'deluxe', 'total' => 498, 'email' => 'guest@example.com']);
@@ -55,18 +55,76 @@ class SiteTest extends TestCase
     {
         Mail::fake();
 
-        $this->postJson(route('bookings.store'), $this->payload(['room' => 'double', 'adults' => 1, 'nights' => 2]))
+        $this->postJson(route('bookings.store'), $this->payload(['items' => [['room' => 'double', 'qty' => 1]], 'adults' => 1, 'nights' => 2]))
             ->assertCreated()
             ->assertJsonPath('total', 106 * 2);
     }
 
     public function test_room_capacity_is_enforced(): void
     {
-        $this->postJson(route('bookings.store'), $this->payload(['room' => 'double', 'adults' => 3]))
+        $this->postJson(route('bookings.store'), $this->payload(['adults' => 3]))
             ->assertStatus(422)
-            ->assertJsonValidationErrors('room');
+            ->assertJsonValidationErrors('items');
+
+        // Children count towards beds too.
+        $this->postJson(route('bookings.store'), $this->payload(['children' => 1, 'children_ages' => [6]]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('items');
 
         $this->assertSame(0, Booking::count());
+    }
+
+    public function test_big_group_can_book_several_rooms_of_several_types(): void
+    {
+        Mail::fake();
+
+        $res = $this->postJson(route('bookings.store'), $this->payload([
+            'items' => [['room' => 'double', 'qty' => 2], ['room' => 'triple', 'qty' => 1]],
+            'adults' => 5,
+            'children' => 2,
+            'children_ages' => [4, 11],
+            'nights' => 2,
+        ]));
+
+        // 2 × 129 + 190 = 448 per night.
+        $res->assertCreated()->assertJsonPath('nightly', 448)->assertJsonPath('total', 896);
+
+        $booking = Booking::first();
+        $this->assertSame(3, $booking->rooms_count);
+        $this->assertSame([4, 11], $booking->children_ages);
+        $this->assertSame('double', $booking->room);
+        $this->assertSame('2 × Double Room, 1 × Triple Room', $booking->roomsSummary());
+    }
+
+    public function test_cannot_book_more_rooms_than_available(): void
+    {
+        $stock = config('hotel.rooms.triple.stock');
+
+        $this->postJson(route('bookings.store'), $this->payload([
+            'items' => [['room' => 'triple', 'qty' => $stock + 1]],
+            'adults' => 3 * ($stock + 1) > 12 ? 12 : 3 * ($stock + 1),
+        ]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('items.0.qty');
+    }
+
+    public function test_each_child_needs_an_age(): void
+    {
+        $this->postJson(route('bookings.store'), $this->payload([
+            'items' => [['room' => 'triple', 'qty' => 1]],
+            'children' => 1,
+            'children_ages' => [],
+        ]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('children_ages');
+
+        $this->postJson(route('bookings.store'), $this->payload([
+            'items' => [['room' => 'triple', 'qty' => 1]],
+            'children' => 1,
+            'children_ages' => [25],
+        ]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('children_ages.0');
     }
 
     public function test_guest_details_and_privacy_consent_are_required(): void
@@ -106,20 +164,21 @@ class SiteTest extends TestCase
 
     public function test_invalid_input_is_rejected(): void
     {
-        $this->postJson(route('bookings.store'), $this->payload(['email' => 'nope', 'checkin' => '2000-01-01', 'room' => 'penthouse']))
+        $this->postJson(route('bookings.store'), $this->payload(['email' => 'nope', 'checkin' => '2000-01-01', 'items' => [['room' => 'penthouse', 'qty' => 1]]]))
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['email', 'checkin', 'room']);
+            ->assertJsonValidationErrors(['email', 'checkin', 'items.0.room']);
     }
 
     private function payload(array $override = []): array
     {
         return array_merge([
-            'room' => 'double',
+            'items' => [['room' => 'double', 'qty' => 1]],
             'rate' => 'room',
             'checkin' => now()->addDays(10)->toDateString(),
             'nights' => 2,
             'adults' => 2,
             'children' => 0,
+            'children_ages' => [],
             'first_name' => 'Nino',
             'last_name' => 'Beridze',
             'email' => 'guest@example.com',

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\BookingReceived;
 use App\Models\Booking;
+use App\Support\BookingQuote;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -16,20 +17,24 @@ use Illuminate\Validation\ValidationException;
 class BookingController extends Controller
 {
     /**
-     * Store a booking request. The total is always recalculated on the
-     * server from config/hotel.php — never trusted from the browser.
+     * Store a booking request: one or more rooms of one or more types.
+     * The total is always recalculated on the server from config/hotel.php.
      */
     public function store(Request $request): JsonResponse
     {
         $rooms = config('hotel.rooms');
 
         $data = $request->validate([
-            'room' => ['required', Rule::in(array_keys($rooms))],
+            'items' => ['required', 'array', 'min:1', 'max:'.count($rooms)],
+            'items.*.room' => ['required', 'distinct', Rule::in(array_keys($rooms))],
+            'items.*.qty' => ['required', 'integer', 'min:1', 'max:10'],
             'rate' => ['required', Rule::in(['room', 'bf'])],
             'checkin' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
             'nights' => ['required', 'integer', 'min:1', 'max:'.config('hotel.max_nights')],
-            'adults' => ['required', 'integer', 'min:1', 'max:'.config('hotel.max_guests')],
-            'children' => ['required', 'integer', 'min:0', 'max:2'],
+            'adults' => ['required', 'integer', 'min:1', 'max:'.config('hotel.max_adults')],
+            'children' => ['required', 'integer', 'min:0', 'max:'.config('hotel.max_children')],
+            'children_ages' => ['present', 'array'],
+            'children_ages.*' => ['required', 'integer', 'min:0', 'max:'.config('hotel.child_max_age')],
             'first_name' => ['required', 'string', 'max:80'],
             'last_name' => ['required', 'string', 'max:80'],
             'email' => ['required', 'email', 'max:160'],
@@ -42,6 +47,7 @@ class BookingController extends Controller
             'notes' => ['nullable', 'string', 'max:1000'],
             'privacy' => ['accepted'],
         ], [
+            'items.required' => 'Please choose at least one room.',
             'first_name.required' => 'Please add your first name.',
             'last_name.required' => 'Please add your last name.',
             'email.required' => 'Please add your email.',
@@ -53,32 +59,46 @@ class BookingController extends Controller
             'privacy.accepted' => 'Please agree to the privacy policy to book.',
             'checkin.required' => 'Please choose your check-in date.',
             'checkin.after_or_equal' => 'Check-in can\'t be in the past.',
+            'children_ages.*.required' => 'Please add the age of each child.',
         ]);
 
-        $room = $rooms[$data['room']];
-        $guests = $data['adults'] + $data['children'];
-
-        if ($guests > $room['cap']) {
-            throw ValidationException::withMessages([
-                'room' => 'This room is too small for '.$guests.' guests.',
-            ]);
+        // Room stock and children's ages must match what was asked for.
+        $errors = [];
+        foreach ($data['items'] as $i => $item) {
+            $stock = $rooms[$item['room']]['stock'];
+            if ($item['qty'] > $stock) {
+                $errors["items.$i.qty"] = 'Only '.$stock.' '.$rooms[$item['room']]['name'].($stock === 1 ? ' is' : 's are').' available.';
+            }
+        }
+        if (count($data['children_ages']) !== (int) $data['children']) {
+            $errors['children_ages'] = 'Please add the age of each child.';
         }
 
-        $prices = $guests === 1 ? $room['p1'] : $room['p2'];
-        $nightly = $data['rate'] === 'bf' ? $prices[1] : $prices[0];
+        $guests = $data['adults'] + $data['children'];
+        $quote = new BookingQuote($data['items'], $guests, $data['rate'], $data['nights']);
+
+        if ($quote->capacity < $guests) {
+            $errors['items'] = 'These rooms sleep '.$quote->capacity.', but you are '.$guests.' guests. Please add another room.';
+        }
+        if ($errors) {
+            throw ValidationException::withMessages($errors);
+        }
+
         $checkin = Carbon::createFromFormat('Y-m-d', $data['checkin'])->startOfDay();
 
         $booking = Booking::create([
             'reference' => $this->newReference(),
-            'room' => $data['room'],
+            'items' => $quote->lines,
+            'rooms_count' => $quote->rooms,
             'rate' => $data['rate'],
             'checkin' => $checkin,
             'checkout' => $checkin->copy()->addDays($data['nights']),
             'nights' => $data['nights'],
             'adults' => $data['adults'],
             'children' => $data['children'],
-            'nightly_price' => $nightly,
-            'total' => $nightly * $data['nights'],
+            'children_ages' => array_values($data['children_ages']),
+            'nightly_price' => $quote->nightly,
+            'total' => $quote->total,
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'email' => $data['email'],
@@ -102,6 +122,8 @@ class BookingController extends Controller
 
         return response()->json([
             'reference' => $booking->reference,
+            'items' => $quote->lines,
+            'nightly' => $quote->nightly,
             'total' => $booking->total,
             'checkin' => $booking->checkin->toDateString(),
             'checkout' => $booking->checkout->toDateString(),

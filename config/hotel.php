@@ -89,7 +89,11 @@ return [
         ['What is special about the hotel?', 'Magnolia is a small hotel in a restored brick house, with classic furniture, a rooftop terrace with glass domes facing Mount Mtatsminda, and a 127-year-old magnolia tree in the courtyard.'],
     ],
 
-    'max_guests' => 3,
+    // Booking limits. Larger groups are asked to contact the hotel.
+    // 'stock' on each room = how many rooms of that type can be booked at once.
+    'max_adults' => 12,
+    'max_children' => 6,
+    'child_max_age' => 17,
     'max_nights' => 30,
 
     'rooms' => [
@@ -98,7 +102,7 @@ return [
             'alt' => 'Double Room with a skylight over a writing desk, a sofa and a king bed',
             'cap' => 2, 'size' => '18 m²', 'bed' => 'King bed', 'extra' => 'Skylight',
             'blurb' => 'Skylight above, king bed below. Simple, quiet and our best value for two.',
-            'left' => 'Only 7 left',
+            'stock' => 7,
             'p2' => [129, 142], 'w2' => 172, 'p1' => [106, 117], 'w1' => 142,
         ],
         'deluxe' => [
@@ -106,7 +110,7 @@ return [
             'alt' => 'Deluxe Room with two skylights, a king bed and a red armchair',
             'cap' => 2, 'size' => '30 m²', 'bed' => 'King bed', 'extra' => 'Balcony',
             'blurb' => 'Our biggest room, with a balcony. Space to unpack properly and stay a while.',
-            'left' => 'Only 4 left',
+            'stock' => 4,
             'p2' => [152, 166], 'w2' => 202, 'p1' => [129, 142], 'w1' => 172,
         ],
         'twin' => [
@@ -114,7 +118,7 @@ return [
             'alt' => 'Double or Twin Room with dusty blue walls, two beds and a framed painting',
             'cap' => 2, 'size' => '26 m²', 'bed' => '2 single beds', 'extra' => 'Original art',
             'blurb' => 'Two beds, blue walls and a painting of Georgian haystacks to wake up to.',
-            'left' => '',
+            'stock' => 3, // [confirm real number]
             'p2' => [137, 150], 'w2' => 182, 'p1' => [114, 125], 'w1' => 152,
         ],
         'triple' => [
@@ -122,7 +126,7 @@ return [
             'alt' => '',
             'cap' => 3, 'size' => '26 m²', 'bed' => '3 single beds', 'extra' => 'Balcony',
             'blurb' => 'Three beds and a balcony, for families or friends travelling together.',
-            'left' => '',
+            'stock' => 2, // [confirm real number]
             'p2' => [190, 208], 'w2' => 253, 'p1' => [167, 183], 'w1' => 222,
         ],
         'single' => [
@@ -130,7 +134,7 @@ return [
             'alt' => '',
             'cap' => 1, 'size' => '15 m²', 'bed' => 'Single bed', 'extra' => 'Quiet',
             'blurb' => 'A small, calm room of your own, close to everything.',
-            'left' => 'Only 4 left',
+            'stock' => 4,
             'p2' => [106, 117], 'w2' => 142, 'p1' => [106, 117], 'w1' => 142,
         ],
     ],

@@ -19,7 +19,7 @@ class BookingReceived extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New booking '.$this->booking->reference.' — '.$this->booking->roomName(),
+            subject: 'New booking '.$this->booking->reference.' — '.$this->booking->roomsSummary(),
             replyTo: [new Address($this->booking->email, $this->booking->guestName())],
         );
     }
