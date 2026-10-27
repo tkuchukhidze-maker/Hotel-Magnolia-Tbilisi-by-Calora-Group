@@ -7,6 +7,7 @@ Total:     GEL {{ $booking->total }} (GEL {{ $booking->nightly_price }} per nigh
 
 Guest:     {{ $booking->guestName() }}
 Country:   {{ $booking->country }}
+Address:   {{ collect([$booking->address, $booking->postal_code, $booking->city])->filter()->unique()->implode(', ') ?: '—' }}
 Email:     {{ $booking->email }}
 Phone:     {{ $booking->phone }}
 Arrival:   {{ $booking->arrival ?: '—' }}

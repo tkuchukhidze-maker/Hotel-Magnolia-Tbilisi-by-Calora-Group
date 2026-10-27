@@ -90,7 +90,18 @@ class SiteTest extends TestCase
         $this->assertSame('Nino Beridze', $booking->guestName());
         $this->assertSame('Georgia', $booking->country);
         $this->assertNotNull($booking->privacy_accepted_at);
+        $this->assertSame('12 Rustaveli Ave, Tbilisi, Georgia', $booking->address);
+        $this->assertSame('0108', $booking->postal_code);
         $this->get(route('privacy'))->assertOk()->assertSee('What we collect');
+    }
+
+    public function test_google_maps_loads_only_with_a_key(): void
+    {
+        config(['hotel.google.maps_key' => '']);
+        $this->get(route('contact'))->assertDontSee('MAGNOLIA_MAPS', false)->assertSee('output=embed', false);
+
+        config(['hotel.google.maps_key' => 'test-key']);
+        $this->get(route('contact'))->assertSee('MAGNOLIA_MAPS', false)->assertSee('data-hotel-map', false);
     }
 
     public function test_invalid_input_is_rejected(): void
@@ -114,6 +125,9 @@ class SiteTest extends TestCase
             'email' => 'guest@example.com',
             'phone' => '+995 555 00 00 00',
             'country' => 'Georgia',
+            'address' => '12 Rustaveli Ave, Tbilisi, Georgia',
+            'city' => 'Tbilisi',
+            'postal_code' => '0108',
             'arrival' => 'Evening',
             'notes' => null,
             'privacy' => true,

@@ -397,3 +397,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }
+
+/* ---------- Google Maps ---------- */
+.hotel-map { height: 340px; border-radius: 18px; }
+.hotel-map .gm-style-iw-c { border-radius: 14px !important; }
+.address-field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; }
+.address-field gmp-place-autocomplete { width: 100%; color-scheme: light; border: 1px solid #D9C7AE; border-radius: 12px; background: #fff; font-weight: 500; }
+.address-field__picked { font-size: 13px; font-weight: 600; color: var(--ok); margin: 0; }

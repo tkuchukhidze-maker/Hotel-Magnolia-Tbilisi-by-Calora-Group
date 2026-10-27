@@ -13,13 +13,13 @@
 <p class="small">[Draft — have it reviewed by a lawyer before launch.] Last updated: [date]</p>
 
 <h2 class="h3" style="font-size:30px">What we collect</h2>
-<p class="lead" style="font-size:17px">When you book, we ask for your first and last name, email, phone or WhatsApp number, country, arrival time and anything you choose to tell us in the notes, together with your dates, room, rate and number of guests.</p>
+<p class="lead" style="font-size:17px">When you book, we ask for your first and last name, email, phone or WhatsApp number, country, home address if you choose to give it, arrival time and anything you choose to tell us in the notes, together with your dates, room, rate and number of guests.</p>
 
 <h2 class="h3" style="font-size:30px">Why we use it</h2>
 <p class="lead" style="font-size:17px">Only to handle your stay: to confirm and manage your booking, contact you about it, prepare your room and meet the registration rules for hotels in Georgia. We don't sell your details or use them for advertising.</p>
 
 <h2 class="h3" style="font-size:30px">Who sees it</h2>
-<p class="lead" style="font-size:17px">Our hotel staff, and the services we use to run the website and send email. [List providers: hosting, email, booking engine/PMS.]</p>
+<p class="lead" style="font-size:17px">Our hotel staff, and the services we use to run the website and send email. When you type in the address field, Google Maps suggests matching addresses, so what you type is sent to Google. [List providers: hosting, email, booking engine/PMS.]</p>
 
 <h2 class="h3" style="font-size:30px">How long we keep it</h2>
 <p class="lead" style="font-size:17px">[For as long as needed for your booking and as required by law — e.g. N years.]</p>

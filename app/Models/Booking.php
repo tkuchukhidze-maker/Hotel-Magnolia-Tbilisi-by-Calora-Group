@@ -10,6 +10,7 @@ class Booking extends Model
         'reference', 'room', 'rate', 'checkin', 'checkout', 'nights',
         'adults', 'children', 'nightly_price', 'total',
         'first_name', 'last_name', 'email', 'phone', 'country',
+        'address', 'city', 'postal_code',
         'arrival', 'notes', 'privacy_accepted_at', 'status',
     ];
 

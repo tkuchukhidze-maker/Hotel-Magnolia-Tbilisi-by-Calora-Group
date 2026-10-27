@@ -105,3 +105,14 @@ Fonts: Cormorant Garamond (headings) + Manrope (text).
 ## Before launch — to fill in
 
 Search the views and `config/hotel.php` for `[` to find every placeholder: address and contacts, check-in/out times, cancellation deadline, payment methods, breakfast hours, children/pets policy, airport transfer, offer end date, price-match terms, real guest reviews and review count, Triple/Single photos, Google Map embed, building history.
+
+## Google Maps
+
+With `GOOGLE_MAPS_API_KEY` set, the site shows a **brand-styled map** (Explore and Contact pages) with a magnolia pin, an info window and "Get directions", and the booking form gets **Google address autocomplete** (it also fills the guest's country). Without a key, a plain map embed and a normal address field are used.
+
+1. Google Cloud → APIs & Services → enable **Maps JavaScript API**, **Places API (New)** and **Geocoding API**.
+2. Credentials → create an API key → **Application restrictions: Websites** → add `https://your-domain.ge/*` (and the Laravel Cloud preview domain) → **API restrictions**: the three APIs above.
+3. Put it in `.env`: `GOOGLE_MAPS_API_KEY=...`
+4. Optional: set `HOTEL_LAT` / `HOTEL_LNG` to the exact pin position (right-click the hotel in Google Maps to copy them). Otherwise the address is looked up in the browser.
+
+Code: `public/assets/js/maps.js`, `resources/views/partials/maps-config.blade.php`, `partials/map.blade.php`.

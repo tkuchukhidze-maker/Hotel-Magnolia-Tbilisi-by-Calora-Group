@@ -117,6 +117,11 @@
             '<label class="input">Email *<input name="email" type="email" autocomplete="email" required maxlength="160" value="' + esc(f.email) + '"></label>' +
             '<label class="input">Phone / WhatsApp *<input name="phone" type="tel" autocomplete="tel" required placeholder="+995 5XX XX XX XX" maxlength="40" value="' + esc(f.phone) + '"></label>' +
           '</div>' +
+          '<div class="address-field"><label for="address-input">Home address (optional)</label>' +
+            '<div data-address-host><input id="address-input" name="address_text" type="text" autocomplete="street-address" maxlength="255" placeholder="Start typing your address" value="' + esc(f.address) + '" style="font:500 16px var(--font-text);border:1px solid #D9C7AE;border-radius:12px;padding:12px 14px;background:#fff;color:var(--cocoa);width:100%;box-sizing:border-box"></div>' +
+            '<p class="address-field__picked" data-address-picked' + (f.address ? '' : ' hidden') + '>✓ ' + esc(f.address) + '</p>' +
+            '<input type="hidden" name="address" value="' + esc(f.address) + '"><input type="hidden" name="city" value="' + esc(f.city) + '"><input type="hidden" name="postal_code" value="' + esc(f.postal_code) + '">' +
+          '</div>' +
           '<div class="form-grid">' +
             '<label class="input">Country *<input name="country" type="text" autocomplete="country-name" list="countries" required maxlength="80" value="' + esc(f.country) + '"></label>' +
             '<label class="input">Arrival time<select name="arrival">' + ['I don\'t know yet', 'Morning', 'Afternoon', 'Evening', 'Late night'].map(function (o) { return '<option' + (f.arrival === o ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select></label>' +
@@ -205,6 +210,7 @@
       html += '<div class="hint-box"><span>' + plural(hidden, 'room is', 'rooms are') + ' too small for ' + guestsLabel() + '. Travelling as a bigger group? We\'ll put you in rooms next to each other.</span><a href="' + esc(M.whatsapp) + '" class="link-arrow">Ask us on WhatsApp →</a></div>';
     }
     list.innerHTML = html;
+    mountAddress();
 
     if (mobilePrice && visible.length) {
       mobilePrice.textContent = gel(Math.min.apply(null, visible.map(function (r) { return prices(r).p[0]; })));
@@ -219,10 +225,36 @@
     if (first) setTimeout(function () { first.focus({ preventScroll: true }); }, 350);
   }
 
+  // Google address search (maps.js) replaces the plain address input when a Maps key is set.
+  function mountAddress() {
+    var host = list.querySelector('[data-address-host]');
+    if (!host || !window.MagnoliaMaps) return;
+    var form = host.closest('form');
+    window.MagnoliaMaps.mountAddressAutocomplete(host, function (a) {
+      state.form.address = a.address;
+      state.form.city = a.city;
+      state.form.postal_code = a.postal_code;
+      form.elements.namedItem('address').value = a.address;
+      form.elements.namedItem('city').value = a.city;
+      form.elements.namedItem('postal_code').value = a.postal_code;
+      var country = form.elements.namedItem('country');
+      if (a.country && country) { country.value = a.country; state.form.country = a.country; }
+      var picked = form.querySelector('[data-address-picked]');
+      picked.textContent = '✓ ' + a.address;
+      picked.hidden = false;
+    }).catch(function (err) { console.warn('Address search unavailable:', err); });
+  }
+
   function rememberForm() {
     var form = list.querySelector('[data-details]');
     if (!form) return;
-    ['first_name', 'last_name', 'email', 'phone', 'country', 'arrival', 'notes'].forEach(function (k) {
+    // A typed (not picked) address in the plain input is kept as-is.
+    var typed = form.elements.namedItem('address_text');
+    if (typed && typed.value.trim() && typed.value.trim() !== (state.form.address || '')) {
+      state.form.address = typed.value.trim(); state.form.city = ''; state.form.postal_code = '';
+      form.elements.namedItem('address').value = state.form.address;
+    }
+    ['first_name', 'last_name', 'email', 'phone', 'country', 'arrival', 'notes', 'address', 'city', 'postal_code'].forEach(function (k) {
       var el = form.elements.namedItem(k);
       if (el) state.form[k] = el.value;
     });
@@ -294,6 +326,7 @@
         adults: state.adults, children: state.kids,
         first_name: f.first_name.trim(), last_name: f.last_name.trim(), email: f.email.trim(),
         phone: f.phone.trim(), country: f.country.trim(),
+        address: f.address || null, city: f.city || null, postal_code: f.postal_code || null,
         arrival: f.arrival || null, notes: f.notes || null, privacy: true
       })
     }).then(function (res) {

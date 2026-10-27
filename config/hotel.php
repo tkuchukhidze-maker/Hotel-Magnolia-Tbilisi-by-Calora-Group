@@ -35,6 +35,17 @@ return [
         'booking_com' => env('HOTEL_BOOKING_COM', ''),
     ],
 
+    // Google Maps Platform. Without a key the site falls back to a plain
+    // map embed and a normal address field. The key is public by design:
+    // restrict it to your domain in Google Cloud (see README).
+    'google' => [
+        'maps_key' => env('GOOGLE_MAPS_API_KEY', ''),
+        // Exact pin position. Leave empty to look the address up once in the browser.
+        'lat' => env('HOTEL_LAT', ''),
+        'lng' => env('HOTEL_LNG', ''),
+        'directions' => 'https://www.google.com/maps/dir/?api=1&destination='.rawurlencode('Hotel Magnolia Tbilisi, 5 Kirile Ukleba St, Tbilisi, Georgia'),
+    ],
+
     // Where new booking requests are emailed.
     'bookings_email' => env('HOTEL_BOOKINGS_EMAIL', env('HOTEL_EMAIL', 'hello@example.com')),
 

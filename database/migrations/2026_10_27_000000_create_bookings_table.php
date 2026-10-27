@@ -25,6 +25,9 @@ return new class extends Migration
             $table->string('email', 160);
             $table->string('phone', 40);
             $table->string('country', 80);
+            $table->string('address', 255)->nullable();
+            $table->string('city', 120)->nullable();
+            $table->string('postal_code', 20)->nullable();
             $table->string('arrival', 40)->nullable();
             $table->text('notes')->nullable();
             $table->timestamp('privacy_accepted_at');
