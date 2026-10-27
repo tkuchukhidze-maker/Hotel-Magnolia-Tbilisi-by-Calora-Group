@@ -284,7 +284,7 @@
         '<p class="small" data-error role="alert"' + (state.error ? '' : ' hidden') + ' style="color:var(--terracotta);font-weight:700">' + esc(state.error) + '</p>' +
         '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
           '<button type="button" class="btn btn--outline" data-action="back">← Change rooms</button>' +
-          '<button type="submit" class="btn btn--primary" style="flex-grow:1"' + (state.sending ? ' disabled aria-busy="true"' : '') + '>' + (state.sending ? 'Sending…' : 'Send booking request · ' + gel(q.total + extrasTotal())) + '</button>' +
+          '<button type="submit" class="btn btn--primary" style="flex-grow:1"' + (state.sending ? ' disabled aria-busy="true"' : '') + '>' + (state.sending ? 'Sending…' : 'Book now · ' + gel(q.total + extrasTotal())) + '</button>' +
         '</div>' +
         '<p class="small">No card needed. You\'ll pay at the hotel.</p>' +
       '</form>' +
@@ -297,11 +297,11 @@
       (res.extras || []).map(function (x) { return '<li>' + esc(x.name) + ' · ' + gel(x.amount) + '</li>'; }).join('');
     return '<div class="checkout stack" role="status" style="gap:14px;align-items:flex-start">' +
       '<span class="done-icon">' + ICON.check + '</span>' +
-      '<h2 class="h3" style="margin:0">Request received. <em>We\'ll be in touch.</em></h2>' +
+      '<h2 class="h3" style="margin:0">Congratulations, you\'re booked. <em>We\'re expecting you.</em></h2>' +
       '<p class="lead" style="font-size:16px">' + fmtDate(res.checkin) + ' → ' + fmtDate(res.checkout) + ' · ' + guestsLabel() + '</p>' +
       '<ul class="checks" style="grid-template-columns:1fr">' + lines + '</ul>' +
-      '<p class="lead" style="font-size:16px">Quoted total ' + gel(res.total) + ', final terms require hotel confirmation. Request ref <strong>' + esc(res.reference) + '</strong>.</p>' +
-      '<p class="small">Your room is not reserved until our team confirms availability. Questions? <a href="' + esc(M.whatsapp) + '">WhatsApp us</a>.</p>' +
+      '<p class="lead" style="font-size:16px">Total ' + gel(res.total) + ', paid at the hotel. Booking ref <strong>' + esc(res.reference) + '</strong>.</p>' +
+      '<p class="small">We\'ve emailed the details to you. Questions? <a href="' + esc(M.whatsapp) + '">WhatsApp us</a>.</p>' +
       '<button type="button" class="btn btn--outline" data-action="restart">Make another booking</button>' +
     '</div>';
   }
@@ -375,7 +375,7 @@
         ex.map(function (e) { return '<div><span>' + esc(e.name) + '</span><span>' + gel(extraAmount(e)) + '</span></div>'; }).join('') +
         '<div class="muted"><span>Taxes &amp; fees</span><span>Included</span></div>' +
         '<div class="total"><strong>Total</strong><strong>' + gel(q.total + extrasTotal()) + '</strong></div>' +
-        '<p class="ok-note">This is a booking request; our team will confirm availability and cancellation terms.</p>' +
+        '<p class="ok-note">You pay nothing now. Cancellation: ' + esc((M.cancellation || '').toLowerCase()) + '.</p>' +
       '</div>';
     }
 

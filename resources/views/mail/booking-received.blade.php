@@ -1,4 +1,4 @@
-New booking request — {{ $booking->reference }}
+New booking — {{ $booking->reference }}
 
 Dates:     {{ $booking->checkin->format('D j M Y') }} → {{ $booking->checkout->format('D j M Y') }} ({{ $booking->nights }} {{ \Illuminate\Support\Str::plural('night', $booking->nights) }})
 Guests:    {{ $booking->adults }} {{ \Illuminate\Support\Str::plural('adult', $booking->adults) }}@if ($booking->children), {{ $booking->children }} {{ \Illuminate\Support\Str::plural('child', $booking->children) }} (ages {{ implode(', ', $booking->children_ages ?? []) }})@endif

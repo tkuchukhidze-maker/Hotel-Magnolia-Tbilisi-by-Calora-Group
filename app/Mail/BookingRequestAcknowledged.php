@@ -2,27 +2,33 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\UsesMailchimpTemplate;
 use App\Models\Booking;
+use App\Support\BookingMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Address;
+use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+/** Email to the guest right after booking: dates, rooms, total and how to find us. */
 class BookingRequestAcknowledged extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, UsesMailchimpTemplate;
 
-    public function __construct(public Booking $booking) {}
+    public function __construct(public Booking $booking)
+    {
+        $this->useMailchimpTemplate(BookingMail::GUEST_TEMPLATE);
+    }
 
     public function envelope(): Envelope
     {
-        $replyTo = config('hotel.contact.email');
+        $reply = BookingMail::replyTo();
 
         return new Envelope(
-            subject: 'We received your request '.$this->booking->reference.' | Hotel Magnolia Tbilisi',
-            replyTo: filter_var($replyTo, FILTER_VALIDATE_EMAIL) ? [new Address($replyTo, 'Hotel Magnolia Tbilisi')] : [],
+            subject: 'You\'re booked: '.BookingMail::shortDates($this->booking).' at Hotel Magnolia Tbilisi',
+            replyTo: $reply ? [new Address($reply, 'Hotel Magnolia Tbilisi')] : [],
         );
     }
 
@@ -31,6 +37,7 @@ class BookingRequestAcknowledged extends Mailable
         return new Content(
             view: 'mail.booking-guest-received',
             text: 'mail.booking-guest-received-text',
+            with: ['v' => BookingMail::vars($this->booking)],
         );
     }
 }

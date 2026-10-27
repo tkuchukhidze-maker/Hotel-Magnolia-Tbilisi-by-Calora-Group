@@ -8,6 +8,7 @@ on:
       - feature/autumn-offer-landing
       - feature/admin-calendar-media-services
       - feature/mailchimp-transactional
+      - feature/branded-booking-emails
       - fix/magnolia-admin-username-login
       - hotfix/public-500-database-fallback
       - fix/admin-404-main

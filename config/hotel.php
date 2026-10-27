@@ -108,6 +108,10 @@ return [
     // bucket and put its disk name here, so photos survive deploys.
     'media_disk' => env('HOTEL_MEDIA_DISK', 'public'),
 
+    // Booking emails: use the Mailchimp Transactional templates "magnolia-booking-guest"
+    // and "magnolia-booking-admin" (editable in Mailchimp). Off = the same design from our own views.
+    'mailchimp_templates' => (bool) env('HOTEL_MAILCHIMP_TEMPLATES', false),
+
     'rooms' => [
         'double' => [
             'name' => 'Double Room', 'img' => 'assets/img/room-double.webp',
