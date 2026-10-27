@@ -23,11 +23,11 @@ class AdminController extends Controller
 
     public function login(Request $request)
     {
-        $data = $request->validate(['email' => ['required','email'], 'password' => ['required','string']]);
-        $email = (string) config('hotel_admin.email', '');
+        $data = $request->validate(['username' => ['required', 'string', 'alpha_dash:ascii', 'max:64'], 'password' => ['required', 'string']]);
+        $username = (string) config('hotel_admin.username', 'admin');
         $hash = (string) config('hotel_admin.password_hash', '');
-        if ($email === '' || $hash === '' || !hash_equals(strtolower($email), strtolower($data['email'])) || !Hash::check($data['password'], $hash)) {
-            return back()->withErrors(['email' => 'Invalid credentials or admin account not configured.'])->onlyInput('email');
+        if ($username === '' || $hash === '' || !hash_equals($username, $data['username']) || !Hash::check($data['password'], $hash)) {
+            return back()->withErrors(['username' => 'Invalid credentials or admin account not configured.'])->onlyInput('username');
         }
         $request->session()->regenerate();
         $request->session()->put('magnolia_admin', true);

@@ -10,13 +10,13 @@ The dashboard and public website use the same Laravel database.
 ## Deployment checklist (authorized operator only)
 1. Review the draft pull request and complete PHP/Laravel and browser tests.
 2. Deploy and run php artisan migrate --force.
-3. Set MAGNOLIA_ADMIN_EMAIL and MAGNOLIA_ADMIN_PASSWORD_HASH as environment secrets in Laravel Cloud. Generate a secure bcrypt hash using Laravel Hash::make. Never commit the plain password or hash to GitHub.
+3. Set MAGNOLIA_ADMIN_USERNAME=admin and MAGNOLIA_ADMIN_PASSWORD_HASH as environment secrets in Laravel Cloud. The login uses a username, not an email. Generate a secure bcrypt hash using Laravel Hash::make. Never commit the plain password or hash to GitHub.
 4. Confirm APP_KEY, APP_URL, mail credentials, HTTPS, secure session cookies and CSRF protection.
 5. Run Laravel config cache refresh and verify sign-in and failed-login throttling.
 6. Test rate changes against public Rooms page and server-calculated booking requests.
 7. Back up the database and confirm status-change operations before enabling staff use.
 
-This first version supports only one server-configured administrator. Do not share one password among multiple employees. Before wider rollout add per-user roles, 2FA, audit logs, account revocation and explicit access controls.
+This first version supports only one server-configured administrator. Never commit the plaintext password or password hash to the repository. Do not share one password among multiple employees. Before wider rollout add per-user roles, 2FA, audit logs, account revocation and explicit access controls.
 
 ## Implemented modules
 

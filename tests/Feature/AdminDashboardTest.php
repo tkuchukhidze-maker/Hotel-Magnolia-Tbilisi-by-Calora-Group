@@ -34,16 +34,24 @@ class AdminDashboardTest extends TestCase
 
     public function test_admin_login_fails_closed_when_credentials_are_unconfigured(): void
     {
-        config(['hotel_admin.email' => '', 'hotel_admin.password_hash' => '']);
-        $this->post('/admin/login', ['email' => 'admin@example.com', 'password' => 'unsafe'])
-            ->assertSessionHasErrors('email');
+        config(['hotel_admin.username' => 'admin', 'hotel_admin.password_hash' => '']);
+        $this->post('/admin/login', ['username' => 'admin', 'password' => 'unsafe'])
+            ->assertSessionHasErrors('username');
+    }
+
+    public function test_incorrect_username_is_rejected(): void
+    {
+        config(['hotel_admin.username' => 'admin',
+                'hotel_admin.password_hash' => Hash::make('VeryLongTestPassword!')]);
+        $this->post('/admin/login', ['username' => 'wrong', 'password' => 'VeryLongTestPassword!'])
+            ->assertSessionHasErrors('username');
     }
 
     public function test_admin_can_login_and_change_prices(): void
     {
-        config(['hotel_admin.email' => 'manager@example.com',
+        config(['hotel_admin.username' => 'admin',
                 'hotel_admin.password_hash' => Hash::make('VeryLongTestPassword!')]);
-        $this->post('/admin/login', ['email' => 'manager@example.com', 'password' => 'VeryLongTestPassword!'])
+        $this->post('/admin/login', ['username' => 'admin', 'password' => 'VeryLongTestPassword!'])
             ->assertRedirect('/admin');
 
         $this->get('/admin')->assertOk()->assertSee('Magnolia Management');
