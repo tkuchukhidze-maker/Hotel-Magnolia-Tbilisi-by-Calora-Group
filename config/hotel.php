@@ -50,7 +50,7 @@ return [
     ],
 
     // Where new booking requests are emailed.
-    'bookings_email' => env('HOTEL_BOOKINGS_EMAIL', env('HOTEL_EMAIL', 'hello@example.com')),
+    'bookings_email' => env('HOTEL_BOOKINGS_EMAIL', 'K.tsitlidze@episodegroup.ge'),
 
     // The book-direct offer. Prices above (p1/p2) are the offer prices; when
     // `ends` has passed they automatically go back to the full price (w1/w2),

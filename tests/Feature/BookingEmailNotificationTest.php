@@ -60,6 +60,19 @@ class BookingEmailNotificationTest extends TestCase
         Mail::assertSentCount(2);
     }
 
+    public function test_default_manager_email_is_the_episodegroup_inbox(): void
+    {
+        Mail::fake();
+
+        $this->assertSame('K.tsitlidze@episodegroup.ge', config('hotel.bookings_email'));
+
+        $this->postJson(route('bookings.store'), $this->payload())->assertCreated();
+
+        Mail::assertSent(BookingReceived::class, fn ($mail) =>
+            $mail->hasTo('K.tsitlidze@episodegroup.ge')
+        );
+    }
+
     public function test_guest_confirmation_explicitly_says_request_is_not_confirmed(): void
     {
         Mail::fake();
