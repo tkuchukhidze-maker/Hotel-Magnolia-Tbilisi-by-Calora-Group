@@ -56,6 +56,6 @@ class Booking extends Model
 
     public function rateName(): string
     {
-        return $this->rate === 'bf' ? 'with breakfast' : 'room only';
+        return \App\Support\RoomPricing::plansAsNames()[$this->rate] ?? $this->rate;
     }
 }

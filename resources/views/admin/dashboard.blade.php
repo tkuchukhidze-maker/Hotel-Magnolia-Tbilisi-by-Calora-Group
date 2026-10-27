@@ -5,7 +5,7 @@
 </style></head><body>
 <header><div><h1>Magnolia Management</h1><small>Hotel operations · private dashboard</small></div><form method="post" action="{{ route('admin.logout') }}">@csrf<button>Sign out</button></form></header>
 <main>
-<nav><a href="#overview">Overview</a><a href="#bookings">Bookings</a><a href="#rooms">Room prices</a><a href="#promotions">Promotions</a><a href="#analytics">Analytics & integrations</a></nav>
+<nav><a href="#overview">Overview</a><a href="#bookings">Bookings</a><a href="{{ route('admin.pricing.index') }}">Pricing calendar</a><a href="#rooms">Base rates</a><a href="#promotions">Promotions</a><a href="#analytics">Analytics & integrations</a></nav>
 @if(session('success'))<p class="success" role="status">{{ session('success') }}</p>@endif
 @if($errors->any())<p class="notice" role="alert">{{ $errors->first() }}</p>@endif
 <section id="overview"><h2>Overview</h2><div class="metrics">
@@ -19,7 +19,7 @@
 <form class="inline" method="post" action="{{ route('admin.bookings.status', $booking) }}">@csrf @method('PATCH')
 <select name="status" aria-label="Status for {{ $booking->reference }}">@foreach(['requested','confirmed','cancelled','rejected','checked_in','checked_out'] as $status)<option value="{{ $status }}" @selected($booking->status === $status)>{{ ucfirst(str_replace('_',' ',$status)) }}</option>@endforeach</select><button>Save</button></form></td></tr>
 @empty<tr><td colspan="8">No booking requests yet.</td></tr>@endforelse</tbody></table></div></section>
-<section id="rooms" class="panel"><h2>Room prices</h2><p>Rates are GEL per room / night, for 1 or 2 guests, with or without breakfast. Updates apply to new requests, not existing bookings.</p><div class="room-grid">
+<section id="rooms" class="panel"><h2>Basic room prices</h2><p><a class="btn" href="{{ route('admin.pricing.index') }}">Open pricing calendar →</a></p><p>Rates are GEL per room / night, for 1 or 2 guests, with or without breakfast. Updates apply to new requests, not existing bookings.</p><div class="room-grid">
 @foreach($rooms as $id => $room)@php($override = $overrides->get($id))
 <article><h3>{{ $room['name'] }}</h3><p>{{ $room['size'] }} · standard max {{ $room['cap'] }} guests</p>
 <form method="post" action="{{ route('admin.rooms.rate', $id) }}">@csrf @method('PUT')
