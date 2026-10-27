@@ -4,6 +4,6 @@
 <body><main><h1>Magnolia Management</h1><p>Authorized hotel staff only.</p>
 @if($errors->any())<p class="error" role="alert">{{ $errors->first() }}</p>@endif
 <form method="post" action="{{ route('admin.login.submit') }}">@csrf
-<label for="email">Email</label><input id="email" name="email" type="email" autocomplete="username" value="{{ old('email') }}" required>
+<label for="username">Username</label><input id="username" name="username" type="text" autocomplete="username" maxlength="64" value="{{ old('username', 'admin') }}" required>
 <label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required>
 <button type="submit">Sign in</button></form></main></body></html>
