@@ -25,8 +25,10 @@ $extras = [
     ['Garden & terrace', 'Green below, the whole city above.'],
     ['Family rooms', 'Triples with a balcony.'],
     ['Air conditioning', 'In every room.'],
-    ['Airport transfer', '[On request — confirm]'],
 ];
+if (\App\Support\HotelFacts::filled(config('hotel.arrival.transfer'))) {
+    $extras[] = ['Airport transfer', config('hotel.arrival.transfer')];
+}
 @endphp
 
 @section('content')
@@ -44,7 +46,9 @@ $extras = [
 <h2 class="h3">An old brick house that likes having guests.</h2>
 <p class="lead">We're a small hotel in the historic heart of Tbilisi. Inside you'll find classic furniture, floral fabrics, gold frames and lamps that each have their own idea of light.</p>
 <p class="lead">We kept the thick walls, the carved door and the wrought iron, then added a light new roof with glass domes and a terrace. It feels less like checking in and more like visiting someone with good taste and a garden.</p>
-<p class="lead">[One or two lines about the building's history — year built, what it was before.]</p>
+@if (\App\Support\HotelFacts::filled(config('hotel.history')))
+<p class="lead">{{ config('hotel.history') }}</p>
+@endif
 <svg width="280" height="140" stroke-width="1.1" style="color:var(--terracotta);opacity:.55;max-width:100%" aria-hidden="true"><use href="#mg-branch"/></svg>
 </div>
 <div style="display:flex;gap:20px;align-items:flex-end">
@@ -59,7 +63,7 @@ $extras = [
 <h2 id="glance-h" class="h3" style="flex:1 1 220px">Magnolia <em>at a glance</em></h2>
 <dl class="facts" style="flex:3 1 560px">
 <div><dt>WHERE</dt><dd><a href="{{ config('hotel.contact.google_maps') }}">{{ config('hotel.contact.address') }}</a>, Old Town, Tbilisi</dd></div>
-<div><dt>NEARBY</dt><dd>Freedom Square 950 m · metro 750 m</dd></div>
+<div><dt>NEARBY</dt><dd>Freedom Square 950 m · metro 750 m · <a href="{{ route('explore') }}#walking-distances">walking times</a></dd></div>
 <div><dt>ROOMS</dt><dd>5 types, 15–30 m², 1–3 guests</dd></div>
 <div><dt>PRICES</dt><dd>From GEL {{ collect(\App\Support\RoomCatalog::all())->min(fn ($r) => $r['p1'][0]) }} a night, taxes included</dd></div>
 <div><dt>INCLUDED</dt><dd>Free parking, Wi‑Fi, air conditioning</dd></div>

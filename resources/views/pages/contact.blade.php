@@ -1,12 +1,7 @@
 @extends('layouts.app')
 @php($c = config('hotel.contact'))
-@php($p = config('hotel.policies'))
 @php($faq = config('hotel.faq'))
-@php($facts = [
-    'Check-in' => $p['check_in'], 'Check-out' => $p['check_out'], 'Cancellation' => $p['cancellation'],
-    'Payment' => $p['payment'], 'Breakfast' => $p['breakfast'], 'Parking' => $p['parking'],
-    'Children' => $p['children'], 'Pets' => $p['pets'],
-])
+@php($facts = \App\Support\HotelFacts::policies())
 
 @section('title', 'Contact, Check-in & FAQ | Hotel Magnolia Tbilisi by Calora Group')
 @section('description', 'Call or WhatsApp +995 533 33 44 22, 24 hours. Hotel Magnolia Tbilisi by Calora Group, 5 Kirile Ukleba St, Old Tbilisi. Check-in, cancellation, parking, breakfast and answers to common questions.')
@@ -32,8 +27,10 @@
 <div class="contact-cards">
 <a class="contact-card contact-card--accent" href="https://wa.me/{{ $c['whatsapp'] }}"><span class="eyebrow">Fastest</span><strong>WhatsApp us</strong><span>{{ $c['phone_display'] }} →</span></a>
 <a class="contact-card" href="tel:{{ $c['phone_tel'] }}"><span class="eyebrow">24 hours</span><strong>Call the front desk</strong><span>{{ $c['phone_display'] }}</span></a>
+@if (\App\Support\HotelFacts::filled($c['email_display']))
 <a class="contact-card" href="mailto:{{ $c['email'] }}"><span class="eyebrow">Email</span><strong>Write to us</strong><span>{{ $c['email_display'] }}</span></a>
-<a class="contact-card" href="{{ $c['google_maps'] }}"><span class="eyebrow">Address</span><strong>Find us</strong><address>{{ $c['address'] }}, Old Town, Tbilisi, Georgia</address></a>
+@endif
+<a class="contact-card" href="{{ $c['google_maps'] }}"><span class="eyebrow">Address</span><strong>Find us</strong><address>{{ $c['address'] }}, {{ $c['neighbourhood'] }}, Tbilisi, Georgia</address></a>
 </div>
 <div style="margin-top:16px">@include('partials.map')</div>
 </section>

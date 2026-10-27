@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\MarkdownController;
 use App\Http\Controllers\AdminPricingController;
 use App\Http\Controllers\PublicPricingController;
 use App\Http\Controllers\PageController;
@@ -47,6 +48,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
 Route::get('/llms.txt', [SeoController::class, 'llms'])->name('llms');
+
+// Markdown versions of the public pages (for AI assistants); HTML stays canonical.
+Route::get('/index.md', [MarkdownController::class, 'home'])->name('md.home');
+Route::get('/rooms.md', [MarkdownController::class, 'rooms'])->name('md.rooms');
+Route::get('/our-hotel.md', [MarkdownController::class, 'ourHotel'])->name('md.our-hotel');
+Route::get('/explore.md', [MarkdownController::class, 'explore'])->name('md.explore');
+Route::get('/contact.md', [MarkdownController::class, 'contact'])->name('md.contact');
+Route::get('/sitemap.md', [MarkdownController::class, 'sitemap'])->name('md.sitemap');
 
 
 // Staff-only AI Hotel Marketing Assistant; never published in the public site map.

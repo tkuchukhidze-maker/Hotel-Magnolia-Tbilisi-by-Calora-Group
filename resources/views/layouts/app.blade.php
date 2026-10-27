@@ -25,6 +25,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta name="description" content="@yield('description', 'A small hotel with a lot of character in Old Tbilisi.')">
 <meta name="robots" content="{{ app()->environment('production') ? 'index, follow, max-image-preview:large' : 'noindex, nofollow' }}">
 <link rel="canonical" href="{{ url()->current() }}">
+@php($mdPath = \App\Http\Controllers\MarkdownController::pathFor(request()->route()?->getName()))
+@if ($mdPath)
+<link rel="alternate" type="text/markdown" href="{{ url($mdPath) }}" title="Markdown version of this page">
+@endif
 <meta property="og:type" content="{{ request()->routeIs('home') ? 'website' : 'article' }}">
 <meta property="og:site_name" content="{{ config('hotel.name') }}">
 <meta property="og:locale" content="en_US">

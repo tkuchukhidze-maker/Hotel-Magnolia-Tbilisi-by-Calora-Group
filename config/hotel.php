@@ -73,12 +73,62 @@ return [
         'pets' => '[Policy]',
     ],
 
+    /*
+    | Anything still in [brackets] is hidden from guests, search engines and
+    | AI answers until it is filled in. Run `php artisan hotel:content-check`
+    | to list what is still missing.
+    */
+
+    // One or two factual lines about the building (Our Hotel page).
+    'history' => '[One or two lines about the building\'s history — year built, what it was before.]',
+
+    // Getting here. Distances are in metres from the hotel door.
+    'arrival' => [
+        'airport_m' => 15000,
+        'transfer' => '[Airport transfer: on request, price — confirm]',
+        'parking' => [
+            'summary' => 'Free for every guest, which is rare in Tbilisi\'s Old Town.',
+            'where' => '[Where guests park: courtyard / on the street — confirm]',
+            'spaces' => '[Number of spaces — confirm]',
+            'reserve' => '[Do guests need to reserve a space? — confirm]',
+        ],
+    ],
+
+    // What's nearby, [name, metres]. Walking times are worked out from the
+    // distance (about 80 m a minute) and shown as approximate.
+    'nearby' => [
+        'see' => [
+            ['Mtatsminda Pantheon', 550],
+            ['9 April Park', 700],
+            ['Freedom Square', 950],
+            ['Bridge of Peace', 1600],
+            ['Narikala Fortress', 2200],
+            ['National Botanical Garden', 2500],
+        ],
+        'eat' => [
+            ['Fox Bay', 500],
+            ['Chacha Time', 750],
+            ['About Sololaki', 900],
+        ],
+        'transport' => [
+            ['Freedom Square metro station', 750],
+            ['Rustaveli metro station', 1200],
+        ],
+    ],
+
     'rating' => [
         'score' => 10,
         'label' => 'Exceptional',
         'source' => 'Booking.com',
         'count' => '[N]',
+        // Link to the hotel's own page on the rating source.
+        'url' => env('HOTEL_BOOKING_COM', ''),
     ],
+
+    // Real guest reviews only, copied word for word, with permission.
+    // Each: ['quote' => '', 'name' => '', 'country' => '', 'source' => '', 'date' => 'October 2026']
+    // The reviews block on the home page stays hidden while this is empty.
+    'reviews' => [],
 
     // Short, factual answers. Shown on the Contact page, marked up as FAQPage
     // and listed in /llms.txt so search and AI answers can quote them.
@@ -92,6 +142,7 @@ return [
         ['Is booking directly cheaper than on Booking.com?', 'Booking on our website is never more expensive. If you find a lower price for the same room and dates, send it to us and we will match it.'],
         ['Is the front desk open 24 hours?', 'Yes. Someone is at the front desk day and night, and you can also reach us on WhatsApp at +995 533 33 44 22.'],
         ['Which room is best for a family of three?', 'The Triple Room: 26 m² with three single beds and a balcony. For larger groups we can give you rooms next to each other.'],
+        ['How far is Freedom Square on foot?', 'Freedom Square is 950 m from the hotel, about a 12-minute walk. The nearest metro, Freedom Square station, is 750 m away, and Rustaveli station 1.2 km.'],
         ['How far is the airport?', 'Tbilisi International Airport is about 15 km from the hotel.'],
         ['What is special about the hotel?', 'Magnolia is a small hotel in a restored brick house, with classic furniture, a rooftop terrace with glass domes facing Mount Mtatsminda, and a 127-year-old magnolia tree in the courtyard.'],
     ],

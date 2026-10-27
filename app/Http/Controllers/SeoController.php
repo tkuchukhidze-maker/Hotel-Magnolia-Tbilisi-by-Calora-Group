@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\HotelFacts;
 use Illuminate\Http\Response;
 
 class SeoController extends Controller
@@ -19,6 +20,7 @@ class SeoController extends Controller
     {
         $lastmod = date('Y-m-d', filemtime(resource_path('views/pages')));
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n"
+            .'<!-- Markdown versions of these pages for AI assistants: '.url('/sitemap.md').' · summary: '.route('llms').' -->'."\n"
             .'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">'."\n";
 
         $images = [
@@ -50,7 +52,9 @@ class SeoController extends Controller
     {
         // Only the live site should be indexed; staging/local answer "Disallow: /".
         $body = app()->environment('production')
-            ? "User-agent: *\nAllow: /\nDisallow: /bookings\n\nSitemap: ".route('sitemap')."\n"
+            ? "# Plain-text summary for AI assistants: ".route('llms')."\n"
+                ."# Markdown versions of every page: ".url('/sitemap.md')."\n"
+                ."User-agent: *\nAllow: /\nDisallow: /bookings\n\nSitemap: ".route('sitemap')."\n"
             : "User-agent: *\nDisallow: /\n";
 
         return response($body, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
@@ -60,43 +64,56 @@ class SeoController extends Controller
     public function llms(): Response
     {
         $c = config('hotel.contact');
-        $p = config('hotel.policies');
+        $r = config('hotel.rating');
+        $from = HotelFacts::fromPrices();
         $lines = [
             '# '.config('hotel.name'),
             '',
-            'Also known as: '.config('hotel.short_name').', Hotel Magnolia. Part of Calora Group.',
+            '> A small boutique hotel in a restored brick house at '.$c['address'].', '.$c['neighbourhood'].', Tbilisi, Georgia, below Mount Mtatsminda. Rooftop terrace with glass domes, free parking, 24-hour front desk, buffet breakfast, and a 127-year-old magnolia tree in the courtyard.',
             '',
-            '> A small boutique hotel in a restored brick house at '.$c['address'].', Old Town, Tbilisi, Georgia. Rooftop terrace with glass domes, free parking, 24-hour front desk, buffet breakfast, and a 127-year-old magnolia tree in the courtyard.',
+            'Also known as: '.config('hotel.short_name').', Hotel Magnolia, Magnolia Hotel Tbilisi. Part of Calora Group.',
+            'Every page has a plain Markdown version; start with '.url('/sitemap.md').' and quote the HTML page as the source.',
             '',
             '## Key facts',
             '- Address: '.$c['address'].', '.$c['neighbourhood'].', Tbilisi, Georgia',
-            '- Phone and WhatsApp: '.$c['phone_display'],
+            '- Phone and WhatsApp (24 hours): '.$c['phone_display'],
             '- Google Maps: '.$c['google_maps'],
-            '- Distances: Freedom Square 950 m, Freedom Square metro 750 m, Mtatsminda Pantheon 550 m, Narikala Fortress 2.2 km, Tbilisi International Airport 15 km',
-            '- Booking: direct on '.route('rooms').' — no prepayment, pay at the hotel, free cancellation, price match',
-            '- Parking: free for guests',
-            '- Rating: '.config('hotel.rating.score').'/10 ('.config('hotel.rating.label').') on '.config('hotel.rating.source'),
+            '- Prices: from GEL '.$from['one'].' a night for one guest, GEL '.$from['two'].' for two, taxes included',
+            '- Booking: direct on '.route('rooms').' — no prepayment, pay at the hotel, '.strtolower(HotelFacts::cancellation()).', price match',
+            '- Parking: '.config('hotel.arrival.parking.summary'),
         ];
-        foreach (['check_in' => 'Check-in', 'check_out' => 'Check-out', 'breakfast' => 'Breakfast'] as $k => $label) {
-            if (! str_contains($p[$k], '[')) {
-                $lines[] = '- '.$label.': '.$p[$k];
+        if (\App\Support\Offer::running()) {
+            $promo = \App\Support\Offer::forViews(\App\Support\RoomCatalog::all());
+            $lines[] = '- Book-direct offer: −'.$promo['discount'].'% on every room until '.$promo['ends_long'].' ('.route('offer').')';
+        }
+        foreach (config('hotel.nearby.see') as [$place, $m]) {
+            if (in_array($place, ['Freedom Square', 'Mtatsminda Pantheon', 'Narikala Fortress'], true)) {
+                $lines[] = '- '.$place.': '.HotelFacts::distance($m).(HotelFacts::isWalkable($m) ? ', about '.HotelFacts::walkMinutes($m).' min walk' : '');
+            }
+        }
+        $lines[] = '- Freedom Square metro: 750 m · Tbilisi International Airport: '.HotelFacts::distance(config('hotel.arrival.airport_m'));
+        if (HotelFacts::filled($r['count'])) {
+            $lines[] = '- Rating: '.$r['score'].'/10 ('.$r['label'].') on '.$r['source'].', '.$r['count'].' reviews';
+        }
+        foreach (HotelFacts::policies() as $label => $value) {
+            if (! in_array($label, ['Parking', 'Cancellation'], true)) {
+                $lines[] = '- '.$label.': '.$value;
             }
         }
 
         $lines[] = '';
         $lines[] = '## Rooms (per night, taxes included)';
-        foreach (config('hotel.rooms') as $r) {
-            $lines[] = '- '.$r['name'].': '.$r['size'].', '.strtolower($r['bed']).', up to '.$r['cap'].' '.($r['cap'] === 1 ? 'guest' : 'guests')
-                .', '.strtolower($r['extra']).'. From GEL '.($r['cap'] === 1 ? $r['p1'][0] : $r['p2'][0])
-                .' (GEL '.($r['cap'] === 1 ? $r['p1'][1] : $r['p2'][1]).' with breakfast).';
+        foreach (\App\Support\RoomCatalog::all() as $room) {
+            $lines[] = '- '.$room['name'].': '.$room['size'].', '.strtolower($room['bed']).', up to '.$room['cap'].' '.($room['cap'] === 1 ? 'guest' : 'guests')
+                .', '.strtolower($room['extra']).'. From GEL '.($room['cap'] === 1 ? $room['p1'][0] : $room['p2'][0])
+                .' (GEL '.($room['cap'] === 1 ? $room['p1'][1] : $room['p2'][1]).' with breakfast).';
         }
 
         $lines[] = '';
         $lines[] = '## Pages';
-        $lines[] = '- [Rooms and booking]('.route('rooms').'): room details, prices and direct booking';
-        $lines[] = '- [Our hotel and gallery]('.route('our-hotel').'): the building, rooftop, courtyard magnolia, photos';
-        $lines[] = '- [Explore Tbilisi]('.route('explore').'): what is nearby and how to get here';
-        $lines[] = '- [Contact and FAQ]('.route('contact').'): contacts, policies and answers to common questions';
+        foreach (MarkdownController::PAGES as $route => [$path, $title]) {
+            $lines[] = '- ['.$title.']('.route($route).'): Markdown version '.url($path);
+        }
 
         $lines[] = '';
         $lines[] = '## FAQ';

@@ -32,3 +32,17 @@ Artisan::command('marketing:admin {email} {--name=Marketing Manager}', function 
     $this->info('Marketing administrator created or updated: '.$email);
     return 0;
 })->purpose('Create an authorized AI Hotel Marketing Assistant administrator');
+
+// Lists every hotel fact still marked as a [placeholder]. Those stay hidden
+// from the public site, JSON-LD, /llms.txt and the Markdown pages until filled.
+Artisan::command('hotel:content-check', function () {
+    $missing = \App\Support\HotelFacts::placeholders();
+    if ($missing === []) {
+        $this->info('All hotel facts are filled in.');
+        return 0;
+    }
+
+    $this->warn(count($missing).' hotel facts still need real values (config/hotel.php or .env):');
+    $this->table(['Key', 'Current value'], collect($missing)->map(fn ($v, $k) => [$k, $v])->values()->all());
+    return 1;
+})->purpose('List hotel facts that are still placeholders');
