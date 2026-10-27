@@ -156,10 +156,17 @@ class SiteTest extends TestCase
     public function test_google_maps_loads_only_with_a_key(): void
     {
         config(['hotel.google.maps_key' => '']);
-        $this->get(route('contact'))->assertDontSee('MAGNOLIA_MAPS', false)->assertSee('output=embed', false);
+        $this->get(route('contact'))->assertDontSee('MAGNOLIA_MAPS', false)
+            ->assertSee('locator-plus/8z5f/locator-plus.html', false)
+            ->assertSee('Get directions', false);
 
         config(['hotel.google.maps_key' => 'test-key']);
-        $this->get(route('contact'))->assertSee('MAGNOLIA_MAPS', false)->assertSee('data-hotel-map', false);
+        $this->get(route('contact'))->assertSee('MAGNOLIA_MAPS', false)
+            ->assertSee('locator-plus/8z5f/locator-plus.html', false);
+
+        config(['hotel.google.locator_plus_iframe' => '']);
+        $this->get(route('contact'))->assertSee('data-hotel-map', false)
+            ->assertSee('output=embed', false);
     }
 
     public function test_invalid_input_is_rejected(): void

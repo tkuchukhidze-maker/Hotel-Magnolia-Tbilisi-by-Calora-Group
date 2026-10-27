@@ -64,11 +64,20 @@
 
   /* ---------- Branded map ---------- */
   function mountMap(el) {
+    var mapCanvas = null;
+    var fallback = el.querySelector('iframe');
     Promise.all([google.maps.importLibrary('maps'), google.maps.importLibrary('marker'), hotelPosition()])
       .then(function (r) {
         var maps = r[0], marker = r[1], pos = r[2];
-        el.innerHTML = '';
-        var map = new maps.Map(el, {
+        // Leave the embedded map visible until Google's interactive tiles have loaded.
+        // This also preserves a working map when billing, key restrictions, or network fail.
+        el.style.position = 'relative';
+        mapCanvas = document.createElement('div');
+        mapCanvas.style.cssText = 'position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .2s';
+        mapCanvas.setAttribute('role', 'region');
+        mapCanvas.setAttribute('aria-label', 'Interactive map showing ' + CFG.name);
+        el.appendChild(mapCanvas);
+        var map = new maps.Map(mapCanvas, {
           center: pos,
           zoom: 16,
           styles: BRAND_STYLE,
@@ -93,11 +102,18 @@
               '<a href="' + esc(CFG.directions) + '" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;background:#A94729;color:#fff;text-decoration:none;font-weight:700;font-size:13px;padding:8px 14px;border-radius:999px">Get directions</a>' +
             '</div>'
         });
+        google.maps.event.addListenerOnce(map, 'tilesloaded', function () {
+          mapCanvas.style.opacity = '1';
+          mapCanvas.style.pointerEvents = 'auto';
+          if (fallback) fallback.style.display = 'none';
+          el.setAttribute('data-map-ready', 'true');
+        });
         pin.addListener('click', function () { info.open({ map: map, anchor: pin }); });
         info.open({ map: map, anchor: pin });
       })
       .catch(function (err) {
         console.warn('Hotel map could not load:', err);
+        if (mapCanvas) mapCanvas.remove();
         // Keep the plain embed that the page already contains.
       });
   }
@@ -127,7 +143,12 @@
     enabled: true,
     mountAddressAutocomplete: function (host, onSelect) {
       return google.maps.importLibrary('places').then(function (places) {
-        var el = new places.PlaceAutocompleteElement({ types: ['address'] });
+        // The new widget no longer supports the legacy `types` option.
+        // Allow addresses worldwide: international guests enter their home address.
+        var el = new places.PlaceAutocompleteElement({
+          description: 'Home address',
+          placeholder: 'Start typing your address'
+        });
         el.id = 'address-autocomplete';
         el.setAttribute('aria-label', 'Home address');
         host.innerHTML = '';
