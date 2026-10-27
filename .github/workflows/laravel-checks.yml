@@ -9,6 +9,7 @@ on:
       - feature/admin-calendar-media-services
       - feature/mailchimp-transactional
       - feature/branded-booking-emails
+      - feature/zapier-ready-emails
       - feature/zapier-booking-webhook
       - fix/magnolia-admin-username-login
       - hotfix/public-500-database-fallback
