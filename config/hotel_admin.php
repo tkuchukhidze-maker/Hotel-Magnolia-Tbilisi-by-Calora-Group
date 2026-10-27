@@ -2,6 +2,6 @@
 
 return [
     // Set securely in deployment environment, never commit secrets.
-    'email' => env('MAGNOLIA_ADMIN_EMAIL', ''),
+    'username' => env('MAGNOLIA_ADMIN_USERNAME', 'admin'),
     'password_hash' => env('MAGNOLIA_ADMIN_PASSWORD_HASH', ''),
 ];
