@@ -118,9 +118,34 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .nav.is-open { transform: none; visibility: visible; }
   .nav__lang { border: 0; padding: 0; font-family: var(--font-text); font-size: 15px; }
   .nav__cta { font-family: var(--font-text); font-size: 16px; margin-top: 8px; }
-  .nav-close { position: absolute; top: 20px; right: 24px; }
+  .nav-close { position: absolute; top: 20px; right: 24px; z-index: 2; }
+  /* Magnolia motifs in the mobile menu */
+  .nav { overflow: hidden; background: radial-gradient(120% 70% at 100% 100%, rgba(169,71,41,.35), transparent 60%), radial-gradient(90% 50% at 0% 0%, rgba(185,149,89,.16), transparent 65%), var(--cocoa); }
+  .nav > :not(.nav__decor):not(.nav-close) { position: relative; z-index: 1; }
+  .nav__decor { display: block; position: absolute; inset: 0; pointer-events: none; color: var(--gold-light); }
+  .nav__decor svg { position: absolute; display: block; }
+  .nav__branch { width: 300px; height: 158px; top: 36px; left: -40px; opacity: .22; transform: rotate(-6deg); }
+  .nav__flower { width: 380px; height: 316px; right: -120px; bottom: -40px; opacity: .16; color: var(--ivory); }
+  .nav__petal { width: 54px; height: 46px; right: 10%; top: 24%; opacity: .14; transform: rotate(18deg); }
+  .nav__link { display: inline-flex; align-items: center; gap: 12px; }
+  .nav__bud { width: 22px; height: 19px; flex: none; color: var(--gold); opacity: 0; transform: translateX(-6px); transition: opacity .2s ease, transform .2s ease; margin-left: -34px; }
+  .nav__link[aria-current="page"] { text-decoration: none; color: var(--gold-light); }
+  .nav__link[aria-current="page"] .nav__bud, .nav__link:hover .nav__bud { opacity: 1; transform: none; }
+  .nav__link, .nav__lang, .nav__story, .nav__cta { padding-left: 34px; }
+  .nav__cta { margin-left: 34px; padding-left: 28px; }
+  .nav__story { display: block; max-width: 290px; margin: 6px 0 0; font-family: var(--font-display); font-style: italic; font-size: 19px; line-height: 1.35; color: #E8DCCB; border-top: 1px solid rgba(226,199,150,.3); padding-top: 18px; }
+  .nav__story span { display: block; font-family: var(--font-text); font-style: normal; font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  .nav.is-open .nav__link { animation: nav-in .45s ease both; }
+  .nav.is-open .nav__link:nth-of-type(2) { animation-delay: .05s; }
+  .nav.is-open .nav__link:nth-of-type(3) { animation-delay: .1s; }
+  .nav.is-open .nav__link:nth-of-type(4) { animation-delay: .15s; }
+  .nav.is-open .nav__link:nth-of-type(5) { animation-delay: .2s; }
+  .nav.is-open .nav__branch { animation: nav-sway 6s ease-in-out infinite alternate; }
 }
-@media (min-width: 1081px) { .nav-close { display: none; } }
+@media (min-width: 1081px) { .nav-close, .nav__decor, .nav__story, .nav__bud { display: none; } }
+.nav-toggle svg { width: 20px; height: 20px; flex: none; stroke: currentColor; }
+@keyframes nav-in { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: none; } }
+@keyframes nav-sway { from { transform: rotate(-6deg); } to { transform: rotate(-2deg) translateY(4px); } }
 
 /* ---------- Hero ---------- */
 .hero { position: relative; min-height: min(100vh, 900px); display: flex; flex-direction: column; color: var(--ivory); background: var(--cocoa); overflow: hidden; }
