@@ -85,7 +85,7 @@ class StructuredData
                         ->map(fn ($a) => ['@type' => 'LocationFeatureSpecification', 'name' => $a, 'value' => true])->all(),
                 ];
                 if ($r['img']) {
-                    $room['image'] = asset($r['img']);
+                    $room['image'] = Media::src($r['img']);
                 }
 
                 $offer = [

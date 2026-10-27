@@ -5,7 +5,7 @@
 @section('title', 'Rooms & Prices from GEL '.$from.' | Hotel Magnolia Tbilisi by Calora Group')
 @section('description', 'Five room types in Old Tbilisi, 15–30 m², from GEL '.$from.' per night with taxes. Book one or several rooms direct, with free cancellation, and pay at the hotel.')
 @section('crumb', 'Rooms & booking')
-@section('og_image', asset('assets/img/room-deluxe.webp'))
+@section('og_image', \App\Support\Media::slot('room.deluxe')['src'])
 
 @push('head')
 {!! \App\Support\StructuredData::render(\App\Support\StructuredData::hotel()) !!}
@@ -45,7 +45,7 @@
 <article class="room" id="room-{{ $id }}">
 <div class="room__main">
 <div class="room__media">
-@if ($r['img'])<img src="{{ asset($r['img']) }}" alt="{{ $r['alt'] }}" loading="lazy" width="920" height="600">@else<div class="room__placeholder">[Room photos coming soon]</div>@endif
+@if ($r['img'])<img src="{{ \App\Support\Media::src($r['img']) }}" alt="{{ $r['alt'] }}" loading="lazy" width="920" height="600">@else<div class="room__placeholder">[Room photos coming soon]</div>@endif
 </div>
 <div class="room__body">
 <div class="room__info">
@@ -85,7 +85,7 @@
 window.MAGNOLIA = {!! json_encode([
     'rooms' => collect($rooms)->map(fn ($r, $id) => array_merge($r, [
         'id' => $id,
-        'img' => $r['img'] ? asset($r['img']) : '',
+        'img' => $r['img'] ? \App\Support\Media::src($r['img']) : '',
     ]))->values(),
     'offer' => $promo['active'] ? $promo['discount'] : 0,
     'maxAdults' => config('hotel.max_adults'),
@@ -95,6 +95,7 @@ window.MAGNOLIA = {!! json_encode([
     'bookingUrl' => route('bookings.store'),
     'pricePreviewUrl' => route('booking-prices.preview'),
     'ratePlans' => \App\Support\RoomPricing::plans(),
+    'extras' => \App\Support\Services::extrasForBooking(),
     'privacyUrl' => route('privacy'),
     'whatsapp' => 'https://wa.me/'.$c['whatsapp'],
     'phone' => $c['phone_display'],

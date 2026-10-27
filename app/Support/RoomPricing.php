@@ -92,6 +92,43 @@ class RoomPricing
         return ['total' => array_sum(array_column($nightly, 'price')), 'nights' => $nightly];
     }
 
+    /**
+     * The price that applies to each date for one room type and plan, with where it
+     * comes from: day > month > plan default > base room price. Used by the admin calendar.
+     *
+     * @param  string[]  $dates  Y-m-d
+     * @return array<string, array{one:int, two:int, source:string}>
+     */
+    public static function resolveDates(string $roomType, string $planCode, array $dates): array
+    {
+        if (! $dates) {
+            return [];
+        }
+        $rooms = RoomCatalog::all(strict: true);
+        $room = $rooms[$roomType];
+        $legacy = $planCode === 'bf' ? [$room['p1'][1], $room['p2'][1]] : [$room['p1'][0], $room['p2'][0]];
+
+        $base = DB::table('room_plan_prices')->where('room_type', $roomType)->where('plan_code', $planCode)->first();
+        $months = array_values(array_unique(array_map(fn ($d) => substr($d, 0, 7), $dates)));
+        $monthly = DB::table('room_month_prices')->where('room_type', $roomType)->where('plan_code', $planCode)
+            ->whereIn('month', $months)->get()->keyBy('month');
+        $daily = DB::table('room_day_prices')->where('room_type', $roomType)->where('plan_code', $planCode)
+            ->whereIn('stay_date', $dates)->get()->keyBy(fn ($r) => substr((string) $r->stay_date, 0, 10));
+
+        $out = [];
+        foreach ($dates as $date) {
+            $row = $daily->get($date);
+            $source = 'day';
+            if (! $row) { $row = $monthly->get(substr($date, 0, 7)); $source = 'month'; }
+            if (! $row) { $row = $base; $source = 'plan'; }
+            $out[$date] = $row
+                ? ['one' => (int) $row->one_guest, 'two' => (int) $row->two_guests, 'source' => $source]
+                : ['one' => (int) $legacy[0], 'two' => (int) $legacy[1], 'source' => 'base'];
+        }
+
+        return $out;
+    }
+
     private static function fromDefault(array $dates, array $prices, int $occupancy): array
     {
         $amount = (int) $prices[$occupancy === 1 ? 0 : 1];

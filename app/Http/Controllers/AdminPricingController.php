@@ -47,30 +47,123 @@ class AdminPricingController extends Controller
         if (!in_array($plan, array_merge(['room','bf'], $savedPlans->pluck('code')->all()), true)) $plan = 'room';
 
         $start = CarbonImmutable::createFromFormat('!Y-m-d', $month.'-01');
-        $days = $start->daysInMonth;
         $rows = [];
-        for ($day = 1; $day <= $days; $day++) {
+        for ($day = 1; $day <= $start->daysInMonth; $day++) {
             $date = $start->addDays($day - 1);
-            // An inactive custom plan may have a valid editable base; use it in the admin preview.
-            $rows[] = ['date' => $date->toDateString(), 'day' => $day, 'weekday' => $date->format('D')];
+            $rows[] = ['date' => $date->toDateString(), 'day' => $day, 'weekday' => $date->format('D'), 'dow' => $date->dayOfWeekIso];
         }
-
+        $preview = RoomPricing::resolveDates($room, $plan, array_column($rows, 'date'));
         $base = DB::table('room_plan_prices')->get()->keyBy(fn($r) => $r->room_type.'|'.$r->plan_code);
         $monthly = DB::table('room_month_prices')->where('month', $month)->get()->keyBy(fn($r) => $r->room_type.'|'.$r->plan_code);
-        $daily = DB::table('room_day_prices')->whereBetween('stay_date', [$start->toDateString(), $start->endOfMonth()->toDateString()])
-            ->get()->keyBy(fn($r) => $r->room_type.'|'.$r->plan_code.'|'.$r->stay_date);
-        $preview = [];
-        foreach ($rows as $row) {
-            $k = $room.'|'.$plan;
-            $override = $daily->get($k.'|'.$row['date']) ?? $monthly->get($k) ?? $base->get($k);
-            $legacy = $plan === 'bf' ? [$rooms[$room]['p1'][1], $rooms[$room]['p2'][1]] : [$rooms[$room]['p1'][0], $rooms[$room]['p2'][0]];
-            $preview[$row['date']] = [
-                'one' => (int) ($override->one_guest ?? $legacy[0]),
-                'two' => (int) ($override->two_guests ?? $legacy[1]),
-                'source' => $daily->has($k.'|'.$row['date']) ? 'day' : ($monthly->has($k) ? 'month' : ($base->has($k) ? 'plan' : 'base')),
-            ];
+        $allPlans = array_merge(
+            [['code' => 'room', 'name' => 'Room only', 'is_active' => true], ['code' => 'bf', 'name' => 'With breakfast', 'is_active' => true]],
+            $savedPlans->map(fn ($p) => ['code' => $p->code, 'name' => $p->name, 'is_active' => (bool) $p->is_active])->all(),
+        );
+        $prevMonth = $start->subMonth()->format('Y-m');
+        $nextMonth = $start->addMonth()->format('Y-m');
+        return view('admin.pricing', compact('month','room','rooms','plan','plans','savedPlans','rows','preview','base','monthly','allPlans','prevMonth','nextMonth','start'));
+    }
+
+    /**
+     * Bulk change from the calendar: the dates picked with the mouse (or a typed range
+     * filtered by weekday), for one or more rooms and rate plans at once.
+     * Modes: set a price, change by %, change by GEL, or reset to the underlying price.
+     */
+    public function bulk(Request $request)
+    {
+        $this->guard($request);
+        $roomKeys = array_keys(config('hotel.rooms'));
+        $data = $request->validate([
+            'dates' => ['nullable', 'array', 'max:400'],
+            'dates.*' => ['date_format:Y-m-d'],
+            'from' => ['nullable', 'date_format:Y-m-d'],
+            'to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:from'],
+            'weekdays' => ['nullable', 'array'],
+            'weekdays.*' => ['integer', 'between:1,7'],
+            'rooms' => ['required', 'array', 'min:1'],
+            'rooms.*' => [Rule::in($roomKeys)],
+            'plans' => ['required', 'array', 'min:1'],
+            'plans.*' => ['string', 'max:8'],
+            'mode' => ['required', Rule::in(['set', 'percent', 'amount', 'reset'])],
+            'one_guest' => ['nullable', 'integer', 'min:1', 'max:100000'],
+            'two_guests' => ['nullable', 'integer', 'min:1', 'max:100000'],
+            'value' => ['nullable', 'numeric', 'between:-100000,100000'],
+        ], [
+            'rooms.required' => 'Choose at least one room type.',
+            'plans.required' => 'Choose at least one rate plan.',
+        ]);
+
+        // Which nights: the picked dates, or a from–to range (optionally only some weekdays).
+        $dates = array_values(array_unique($data['dates'] ?? []));
+        if (! $dates && ! empty($data['from']) && ! empty($data['to'])) {
+            $first = CarbonImmutable::parse($data['from']);
+            $last = CarbonImmutable::parse($data['to']);
+            if ($first->diffInDays($last) > 400) {
+                throw ValidationException::withMessages(['to' => 'Please choose a range of at most 400 days.']);
+            }
+            $days = array_map('intval', $data['weekdays'] ?? []);
+            for ($d = $first; $d->lessThanOrEqualTo($last); $d = $d->addDay()) {
+                if (! $days || in_array($d->dayOfWeekIso, $days, true)) {
+                    $dates[] = $d->toDateString();
+                }
+            }
         }
-        return view('admin.pricing', compact('month','room','rooms','plan','plans','savedPlans','rows','preview','base','monthly'));
+        if (! $dates) {
+            throw ValidationException::withMessages(['dates' => 'Select at least one night on the calendar.']);
+        }
+        sort($dates);
+
+        foreach ($data['plans'] as $code) {
+            $this->checkPlan($code);
+        }
+        $mode = $data['mode'];
+        if ($mode === 'set' && empty($data['one_guest']) && empty($data['two_guests'])) {
+            throw ValidationException::withMessages(['two_guests' => 'Enter a new price for 1 guest, 2 guests, or both.']);
+        }
+        if (in_array($mode, ['percent', 'amount'], true) && (! isset($data['value']) || (float) $data['value'] == 0.0)) {
+            throw ValidationException::withMessages(['value' => 'Enter how much to change the price by.']);
+        }
+        if ($mode === 'percent' && (float) $data['value'] <= -100) {
+            throw ValidationException::withMessages(['value' => 'A price can\'t go down by 100% or more.']);
+        }
+
+        $changed = 0;
+        DB::transaction(function () use ($data, $dates, $mode, &$changed) {
+            foreach ($data['rooms'] as $room) {
+                foreach ($data['plans'] as $plan) {
+                    if ($mode === 'reset') {
+                        $changed += DB::table('room_day_prices')->where('room_type', $room)->where('plan_code', $plan)
+                            ->whereIn('stay_date', $dates)->delete();
+                        continue;
+                    }
+                    $current = RoomPricing::resolveDates($room, $plan, $dates);
+                    foreach ($dates as $date) {
+                        $cur = $current[$date];
+                        [$one, $two] = match ($mode) {
+                            'set' => [(int) ($data['one_guest'] ?? $cur['one']), (int) ($data['two_guests'] ?? $cur['two'])],
+                            'percent' => [(int) round($cur['one'] * (1 + $data['value'] / 100)), (int) round($cur['two'] * (1 + $data['value'] / 100))],
+                            'amount' => [(int) round($cur['one'] + $data['value']), (int) round($cur['two'] + $data['value'])],
+                        };
+                        DB::table('room_day_prices')->updateOrInsert(
+                            ['room_type' => $room, 'plan_code' => $plan, 'stay_date' => $date],
+                            ['one_guest' => max(1, $one), 'two_guests' => max(1, $two)],
+                        );
+                        $changed++;
+                    }
+                }
+            }
+        });
+
+        $nights = count($dates);
+        $msg = $mode === 'reset'
+            ? 'Special prices removed for '.$nights.' '.($nights === 1 ? 'night' : 'nights').'. The month or default price applies again.'
+            : 'Prices updated: '.$nights.' '.($nights === 1 ? 'night' : 'nights').' × '.count($data['rooms']).' room '.(count($data['rooms']) === 1 ? 'type' : 'types').' × '.count($data['plans']).' '.(count($data['plans']) === 1 ? 'plan' : 'plans').'.';
+
+        if ($request->wantsJson()) {
+            return response()->json(['message' => $msg, 'changed' => $changed]);
+        }
+
+        return back()->with('success', $msg);
     }
 
     public function createPlan(Request $request)

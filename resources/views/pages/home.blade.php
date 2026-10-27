@@ -20,7 +20,7 @@
 @section('content')
 <!-- HERO -->
 <section class="hero">
-<img class="hero__img" src="{{ asset('assets/img/hero-facade.webp') }}" alt="Hotel Magnolia Tbilisi by Calora Group at golden hour: a red-brick facade with glowing windows, a wrought-iron balcony and two street trees" fetchpriority="high" width="1086" height="1448">
+<img class="hero__img" src="{{ \App\Support\Media::slot('home.hero')['src'] }}" alt="{{ \App\Support\Media::slot('home.hero')['alt'] }}" fetchpriority="high" width="1086" height="1448">
 <div class="hero__shade" aria-hidden="true"></div>
 <div class="container hero__content">
 <div class="hero__copy">
@@ -92,7 +92,7 @@
 <svg width="300" height="150" stroke-width="1.1" style="color:var(--terracotta);opacity:.55;margin-top:12px;max-width:100%" aria-hidden="true"><use href="#mg-branch"/></svg>
 </div>
 <figure class="figure" style="flex-grow:1.2">
-<img src="{{ asset('assets/img/lobby.webp') }}" alt="Magnolia's lobby: gold chandeliers, red floral armchairs, blue tiles and a round wooden table" loading="lazy" style="height:clamp(300px,36vw,460px)" width="1400" height="933">
+<img src="{{ \App\Support\Media::slot('home.lobby')['src'] }}" alt="{{ \App\Support\Media::slot('home.lobby')['alt'] }}" loading="lazy" style="height:clamp(300px,36vw,460px)" width="1400" height="933">
 <figcaption class="caption">Chandeliers, red armchairs and a table for morning coffee.</figcaption>
 </figure>
 </div>
@@ -103,7 +103,7 @@
 <svg class="decor decor--hide-sm" style="top:0;right:0;width:46%;height:100%;opacity:.5" aria-hidden="true"><defs><pattern id="mg-leaves" width="96" height="96" patternUnits="userSpaceOnUse"><path d="M24 40 C14 32 12 18 20 10 C30 18 32 32 24 40Z" fill="none" stroke="#C9B497"/><path d="M24 40 L20 12" stroke="#C9B497" stroke-width=".8"/><path d="M72 88 C82 80 84 66 76 58 C66 66 64 80 72 88Z" fill="none" stroke="#C9B497"/><circle cx="72" cy="24" r="1.6" fill="#C9B497"/><circle cx="24" cy="72" r="1.6" fill="#C9B497"/></pattern></defs><rect width="100%" height="100%" fill="url(#mg-leaves)"/></svg>
 <div class="container split">
 <figure class="magnolia__media figure">
-<img class="arch" src="{{ asset('assets/img/magnolia-courtyard.webp') }}" alt="A tall, old magnolia tree in the hotel courtyard, rising between brick walls, glass windows and a spiral staircase" loading="lazy" width="1086" height="1448">
+<img class="arch" src="{{ \App\Support\Media::slot('magnolia')['src'] }}" alt="{{ \App\Support\Media::slot('magnolia')['alt'] }}" loading="lazy" width="1086" height="1448">
 <div class="badge-127"><b>127</b><span>YEARS OLD</span></div>
 </figure>
 <div class="stack">
@@ -131,7 +131,7 @@
 @foreach (['double', 'deluxe', 'twin'] as $id)
 @php($r = $rooms[$id])
 <a class="room-card" href="{{ route('rooms', ['room' => $id]) }}">
-<img src="{{ asset($r['img']) }}" alt="{{ $r['alt'] }}" loading="lazy" width="1280" height="853">
+<img src="{{ \App\Support\Media::src($r['img']) }}" alt="{{ $r['alt'] }}" loading="lazy" width="1280" height="853">
 <span class="room-card__body">
 <span><span class="room-card__name">{{ $r['name'] }}</span><span class="room-card__meta">{{ $r['cap'] }} guests · {{ $r['size'] }} · {{ strtolower($r['extra'] === 'Original art' ? $r['bed'] : $r['extra']) }}</span></span>
 <span class="price">@if ($r['w2'] > $r['p2'][0])<s>GEL {{ $r['w2'] }}</s>@endif<strong>GEL {{ $r['p2'][0] }}</strong></span>
@@ -203,6 +203,6 @@
 <p style="margin:0;font-size:18px;max-width:480px">@if ($promo['active']){{ $promo['discount'] }}% off every room until {{ $promo['ends_label'] }}. @endif Book now, pay when you arrive, cancel free if plans change.</p>
 <div style="display:flex;flex-wrap:wrap;gap:12px"><a class="btn btn--light" href="{{ route('rooms') }}">Check Availability</a><a class="btn btn--outline-light" href="https://wa.me/{{ $c['whatsapp'] }}">WhatsApp us</a></div>
 </div>
-<div class="cta-split__media"><img src="{{ asset('assets/img/welcome-tray.webp') }}" alt="Tea, oranges and apples on a small black table under a gold-framed painting" loading="lazy"></div>
+<div class="cta-split__media"><img src="{{ \App\Support\Media::slot('home.cta')['src'] }}" alt="{{ \App\Support\Media::slot('home.cta')['alt'] }}" loading="lazy"></div>
 </section>
 @endsection

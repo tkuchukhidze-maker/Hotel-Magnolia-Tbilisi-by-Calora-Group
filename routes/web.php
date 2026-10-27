@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminMediaController;
+use App\Http\Controllers\AdminServicesController;
 use App\Http\Controllers\AdminPricingController;
 use App\Http\Controllers\PublicPricingController;
 use App\Http\Controllers\PageController;
@@ -40,6 +42,24 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::patch('/rates/plans/{code}', [AdminPricingController::class, 'publishPlan'])->name('pricing.plans.publish');
     Route::post('/rates/default', [AdminPricingController::class, 'saveBase'])->name('pricing.base');
     Route::post('/rates/calendar', [AdminPricingController::class, 'saveSchedule'])->name('pricing.schedule');
+    Route::post('/rates/bulk', [AdminPricingController::class, 'bulk'])->name('pricing.bulk');
+
+    // Photos
+    Route::get('/photos', [AdminMediaController::class, 'index'])->name('media.index');
+    Route::post('/photos/slots/{slot}', [AdminMediaController::class, 'saveSlot'])->where('slot', '[a-z0-9.\-]+')->name('media.slot');
+    Route::delete('/photos/slots/{slot}', [AdminMediaController::class, 'resetSlot'])->where('slot', '[a-z0-9.\-]+')->name('media.slot.reset');
+    Route::post('/photos/gallery', [AdminMediaController::class, 'addGallery'])->name('media.gallery.add');
+    Route::post('/photos/gallery/{id}', [AdminMediaController::class, 'updateGallery'])->whereNumber('id')->name('media.gallery.update');
+    Route::post('/photos/gallery/{id}/move', [AdminMediaController::class, 'moveGallery'])->whereNumber('id')->name('media.gallery.move');
+    Route::delete('/photos/gallery/{id}', [AdminMediaController::class, 'deleteGallery'])->whereNumber('id')->name('media.gallery.delete');
+
+    // Services: amenities + paid extras
+    Route::get('/services', [AdminServicesController::class, 'index'])->name('services.index');
+    Route::post('/services', [AdminServicesController::class, 'store'])->name('services.store');
+    Route::put('/services/{id}', [AdminServicesController::class, 'update'])->whereNumber('id')->name('services.update');
+    Route::patch('/services/{id}/toggle', [AdminServicesController::class, 'toggle'])->whereNumber('id')->name('services.toggle');
+    Route::patch('/services/{id}/move', [AdminServicesController::class, 'move'])->whereNumber('id')->name('services.move');
+    Route::delete('/services/{id}', [AdminServicesController::class, 'destroy'])->whereNumber('id')->name('services.destroy');
     Route::delete('/rates/calendar', [AdminPricingController::class, 'removeOverride'])->name('pricing.remove');
 });
 

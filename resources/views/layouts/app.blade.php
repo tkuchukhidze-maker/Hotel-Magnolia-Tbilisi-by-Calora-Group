@@ -31,7 +31,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta property="og:url" content="{{ url()->current() }}">
 <meta property="og:title" content="@yield('title', config('hotel.name'))">
 <meta property="og:description" content="@yield('description', 'A small hotel with a lot of character in Old Tbilisi.')">
-<meta property="og:image" content="@yield('og_image', asset('assets/img/hero-facade.webp'))">
+<meta property="og:image" content="@yield('og_image', \App\Support\Media::slot('home.hero')['src'])">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="geo.region" content="GE-TB">
 <meta name="geo.placename" content="Tbilisi">
