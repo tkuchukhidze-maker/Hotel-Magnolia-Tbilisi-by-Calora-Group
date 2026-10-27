@@ -4,7 +4,7 @@
 <div class="container">
 <div class="footer-grid">
 <div class="stack" style="gap:14px;max-width:280px">
-<span class="logo"><svg class="logo__mark" stroke-width="1.3" style="color:var(--gold)" aria-hidden="true"><use href="#mg-mark"/></svg><span class="logo__text"><span class="logo__name" style="color:var(--ivory)">MAGNOLIA</span><span class="logo__sub" style="color:var(--gold)">HOTEL · TBILISI</span></span></span>
+<span class="logo"><svg class="logo__mark" stroke-width="1.3" style="color:var(--gold)" aria-hidden="true"><use href="#mg-mark"/></svg><span class="logo__text"><span class="logo__name" style="color:var(--ivory)">MAGNOLIA</span><span class="logo__sub" style="color:var(--gold)">HOTEL · TBILISI</span><span class="logo__by" style="color:#E8DCCB">by Calora Group</span></span></span>
 <span style="font-size:14px">A small hotel with a lot of character, and a magnolia that's been here since 1899.</span>
 </div>
 <nav aria-label="Footer">

@@ -76,7 +76,7 @@ return [
     // Short, factual answers. Shown on the Contact page, marked up as FAQPage
     // and listed in /llms.txt so search and AI answers can quote them.
     'faq' => [
-        ['Where is Hotel Magnolia Tbilisi?', 'At 5 Kirile Ukleba St in the Old Town of Tbilisi, Georgia, on a quiet street below Mount Mtatsminda. Freedom Square is 950 m away and Freedom Square metro station 750 m.'],
+        ['Where is Hotel Magnolia Tbilisi by Calora Group?', 'At 5 Kirile Ukleba St in the Old Town of Tbilisi, Georgia, on a quiet street below Mount Mtatsminda. Freedom Square is 950 m away and Freedom Square metro station 750 m.'],
         ['How much does a room cost?', 'Rooms start from GEL 106 per night for one guest and GEL 129 for two, taxes included (autumn rates, 25% off). Prices depend on the room and dates; the Rooms page shows the exact total before you book.'],
         ['What types of rooms are there?', 'Five: Single Room (15 m²), Double Room (18 m², king bed), Double or Twin (26 m², two single beds), Triple Room (26 m², three beds, balcony) and Deluxe Room (30 m², king bed, balcony). All have air conditioning, a private bathroom, a flat-screen TV and free Wi-Fi.'],
         ['Do you serve breakfast?', 'Yes, a buffet breakfast every morning. You can add it when you book, from GEL 11 per room per night.'],

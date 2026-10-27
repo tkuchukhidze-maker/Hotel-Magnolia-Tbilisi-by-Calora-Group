@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @php($c = config('hotel.contact'))
 
-@section('title', 'Rooms & Prices from GEL 106 | Hotel Magnolia Tbilisi')
+@section('title', 'Rooms & Prices from GEL 106 | Hotel Magnolia Tbilisi by Calora Group')
 @section('description', 'Five room types in Old Tbilisi, 15–30 m², from GEL 106 per night with taxes. Book one or several rooms direct, with free cancellation, and pay at the hotel.')
 @section('crumb', 'Rooms & booking')
 @section('og_image', asset('assets/img/room-deluxe.webp'))

@@ -11,7 +11,7 @@
 <div class="container site-header__inner">
 <a class="logo" href="{{ route('home') }}" aria-label="{{ config('hotel.name') }} — home">
 <svg class="logo__mark" stroke-width="1.3"><use href="#mg-mark"/></svg>
-<span class="logo__text"><span class="logo__name">MAGNOLIA</span><span class="logo__sub">HOTEL · TBILISI</span></span>
+<span class="logo__text"><span class="logo__name">MAGNOLIA</span><span class="logo__sub">HOTEL · TBILISI</span><span class="logo__by">by Calora Group</span></span>
 </a>
 <button class="nav-toggle" type="button" aria-controls="site-nav" aria-expanded="false" data-nav-open aria-label="Open menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
 <nav class="nav" id="site-nav" aria-label="Main">

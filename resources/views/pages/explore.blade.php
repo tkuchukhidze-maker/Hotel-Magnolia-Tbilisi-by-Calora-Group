@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Location & What\'s Nearby in Old Tbilisi | Hotel Magnolia Tbilisi')
-@section('description', 'Hotel Magnolia is at 5 Kirile Ukleba St, Old Tbilisi: 950 m to Freedom Square, 750 m to the metro, 2.2 km to Narikala Fortress, 15 km to the airport. Free parking.')
+@section('title', 'Location & What\'s Nearby in Old Tbilisi | Hotel Magnolia Tbilisi by Calora Group')
+@section('description', 'Hotel Magnolia Tbilisi by Calora Group is at 5 Kirile Ukleba St, Old Tbilisi: 950 m to Freedom Square, 750 m to the metro, 2.2 km to Narikala Fortress, 15 km to the airport. Free parking.')
 @section('crumb', 'Explore Tbilisi')
 @section('og_image', asset('assets/img/rooftop-domes.webp'))
 
