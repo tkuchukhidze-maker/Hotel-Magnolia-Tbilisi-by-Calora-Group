@@ -20,6 +20,18 @@ class AdminDashboardTest extends TestCase
         $this->get('/admin/login')->assertOk();
     }
 
+    public function test_public_catalog_falls_back_when_rate_database_is_unavailable(): void
+    {
+        \Illuminate\Support\Facades\Schema::shouldReceive('hasTable')
+            ->andThrow(new \RuntimeException('Temporary database outage'));
+
+        $catalog = \App\Support\RoomCatalog::all();
+        $this->assertSame(config('hotel.rooms.double.p2'), $catalog['double']['p2']);
+
+        $this->expectException(\RuntimeException::class);
+        \App\Support\RoomCatalog::all(strict: true);
+    }
+
     public function test_admin_login_fails_closed_when_credentials_are_unconfigured(): void
     {
         config(['hotel_admin.email' => '', 'hotel_admin.password_hash' => '']);

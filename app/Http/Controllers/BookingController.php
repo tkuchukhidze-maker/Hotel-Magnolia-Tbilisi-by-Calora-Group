@@ -23,7 +23,7 @@ class BookingController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $rooms = RoomCatalog::all();
+        $rooms = RoomCatalog::all(strict: true);
 
         $data = $request->validate([
             'items' => ['required', 'array', 'min:1', 'max:'.count($rooms)],

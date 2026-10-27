@@ -3,6 +3,7 @@ name: Magnolia Laravel checks
 on:
   push:
     branches:
+      - hotfix/public-500-database-fallback
       - fix/admin-404-main
       - feature/magnolia-admin-dashboard
       - ux/booking-request-simplification
