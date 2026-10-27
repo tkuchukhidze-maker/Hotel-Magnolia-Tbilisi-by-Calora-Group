@@ -42,7 +42,7 @@ return [
         'maps_key' => env('GOOGLE_MAPS_API_KEY', ''),
         // Google Maps Quick Builder Locator Plus iframe created for this hotel.
         // The branded Maps JavaScript map remains available if this is blank.
-        'locator_plus_iframe' => env('HOTEL_LOCATOR_PLUS_IFRAME', 'https://storage.googleapis.com/maps-solutions-er47d39hch/locator-plus/phfs/locator-plus.html'),
+        'locator_plus_iframe' => env('HOTEL_LOCATOR_PLUS_IFRAME', 'https://storage.googleapis.com/maps-solutions-er47d39hch/locator-plus/8z5f/locator-plus.html'),
         // Exact pin position. Leave empty to look the address up once in the browser.
         'lat' => env('HOTEL_LAT', ''),
         'lng' => env('HOTEL_LNG', ''),
