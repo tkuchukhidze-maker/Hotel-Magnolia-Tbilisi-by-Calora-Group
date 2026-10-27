@@ -39,7 +39,7 @@ class BookingQuote
             $prices = $single ? $r['p1'] : $r['p2'];
             $perRoom = $rate === 'bf' ? $prices[1] : $prices[0];
             $sub = $perRoom * $item['qty'];
-            $stay = $checkin ? RoomPricing::totalForRoom($item['room'], $rate, $single ? 1 : 2, $checkin, $nights) : null;
+            $stay = $checkin ? RoomPricing::totalForRoom($item['room'], $rate, ($single || $r['cap'] === 1) ? 1 : 2, $checkin, $nights) : null;
             $lineTotal = $stay ? $stay['total'] * $item['qty'] : $sub * $nights;
             if ($stay) {
                 foreach ($stay['nights'] as $i => $day) $this->dailyTotals[$i] += $day['price'] * $item['qty'];
