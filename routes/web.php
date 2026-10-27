@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminPricingController;
+use App\Http\Controllers\PublicPricingController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\Marketing\MarketingAuthController;
@@ -21,6 +23,9 @@ Route::post('/bookings', [BookingController::class, 'store'])
     ->middleware('throttle:10,1')
     ->name('bookings.store');
 
+Route::get('/booking-prices', [PublicPricingController::class, 'preview'])
+    ->middleware('throttle:30,1')->name('booking-prices.preview');
+
 // Private management UI. Session, CSRF and login throttling are enforced.
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/login', [AdminController::class, 'loginForm'])->name('login');
@@ -30,6 +35,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::patch('/bookings/{booking}/status', [AdminController::class, 'bookingStatus'])->name('bookings.status');
     Route::put('/rooms/{room}/rates', [AdminController::class, 'roomRate'])->name('rooms.rate');
     Route::post('/promotions', [AdminController::class, 'promotion'])->name('promotions.store');
+    Route::get('/rates', [AdminPricingController::class, 'index'])->name('pricing.index');
+    Route::post('/rates/plans', [AdminPricingController::class, 'createPlan'])->name('pricing.plans.store');
+    Route::patch('/rates/plans/{code}', [AdminPricingController::class, 'publishPlan'])->name('pricing.plans.publish');
+    Route::post('/rates/default', [AdminPricingController::class, 'saveBase'])->name('pricing.base');
+    Route::post('/rates/calendar', [AdminPricingController::class, 'saveSchedule'])->name('pricing.schedule');
+    Route::delete('/rates/calendar', [AdminPricingController::class, 'removeOverride'])->name('pricing.remove');
 });
 
 // SEO / AEO
