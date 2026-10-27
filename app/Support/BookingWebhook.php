@@ -50,19 +50,46 @@ class BookingWebhook
             'directions_url' => $plain($v['DIRECTIONS_URL']),
             'admin_url' => url('/admin'),
             'booked_at' => now('Asia/Tbilisi')->format('Y-m-d H:i'),
+        ] + self::emails($b);
+    }
+
+    /**
+     * Ready-made emails in the Magnolia design, so the Zap only has to send them
+     * (Gmail / Email by Zapier: To = email or hotel_email, Subject, Body = *_html).
+     */
+    public static function emails(Booking $b): array
+    {
+        $guest = new \App\Mail\BookingRequestAcknowledged($b);
+        $admin = new \App\Mail\BookingReceived($b);
+        $v = BookingMail::vars($b);
+        $plain = fn ($x) => html_entity_decode((string) $x, ENT_QUOTES);
+
+        return [
+            'guest_subject' => $guest->envelope()->subject,
+            'guest_html' => $guest->render(),
+            'guest_text' => view('mail.booking-guest-received-text', ['booking' => $b, 'v' => $v])->render(),
+            'admin_subject' => $admin->envelope()->subject,
+            'admin_html' => $admin->render(),
+            'admin_text' => view('mail.booking-received', ['booking' => $b])->render(),
+            'reply_to_hotel' => (string) (BookingMail::replyTo() ?? ''),
+            'from_name' => $plain($v['HOTEL']),
         ];
     }
 
-    public static function send(Booking $b): void
+    public static function send(Booking $b): bool
     {
         $url = (string) config('hotel.zapier_hook_url');
         if ($url === '' || ! str_starts_with($url, 'https://hooks.zapier.com/')) {
-            return;
+            return false;
         }
         try {
-            Http::asJson()->timeout(6)->post($url, self::payload($b))->throw();
+            Http::asJson()->timeout(8)->post($url, self::payload($b))->throw();
+
+            return true;
         } catch (Throwable $e) {
             Log::error('Zapier booking webhook failed', ['reference' => $b->reference, 'error' => $e->getMessage()]);
+
+            return false;
         }
     }
 }

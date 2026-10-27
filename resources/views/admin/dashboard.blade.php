@@ -50,6 +50,13 @@
 <p style="font-size:13px;color:#7A6156">SMTP check: username {{ $mail['user_set'] ? 'set' : 'MISSING' }} · API key {{ $mail['key_check'] }} · port {{ $mail['port'] }}{{ $mail['scheme'] ? ' · scheme '.$mail['scheme'] : '' }}</p>
 <form class="promotion-form" method="post" action="{{ route('admin.mail.test') }}">@csrf
 <label>Send a test email to<input type="email" name="to" value="{{ $mail['to'] }}" required></label>
-<button type="submit">Send test email</button></form></section>
+<button type="submit">Send test email</button></form>
+<p style="font-size:13px;color:#7A6156;margin-top:14px">Zapier: {{ config('hotel.zapier_hook_url') ? 'connected — every booking is posted to the Zap' : 'not connected (HOTEL_ZAPIER_HOOK_URL is empty)' }} · Site's own booking emails: {{ config('hotel.send_booking_emails') ? 'on' : 'off (Zapier sends them)' }}</p>
+@if (config('hotel.zapier_hook_url'))
+<form class="promotion-form" method="post" action="{{ route('admin.zapier.sample') }}">@csrf
+<label>Send an example booking to Zapier, guest email<input type="email" name="to" value="{{ $mail['to'] }}"></label>
+<button type="submit">Send example to Zapier</button></form>
+@endif
+</section>
 <section id="analytics" class="panel"><h2>Analytics & Google integrations</h2><p>Booking-request metrics are displayed above. Google Analytics 4, Google Tag Manager, Search Console, Google Business Profile and Looker Studio are planned connections and are <strong>not connected yet</strong>.</p><p>Connect verified accounts and consent-aware measurement before showing external traffic, conversions, or campaign attribution.</p></section>
 @endsection

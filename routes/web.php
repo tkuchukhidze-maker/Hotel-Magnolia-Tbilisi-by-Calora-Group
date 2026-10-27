@@ -46,6 +46,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/rates/bulk', [AdminPricingController::class, 'bulk'])->name('pricing.bulk');
 
     Route::post('/mail-test', [AdminMailController::class, 'test'])->middleware('throttle:5,1')->name('mail.test');
+    Route::post('/zapier-sample', [AdminMailController::class, 'zapierSample'])->middleware('throttle:5,1')->name('zapier.sample');
 
     // Photos
     Route::get('/photos', [AdminMediaController::class, 'index'])->name('media.index');

@@ -44,6 +44,21 @@ class AdminMailController extends Controller
         return 'looks like a Mandrill key ('.strlen($key).' characters)';
     }
 
+    /** Post an example booking to the Zapier Catch Hook so the Zap can be set up and tested. */
+    public function zapierSample(Request $request)
+    {
+        $this->guard($request);
+        if (! config('hotel.zapier_hook_url')) {
+            return back()->withErrors(['mail' => 'Zapier is not connected: set HOTEL_ZAPIER_HOOK_URL in Laravel Cloud and deploy.']);
+        }
+        $sample = \App\Support\BookingMail::sample();
+        $sample->email = (string) ($request->input('to') ?: config('hotel.bookings_email'));
+
+        return \App\Support\BookingWebhook::send($sample)
+            ? back()->with('success', 'Example booking sent to Zapier. In the Zap, click "Find new records" on step 1.')
+            : back()->withErrors(['mail' => 'Zapier did not accept the example booking. Check HOTEL_ZAPIER_HOOK_URL.']);
+    }
+
     public function test(Request $request)
     {
         $this->guard($request);

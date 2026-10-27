@@ -156,7 +156,9 @@ class BookingEmailNotificationTest extends TestCase
         $this->postJson(route('bookings.store'), $this->payload())->assertCreated();
 
         \Illuminate\Support\Facades\Http::assertSent(fn ($r) => $r->url() === 'https://hooks.zapier.com/hooks/catch/1/abc/'
-            && $r['first_name'] === 'Nino' && $r['rooms'] === '1 × Double Room' && $r['nights'] === 2);
+            && $r['first_name'] === 'Nino' && $r['rooms'] === '1 × Double Room' && $r['nights'] === 2
+            && str_contains($r['guest_html'], 'Congratulations, Nino!') && str_contains($r['admin_html'], 'Nino Beridze is coming')
+            && str_starts_with($r['guest_subject'], "You're booked:"));
         Mail::assertNothingSent();
     }
 
@@ -168,5 +170,15 @@ class BookingEmailNotificationTest extends TestCase
 
         $this->postJson(route('bookings.store'), $this->payload())->assertCreated();
         Mail::assertSentCount(2);
+    }
+
+    public function test_admin_can_send_an_example_booking_to_zapier(): void
+    {
+        \Illuminate\Support\Facades\Http::fake(['hooks.zapier.com/*' => \Illuminate\Support\Facades\Http::response(['status' => 'success'])]);
+        config(['hotel.zapier_hook_url' => 'https://hooks.zapier.com/hooks/catch/1/abc/']);
+
+        $this->withSession(['magnolia_admin' => true])->post(route('admin.zapier.sample'), ['to' => 'me@example.net'])
+            ->assertSessionHas('success');
+        \Illuminate\Support\Facades\Http::assertSent(fn ($r) => $r['email'] === 'me@example.net' && str_contains($r['guest_html'], 'MAGNOLIA'));
     }
 }
