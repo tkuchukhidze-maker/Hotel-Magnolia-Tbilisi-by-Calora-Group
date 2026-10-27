@@ -2,7 +2,7 @@
 @php($c = config('hotel.contact'))
 
 @section('title', 'Rooms & Prices from GEL 106 | Hotel Magnolia Tbilisi by Calora Group')
-@section('description', 'Five room types in Old Tbilisi, 15–30 m², from GEL 106 per night with taxes. Book one or several rooms direct, with free cancellation, and pay at the hotel.')
+@section('description', 'Explore five Magnolia room types, photos, sample rates and breakfast options. Request your stay directly; the team confirms availability and final terms.')
 @section('crumb', 'Rooms & booking')
 @section('og_image', asset('assets/img/room-deluxe.webp'))
 
@@ -30,7 +30,14 @@
 <div class="stepper"><span class="stepper__value"><span class="field__label">Adults</span><strong data-value="adults">2</strong></span><span class="stepper__btns"><button type="button" class="round-btn" data-action="adults-" aria-label="Remove an adult">−</button><button type="button" class="round-btn" data-action="adults+" aria-label="Add an adult">+</button></span></div>
 <div class="stepper"><span class="stepper__value"><span class="field__label">Children <span style="font-weight:500">(0–{{ config('hotel.child_max_age') }})</span></span><strong data-value="kids">0</strong></span><span class="stepper__btns"><button type="button" class="round-btn" data-action="kids-" aria-label="Remove a child">−</button><button type="button" class="round-btn" data-action="kids+" aria-label="Add a child">+</button></span></div>
 </div>
-<div class="ages" data-ages hidden></div>
+<div class="room-filter-bar">
+<label for="room-type-filter">Filter by room type</label>
+<select id="room-type-filter" aria-label="Filter rooms by type">
+<option value="all">All 5 room types</option>
+@foreach ($rooms as $id => $r)<option value="{{ $id }}">{{ $r['name'] }}</option>@endforeach
+</select>
+<p class="small">Room capacities are for standard beds. One extra bed per room may be requested; confirmation and charges are subject to hotel approval.</p>
+</div>
 <div class="search-summary">
 <span class="ticks"><span>✓ No payment to send a request</span><span>✓ Hotel confirmation required</span><span>✓ Indicative total before sending</span></span>
 <span class="small">Bigger group than {{ config('hotel.max_adults') }} adults? <a href="https://wa.me/{{ $c['whatsapp'] }}">Message us</a>.</span>
@@ -44,17 +51,17 @@
 <article class="room" id="room-{{ $id }}">
 <div class="room__main">
 <div class="room__media">
-@if ($r['img'])<img src="{{ asset($r['img']) }}" alt="{{ $r['alt'] }}" loading="lazy" width="920" height="600">@else<div class="room__placeholder">[Room photos coming soon]</div>@endif
+@if (count($r['photos'] ?? []))<img src="{{ asset($r['photos'][0]['src']) }}" alt="{{ $r['photos'][0]['alt'] }}" loading="lazy" width="920" height="600">@else<div class="room__placeholder">Photos of this room are being prepared.</div>@endif
 </div>
 <div class="room__body">
 <div class="room__info">
 <h2 class="room__name">{{ $r['name'] }}</h2>
-<ul class="meta"><li>Sleeps {{ $r['cap'] }}</li><li>{{ $r['size'] }}</li><li>{{ $r['bed'] }}</li><li>{{ $r['extra'] }}</li></ul>
+<ul class="meta"><li>Min {{ $r['min_guests'] }} · Max {{ $r['max_guests'] }} guests</li><li>{{ $r['size'] }}</li><li>{{ $r['bed'] }}</li><li>{{ $r['extra'] }}</li></ul>
 <p class="lead" style="font-size:16px">{{ $r['blurb'] }}</p>
 </div>
 <div class="room__price">
 <div><span class="small">per room per night</span><div class="big"><s>GEL {{ $r['cap'] === 1 ? $r['w1'] : $r['w2'] }}</s><strong>GEL {{ $r['cap'] === 1 ? $r['p1'][0] : $r['p2'][0] }}</strong></div><span class="small">GEL {{ $r['cap'] === 1 ? $r['p1'][1] : $r['p2'][1] }} with breakfast · taxes included</span></div>
-<a class="btn btn--primary" href="tel:{{ $c['phone_tel'] }}">Call to book</a>
+<a class="btn btn--primary" href="tel:{{ $c['phone_tel'] }}">Ask about this room</a>
 </div>
 </div>
 </div>
@@ -64,12 +71,23 @@
 <aside class="book-summary" id="booking-summary" aria-label="Your booking" aria-live="polite"></aside>
 </section>
 
+<div id="room-gallery-modal" class="room-gallery-modal" role="dialog" aria-modal="true" aria-label="Room photo gallery" hidden>
+<div class="room-gallery-modal__panel">
+<div class="room-gallery-modal__head"><strong data-gallery-title>Room photos</strong><button type="button" data-action="gallery-close" data-gallery-close aria-label="Close gallery">×</button></div>
+<div class="room-gallery-modal__media">
+<button type="button" data-action="gallery-prev" data-gallery-prev aria-label="Previous photo">←</button>
+<img data-gallery-image alt="Selected room photo">
+<button type="button" data-action="gallery-next" data-gallery-next aria-label="Next photo">→</button>
+</div>
+<p data-gallery-caption class="room-gallery-modal__caption"></p>
+</div>
+</div>
 <section class="container" style="padding-top:40px;padding-bottom:96px">
 <div class="why">
-<div><strong>Lowest price here</strong><span>Found it cheaper? We'll match it.</span></div>
-<div><strong>Nothing to pay now</strong><span>Payment: {{ config('hotel.policies.payment') }}.</span></div>
-<div><strong>Change your mind?</strong><span>Cancellation: {{ strtolower(config('hotel.policies.cancellation')) }}.</span></div>
-<div><strong>Rated {{ config('hotel.rating.score') }}</strong><span>{{ config('hotel.rating.label') }}, on {{ config('hotel.rating.source') }}.</span></div>
+<div><strong>Compare rates</strong><span>Room-only and breakfast options are shown side by side.</span></div>
+<div><strong>Send a request</strong><span>No prepayment is needed to ask for a room.</span></div>
+<div><strong>Terms before confirming</strong><span>The hotel will confirm the applicable cancellation deadline.</span></div>
+<div><strong>Extra beds</strong><span>Request one per room, subject to availability and extra charges.</span></div>
 </div>
 </section>
 @endsection
@@ -85,10 +103,10 @@ window.MAGNOLIA = {!! json_encode([
     'rooms' => collect($rooms)->map(fn ($r, $id) => array_merge($r, [
         'id' => $id,
         'img' => $r['img'] ? asset($r['img']) : '',
+        'photos' => array_map(fn ($p) => array_merge($p, ['src' => asset($p['src'])]), $r['photos'] ?? []),
     ]))->values(),
     'maxAdults' => config('hotel.max_adults'),
     'maxChildren' => config('hotel.max_children'),
-    'childMaxAge' => config('hotel.child_max_age'),
     'maxNights' => config('hotel.max_nights'),
     'bookingUrl' => route('bookings.store'),
     'privacyUrl' => route('privacy'),
