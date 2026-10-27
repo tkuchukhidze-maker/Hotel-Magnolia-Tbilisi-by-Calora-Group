@@ -367,7 +367,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .hero__content { padding-top: 110px; padding-bottom: 120px; }
   .hero__sub { font-size: 18px; }
   .booking { margin-top: -64px; }
-  .booking__form { grid-template-columns: 1fr 1fr; }
+  .booking__form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .booking__form .field { padding: 10px 12px; min-width: 0; }
+  .booking__form .field svg { display: none; }
+  .field input, .field select { min-width: 0; }
   .booking__form .field:nth-child(3), .booking__form .btn { grid-column: 1 / -1; }
   .trust { grid-template-columns: 1fr 1fr; padding-top: 28px; }
   .trust li { padding: 12px 4px; }

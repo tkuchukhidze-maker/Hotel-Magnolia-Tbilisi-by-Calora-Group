@@ -113,7 +113,7 @@
           '<span class="done-icon">' + ICON.check + '</span>' +
           '<h3 class="h3">You\'re booked. <em>See you in Tbilisi.</em></h3>' +
           '<p class="lead" style="font-size:15px">' + line + '<br>Total ' + gel(total) + ', paid at the hotel. Booking ref <strong>[MG-0000]</strong>.</p>' +
-          '<p class="small">We\'ve emailed your confirmation. Questions? <a href="https://wa.me/995000000000">WhatsApp us</a>.</p>' +
+          '<p class="small">We\'ve emailed your confirmation. Questions? <a href="https://wa.me/995533334422">WhatsApp us</a>.</p>' +
           '<button type="button" class="btn btn--outline" data-action="close">Back to rooms</button>' +
         '</div>';
     }
@@ -173,7 +173,7 @@
     }).join('');
 
     if (hidden > 0) {
-      html += '<div class="hint-box"><span>' + plural(hidden, 'room is', 'rooms are') + ' too small for ' + guestsLabel() + '. Travelling as a bigger group? We\'ll put you in rooms next to each other.</span><a href="https://wa.me/995000000000" class="link-arrow">Ask us on WhatsApp →</a></div>';
+      html += '<div class="hint-box"><span>' + plural(hidden, 'room is', 'rooms are') + ' too small for ' + guestsLabel() + '. Travelling as a bigger group? We\'ll put you in rooms next to each other.</span><a href="https://wa.me/995533334422" class="link-arrow">Ask us on WhatsApp →</a></div>';
     }
     list.innerHTML = html;
 
