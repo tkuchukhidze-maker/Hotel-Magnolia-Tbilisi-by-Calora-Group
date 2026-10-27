@@ -57,7 +57,7 @@ $move = [['Freedom Square metro', '750 m'], ['Rustaveli metro', '1.2 km'], ['Tbi
 <div class="container stack" style="gap:32px">
 <h2 id="arrive-h" class="h2">Getting here, <em>made easy.</em></h2>
 <div class="cards-dark">
-<div><strong>From the airport</strong><span>15 km to our door. [Transfer: on request / price — confirm]</span></div>
+<div><strong>From the airport</strong><span>The airport is about 15 km away. Contact our front desk for arrival information.</span></div>
 <div><strong>By metro</strong><span>Freedom Square station is 750 m away, Rustaveli 1.2 km.</span></div>
 <div><strong>By car</strong><span>Free parking for guests. Rare in the old town.</span></div>
 </div>

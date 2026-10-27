@@ -39,7 +39,7 @@ class OfferTest extends TestCase
             ->assertSee('promo-bar', false)
             ->assertSee('−25% Offer', false)
             ->assertSee('offer-band', false);
-        $this->get('/sitemap.xml')->assertSee(route('offer'), false);
+        $this->get('/sitemap.xml')->assertSee('https://magnoliatbilisi.com/offer', false);
     }
 
     public function test_after_the_deadline_prices_go_back_to_full_and_no_discount_is_claimed(): void
@@ -52,7 +52,7 @@ class OfferTest extends TestCase
             ->assertDontSee('data-countdown', false);
         $this->get(route('home'))->assertDontSee('promo-bar', false)->assertDontSee('−25% Offer', false);
         $this->get(route('rooms'))->assertDontSee('<s>GEL', false)->assertSee('from GEL 142', false);
-        $this->get('/sitemap.xml')->assertDontSee(route('offer'), false);
+        $this->get('/sitemap.xml')->assertDontSee('https://magnoliatbilisi.com/offer', false);
 
         // The server charges the full price: Double for two = GEL 172 a night.
         $this->postJson(route('bookings.store'), [

@@ -17,6 +17,11 @@ return [
     'name' => 'Hotel Magnolia Tbilisi by Calora Group',
     'short_name' => 'Hotel Magnolia Tbilisi',
 
+    // Public SEO origin, independent of Laravel Cloud's temporary address.
+    'public_url' => env('HOTEL_PUBLIC_URL', 'https://magnoliatbilisi.com'),
+    // Do not redirect to the domain until DNS and HTTPS have been verified.
+    'custom_domain_ready' => filter_var(env('HOTEL_CUSTOM_DOMAIN_READY', false), FILTER_VALIDATE_BOOLEAN),
+
     'contact' => [
         'phone_display' => env('HOTEL_PHONE_DISPLAY', '+995 533 33 44 22'),
         'phone_tel' => env('HOTEL_PHONE_TEL', '+995533334422'),

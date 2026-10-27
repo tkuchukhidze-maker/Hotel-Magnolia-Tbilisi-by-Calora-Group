@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'About the Hotel & Photo Gallery | Hotel Magnolia Tbilisi by Calora Group')
-@section('description', 'A restored brick house in Old Tbilisi with classic furniture, a rooftop terrace with glass domes facing Mtatsminda, and a 127-year-old magnolia in the courtyard. See the photos.')
+@section('title', 'Boutique Hotel & Gallery in Old Tbilisi | Hotel Magnolia')
+@section('description', 'Explore Hotel Magnolia Tbilisi: a boutique hotel in Old Tbilisi with a courtyard magnolia, rooftop terrace, classic interiors and comfortable rooms. See the gallery.')
 @section('crumb', 'Our hotel & gallery')
 @section('og_image', \App\Support\Media::slot('our-hotel.banner')['src'])
 
@@ -27,7 +27,6 @@ $units = \App\Support\Services::UNITS;
 <h2 class="h3">An old brick house that likes having guests.</h2>
 <p class="lead">We're a small hotel in the historic heart of Tbilisi. Inside you'll find classic furniture, floral fabrics, gold frames and lamps that each have their own idea of light.</p>
 <p class="lead">We kept the thick walls, the carved door and the wrought iron, then added a light new roof with glass domes and a terrace. It feels less like checking in and more like visiting someone with good taste and a garden.</p>
-<p class="lead">[One or two lines about the building's history — year built, what it was before.]</p>
 <svg width="280" height="140" stroke-width="1.1" style="color:var(--terracotta);opacity:.55;max-width:100%" aria-hidden="true"><use href="#mg-branch"/></svg>
 </div>
 <div style="display:flex;gap:20px;align-items:flex-end">

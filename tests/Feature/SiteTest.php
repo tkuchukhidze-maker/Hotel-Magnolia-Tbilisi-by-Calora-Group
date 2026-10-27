@@ -23,13 +23,61 @@ class SiteTest extends TestCase
     {
         $this->get('/sitemap.xml')->assertOk()
             ->assertHeader('Content-Type', 'application/xml; charset=UTF-8')
-            ->assertSee(route('rooms'), false);
+            ->assertSee('https://magnoliatbilisi.com/rooms', false)
+            ->assertDontSee('.laravel.cloud', false);
 
         $this->get('/robots.txt')->assertOk()->assertSee('User-agent: *', false);
 
         $this->get('/llms.txt')->assertOk()
             ->assertSee('5 Kirile Ukleba St', false)
             ->assertSee('Deluxe Room', false);
+    }
+
+    public function test_technical_domain_stays_online_but_noindex_until_cutover(): void
+    {
+        config(['hotel.public_url' => 'https://magnoliatbilisi.com', 'hotel.custom_domain_ready' => false]);
+        app()->instance('env', 'production');
+
+        $this->withServerVariables(['HTTP_HOST' => 'preview.laravel.cloud', 'SERVER_NAME' => 'preview.laravel.cloud'])
+            ->get('/our-hotel?utm_source=google')
+            ->assertOk()
+            ->assertHeader('X-Robots-Tag', 'noindex, nofollow')
+            ->assertSee('name="robots" content="noindex, nofollow"', false)
+            ->assertSee('rel="canonical" href="https://magnoliatbilisi.com/our-hotel"', false)
+            ->assertSee('property="og:url" content="https://magnoliatbilisi.com/our-hotel"', false);
+    }
+
+    public function test_technical_public_pages_redirect_only_after_domain_is_ready(): void
+    {
+        config(['hotel.public_url' => 'https://magnoliatbilisi.com', 'hotel.custom_domain_ready' => true]);
+        app()->instance('env', 'production');
+
+        $this->withServerVariables(['HTTP_HOST' => 'preview.laravel.cloud', 'SERVER_NAME' => 'preview.laravel.cloud'])
+            ->get('/our-hotel?utm_source=google')
+            ->assertStatus(301)
+            ->assertRedirect('https://magnoliatbilisi.com/our-hotel?utm_source=google');
+
+    }
+
+    public function test_live_branded_domain_can_be_indexed(): void
+    {
+        config(['hotel.public_url' => 'https://magnoliatbilisi.com', 'hotel.custom_domain_ready' => true]);
+        app()->instance('env', 'production');
+
+        $this->get('https://magnoliatbilisi.com/our-hotel')
+            ->assertOk()
+            ->assertSee('name="robots" content="index, follow, max-image-preview:large"', false);
+    }
+
+    public function test_legal_draft_privacy_page_is_noindex(): void
+    {
+        config(['hotel.public_url' => 'https://magnoliatbilisi.com']);
+        app()->instance('env', 'production');
+
+        $this->withServerVariables(['HTTP_HOST' => 'magnoliatbilisi.com', 'SERVER_NAME' => 'magnoliatbilisi.com', 'HTTPS' => 'on'])
+            ->get('/privacy')
+            ->assertOk()
+            ->assertSee('name="robots" content="noindex, nofollow"', false);
     }
 
     public function test_pages_have_structured_data_and_contact_details(): void

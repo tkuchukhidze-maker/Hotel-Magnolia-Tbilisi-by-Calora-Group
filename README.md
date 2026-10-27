@@ -75,12 +75,24 @@ Availability is not checked yet: connect a PMS / channel manager before relying 
 
 ## SEO & AEO
 
+### Branded domain cutover — complete in Laravel Cloud
+
+1. In the production environment open **Domains**, add magnoliatbilisi.com, and select **Redirect from www**.
+2. Copy exactly the A/CNAME/TXT and SSL verification records displayed by Laravel Cloud into the authoritative DNS provider (Cloudflare if the nameservers already point there). Do not guess the DNS values.
+3. Confirm branded HTTPS works, and test room pages and booking submissions. Only then set APP_URL=https://magnoliatbilisi.com, HOTEL_PUBLIC_URL=https://magnoliatbilisi.com and HOTEL_CUSTOM_DOMAIN_READY=true in Cloud, and redeploy or reload configuration.
+4. Verify branded /sitemap.xml, /robots.txt, canonical and JSON-LD tags; submit the domain property and sitemap to Google Search Console. Update Google Business Profile and marketing links to HTTPS without www.
+
+Before step 3, *.laravel.cloud public pages remain accessible but noindex. Canonical metadata, sitemap entries and hotel Schema.org URLs use the branded origin regardless of the incoming host. A 301 redirect is disabled until explicitly activated to avoid breaking bookings while DNS moves. Non-public admin and booking POST endpoints are never redirected.
+
+The /privacy page remains noindex until legal/data-processing placeholders are reviewed. Guest review placeholders are removed instead of being published as testimonials.
+
+
 Everything is generated from `config/hotel.php`, so the markup always matches the page.
 
 | What | Where |
 | --- | --- |
 | Unique title + description per page, canonical, Open Graph, Twitter card | `layouts/app.blade.php`, `@section('title'/'description'/'og_image')` in each page |
-| `noindex` everywhere except `APP_ENV=production` | layout `robots` meta + `/robots.txt` |
+| Index only the production branded hostname; noindex temporary hosts, previews and legal draft | layout, PublicDomain middleware and `/robots.txt` |
 | `/sitemap.xml` (with images), `/robots.txt` | `SeoController` |
 | `/llms.txt` — plain-language summary + FAQ for AI assistants | `SeoController::llms` |
 | JSON-LD: `Hotel` (home, rooms, contact), `HotelRoom` + `Offer` (rooms), `FAQPage` (contact), `BreadcrumbList` (inner pages), `WebSite` (home) | `app/Support/StructuredData.php` |

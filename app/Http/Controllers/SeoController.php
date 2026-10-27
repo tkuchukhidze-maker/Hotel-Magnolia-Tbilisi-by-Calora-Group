@@ -35,10 +35,10 @@ class SeoController extends Controller
         }
 
         foreach ($pages as $name => [$freq, $priority]) {
-            $xml .= '  <url><loc>'.e(route($name)).'</loc><lastmod>'.$lastmod.'</lastmod>'
+            $xml .= '  <url><loc>'.e(\App\Support\PublicSite::route($name)).'</loc><lastmod>'.$lastmod.'</lastmod>'
                 .'<changefreq>'.$freq.'</changefreq><priority>'.$priority.'</priority>';
             foreach ($images[$name] ?? [] as $img) {
-                $xml .= '<image:image><image:loc>'.e(asset('assets/img/'.$img.'.webp')).'</image:loc></image:image>';
+                $xml .= '<image:image><image:loc>'.e(\App\Support\PublicSite::url('assets/img/'.$img.'.webp')).'</image:loc></image:image>';
             }
             $xml .= "</url>\n";
         }
@@ -48,10 +48,15 @@ class SeoController extends Controller
 
     public function robots(): Response
     {
-        // Only the live site should be indexed; staging/local answer "Disallow: /".
-        $body = app()->environment('production')
-            ? "User-agent: *\nAllow: /\nDisallow: /bookings\n\nSitemap: ".route('sitemap')."\n"
-            : "User-agent: *\nDisallow: /\n";
+        if (! app()->environment('production')) {
+            $body = "User-agent: *\nDisallow: /\n";
+        } else {
+            // Allow crawlers to read noindex tags on the unbranded hostname.
+            $body = "User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /bookings\nDisallow: /booking-prices\nDisallow: /unsubscribe/\n";
+            if (\App\Support\PublicSite::isPrimaryHost()) {
+                $body .= "\nSitemap: ".\App\Support\PublicSite::url('sitemap.xml')."\n";
+            }
+        }
 
         return response($body, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
     }
@@ -73,7 +78,7 @@ class SeoController extends Controller
             '- Phone and WhatsApp: '.$c['phone_display'],
             '- Google Maps: '.$c['google_maps'],
             '- Distances: Freedom Square 950 m, Freedom Square metro 750 m, Mtatsminda Pantheon 550 m, Narikala Fortress 2.2 km, Tbilisi International Airport 15 km',
-            '- Booking: direct on '.route('rooms').' — no prepayment, pay at the hotel, free cancellation, price match',
+            '- Booking: direct on '.\App\Support\PublicSite::route('rooms').' — no prepayment, pay at the hotel, free cancellation, price match',
             '- Parking: free for guests',
             '- Rating: '.config('hotel.rating.score').'/10 ('.config('hotel.rating.label').') on '.config('hotel.rating.source'),
         ];
@@ -93,10 +98,10 @@ class SeoController extends Controller
 
         $lines[] = '';
         $lines[] = '## Pages';
-        $lines[] = '- [Rooms and booking]('.route('rooms').'): room details, prices and direct booking';
-        $lines[] = '- [Our hotel and gallery]('.route('our-hotel').'): the building, rooftop, courtyard magnolia, photos';
-        $lines[] = '- [Explore Tbilisi]('.route('explore').'): what is nearby and how to get here';
-        $lines[] = '- [Contact and FAQ]('.route('contact').'): contacts, policies and answers to common questions';
+        $lines[] = '- [Rooms and booking]('.\App\Support\PublicSite::route('rooms').'): room details, prices and direct booking';
+        $lines[] = '- [Our hotel and gallery]('.\App\Support\PublicSite::route('our-hotel').'): the building, rooftop, courtyard magnolia, photos';
+        $lines[] = '- [Explore Tbilisi]('.\App\Support\PublicSite::route('explore').'): what is nearby and how to get here';
+        $lines[] = '- [Contact and FAQ]('.\App\Support\PublicSite::route('contact').'): contacts, policies and answers to common questions';
 
         $lines[] = '';
         $lines[] = '## FAQ';

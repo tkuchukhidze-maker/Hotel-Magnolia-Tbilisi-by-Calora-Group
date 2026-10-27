@@ -1,4 +1,6 @@
 @php($c = config('hotel.contact'))
+@php($seoUrl = \App\Support\PublicSite::canonical())
+@php($seoImage = \App\Support\PublicSite::image($__env->yieldContent('og_image', \App\Support\Media::slot('home.hero')['src'])))
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -24,23 +26,26 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>@yield('title', config('hotel.name'))</title>
 <meta name="description" content="@yield('description', 'A small hotel with a lot of character in Old Tbilisi.')">
-<meta name="robots" content="{{ app()->environment('production') ? 'index, follow, max-image-preview:large' : 'noindex, nofollow' }}">
-<link rel="canonical" href="{{ url()->current() }}">
-<meta property="og:type" content="{{ request()->routeIs('home') ? 'website' : 'article' }}">
+<meta name="robots" content="{{ \App\Support\PublicSite::shouldIndex() ? 'index, follow, max-image-preview:large' : 'noindex, nofollow' }}">
+<link rel="canonical" href="{{ $seoUrl }}">
+<meta property="og:type" content="website">
 <meta property="og:site_name" content="{{ config('hotel.name') }}">
 <meta property="og:locale" content="en_US">
-<meta property="og:url" content="{{ url()->current() }}">
+<meta property="og:url" content="{{ $seoUrl }}">
 <meta property="og:title" content="@yield('title', config('hotel.name'))">
 <meta property="og:description" content="@yield('description', 'A small hotel with a lot of character in Old Tbilisi.')">
-<meta property="og:image" content="@yield('og_image', \App\Support\Media::slot('home.hero')['src'])">
+<meta property="og:image" content="{{ $seoImage }}">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="@yield('title', config('hotel.name'))">
+<meta name="twitter:description" content="@yield('description', 'A small boutique hotel in Old Tbilisi, Georgia.')">
+<meta name="twitter:image" content="{{ $seoImage }}">
 <meta name="geo.region" content="GE-TB">
 <meta name="geo.placename" content="Tbilisi">
 <meta name="theme-color" content="#42271F">
 @if (! request()->routeIs('home'))
 {!! \App\Support\StructuredData::render(\App\Support\StructuredData::breadcrumb(array_filter([
-    'Home' => route('home'),
-    trim($__env->yieldContent('crumb')) => url()->current(),
+    'Home' => \App\Support\PublicSite::route('home'),
+    trim($__env->yieldContent('crumb')) => $seoUrl,
 ]))) !!}
 @endif
 <link rel="icon" href="{{ asset('assets/img/favicon.svg') }}" type="image/svg+xml">

@@ -17,19 +17,19 @@ class StructuredData
         $data = [
             '@context' => 'https://schema.org',
             '@type' => 'Hotel',
-            '@id' => url('/').'#hotel',
+            '@id' => PublicSite::url('/').'#hotel',
             'name' => config('hotel.name'),
             'alternateName' => [config('hotel.short_name'), 'Hotel Magnolia', 'Magnolia Hotel Tbilisi'],
             'parentOrganization' => ['@type' => 'Organization', 'name' => 'Calora Group'],
             'description' => 'A small boutique hotel in a restored brick house in Tbilisi\'s Old Town, with a rooftop terrace, free parking and a 127-year-old magnolia in the courtyard.',
-            'url' => url('/'),
+            'url' => PublicSite::url('/'),
             'telephone' => $c['phone_tel'],
             'image' => [
-                asset('assets/img/hero-facade.webp'),
-                asset('assets/img/lobby.webp'),
-                asset('assets/img/rooftop-view.webp'),
-                asset('assets/img/magnolia-courtyard.webp'),
-                asset('assets/img/room-deluxe.webp'),
+                PublicSite::url('assets/img/hero-facade.webp'),
+                PublicSite::url('assets/img/lobby.webp'),
+                PublicSite::url('assets/img/rooftop-view.webp'),
+                PublicSite::url('assets/img/magnolia-courtyard.webp'),
+                PublicSite::url('assets/img/room-deluxe.webp'),
             ],
             'address' => [
                 '@type' => 'PostalAddress',
@@ -44,7 +44,7 @@ class StructuredData
                 'Free parking', 'Free Wi-Fi', '24-hour front desk', 'Buffet breakfast',
                 'Air conditioning', 'Rooftop terrace', 'Garden', 'Family rooms', 'Non-smoking rooms',
             ])->map(fn ($a) => ['@type' => 'LocationFeatureSpecification', 'name' => $a, 'value' => true])->all(),
-            'availableLanguage' => ['en', 'ka', 'ru'],
+            'availableLanguage' => ['en'],
         ];
 
         if (! self::isPlaceholder($c['email_display'])) {
@@ -74,10 +74,10 @@ class StructuredData
             '@graph' => collect(RoomCatalog::all())->map(function ($r, $id) {
                 $room = [
                     '@type' => 'HotelRoom',
-                    '@id' => route('rooms').'#room-'.$id,
+                    '@id' => PublicSite::route('rooms').'#room-'.$id,
                     'name' => $r['name'],
                     'description' => $r['blurb'],
-                    'containedInPlace' => ['@id' => url('/').'#hotel'],
+                    'containedInPlace' => ['@id' => PublicSite::url('/').'#hotel'],
                     'occupancy' => ['@type' => 'QuantitativeValue', 'maxValue' => $r['cap'], 'unitText' => 'guests'],
                     'bed' => $r['bed'],
                     'floorSize' => ['@type' => 'QuantitativeValue', 'value' => (int) $r['size'], 'unitCode' => 'MTK'],
@@ -85,13 +85,13 @@ class StructuredData
                         ->map(fn ($a) => ['@type' => 'LocationFeatureSpecification', 'name' => $a, 'value' => true])->all(),
                 ];
                 if ($r['img']) {
-                    $room['image'] = Media::src($r['img']);
+                    $room['image'] = PublicSite::image(Media::src($r['img']));
                 }
 
                 $offer = [
                     '@type' => 'Offer',
                     'name' => $r['name'],
-                    'url' => route('rooms', ['room' => $id]),
+                    'url' => PublicSite::route('rooms', ['room' => $id]),
                     'priceCurrency' => 'GEL',
                     'price' => $r['cap'] === 1 ? $r['p1'][0] : $r['p2'][0],
                     'priceSpecification' => [
@@ -101,8 +101,7 @@ class StructuredData
                         'unitCode' => 'DAY',
                         'valueAddedTaxIncluded' => true,
                     ],
-                    'availability' => 'https://schema.org/InStock',
-                    'offeredBy' => ['@id' => url('/').'#hotel'],
+                    'offeredBy' => ['@id' => PublicSite::url('/').'#hotel'],
                     'itemOffered' => $room,
                 ];
                 // While the book-direct offer runs, the price above is valid only until it ends.
