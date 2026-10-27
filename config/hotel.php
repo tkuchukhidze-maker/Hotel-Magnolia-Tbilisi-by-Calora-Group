@@ -2,7 +2,7 @@
 
 /*
 |--------------------------------------------------------------------------
-| Magnolia Hotel — content & pricing
+| Hotel Magnolia — content & pricing
 |--------------------------------------------------------------------------
 | Everything the hotel may want to change without touching templates.
 | Values in [brackets] are placeholders to fill in before launch.
@@ -14,7 +14,8 @@
 
 return [
 
-    'name' => 'Magnolia Hotel Tbilisi',
+    'name' => 'Hotel Magnolia Tbilisi by Calora Group',
+    'short_name' => 'Hotel Magnolia Tbilisi',
 
     'contact' => [
         'phone_display' => env('HOTEL_PHONE_DISPLAY', '+995 533 33 44 22'),
@@ -28,7 +29,7 @@ return [
         'neighbourhood' => 'Old Town',
         // Google Business Profile (CID from Google Maps / Search).
         'google_maps' => env('HOTEL_GOOGLE_MAPS', 'https://maps.google.com/?cid=15414144500935940587'),
-        'map_embed' => 'https://maps.google.com/maps?q='.rawurlencode('Magnolia Hotel, 5 Kirile Ukleba St, Tbilisi').'&output=embed',
+        'map_embed' => 'https://maps.google.com/maps?q='.rawurlencode('Hotel Magnolia, 5 Kirile Ukleba St, Tbilisi').'&output=embed',
         'instagram' => env('HOTEL_INSTAGRAM', ''),
         'facebook' => env('HOTEL_FACEBOOK', ''),
         'booking_com' => env('HOTEL_BOOKING_COM', ''),
@@ -64,7 +65,7 @@ return [
     // Short, factual answers. Shown on the Contact page, marked up as FAQPage
     // and listed in /llms.txt so search and AI answers can quote them.
     'faq' => [
-        ['Where is Magnolia Hotel Tbilisi?', 'At 5 Kirile Ukleba St in the Old Town of Tbilisi, Georgia, on a quiet street below Mount Mtatsminda. Freedom Square is 950 m away and Freedom Square metro station 750 m.'],
+        ['Where is Hotel Magnolia Tbilisi?', 'At 5 Kirile Ukleba St in the Old Town of Tbilisi, Georgia, on a quiet street below Mount Mtatsminda. Freedom Square is 950 m away and Freedom Square metro station 750 m.'],
         ['How much does a room cost?', 'Rooms start from GEL 106 per night for one guest and GEL 129 for two, taxes included (autumn rates, 25% off). Prices depend on the room and dates; the Rooms page shows the exact total before you book.'],
         ['What types of rooms are there?', 'Five: Single Room (15 m²), Double Room (18 m², king bed), Double or Twin (26 m², two single beds), Triple Room (26 m², three beds, balcony) and Deluxe Room (30 m², king bed, balcony). All have air conditioning, a private bathroom, a flat-screen TV and free Wi-Fi.'],
         ['Do you serve breakfast?', 'Yes, a buffet breakfast every morning. You can add it when you book, from GEL 11 per room per night.'],

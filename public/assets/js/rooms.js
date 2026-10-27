@@ -1,4 +1,4 @@
-/* Magnolia Hotel — Rooms & booking flow
+/* Hotel Magnolia — Rooms & booking flow
    Guests and nights filter the rooms; choosing a room opens an inline panel:
    1 rate → 2 guest details → 3 confirmation.
    Room data and the booking URL come from Laravel (window.MAGNOLIA, see rooms.blade.php).
@@ -123,7 +123,7 @@
           '</div>' +
           '<datalist id="countries">' + ['Georgia', 'Armenia', 'Azerbaijan', 'Turkey', 'Israel', 'Russia', 'Ukraine', 'Kazakhstan', 'Germany', 'Poland', 'United Kingdom', 'France', 'Italy', 'Spain', 'Netherlands', 'United States', 'Saudi Arabia', 'United Arab Emirates', 'Iran', 'India', 'China'].map(function (c) { return '<option value="' + c + '">'; }).join('') + '</datalist>' +
           '<label class="input">Anything we should know? (optional)<textarea name="notes" rows="2" maxlength="1000" placeholder="Late arrival, a baby cot, a quiet room…">' + esc(f.notes) + '</textarea></label>' +
-          '<label style="display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.5;cursor:pointer"><input name="privacy" type="checkbox" required style="width:20px;height:20px;margin-top:1px;accent-color:var(--terracotta)"' + (f.privacy ? ' checked' : '') + '><span>I agree that Magnolia Hotel uses my details to handle this booking, as described in the <a href="' + esc(M.privacyUrl) + '" target="_blank" rel="noopener">privacy policy</a>. *</span></label>' +
+          '<label style="display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.5;cursor:pointer"><input name="privacy" type="checkbox" required style="width:20px;height:20px;margin-top:1px;accent-color:var(--terracotta)"' + (f.privacy ? ' checked' : '') + '><span>I agree that Hotel Magnolia uses my details to handle this booking, as described in the <a href="' + esc(M.privacyUrl) + '" target="_blank" rel="noopener">privacy policy</a>. *</span></label>' +
           '<p class="small" data-error role="alert"' + (state.error ? '' : ' hidden') + ' style="color:var(--terracotta);font-weight:700">' + esc(state.error) + '</p>' +
           '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
             '<button type="button" class="btn btn--outline" data-action="back">← Back</button>' +

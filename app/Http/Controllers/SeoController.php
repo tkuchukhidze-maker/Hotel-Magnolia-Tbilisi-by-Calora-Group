@@ -58,6 +58,8 @@ class SeoController extends Controller
         $lines = [
             '# '.config('hotel.name'),
             '',
+            'Also known as: '.config('hotel.short_name').', Hotel Magnolia. Part of Calora Group.',
+            '',
             '> A small boutique hotel in a restored brick house at '.$c['address'].', Old Town, Tbilisi, Georgia. Rooftop terrace with glass domes, free parking, 24-hour front desk, buffet breakfast, and a 127-year-old magnolia tree in the courtyard.',
             '',
             '## Key facts',

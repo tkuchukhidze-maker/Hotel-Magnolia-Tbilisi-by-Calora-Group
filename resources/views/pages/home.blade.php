@@ -3,7 +3,7 @@
 @php($offer = config('hotel.offer'))
 @php($rating = config('hotel.rating'))
 
-@section('title', 'Magnolia Hotel Tbilisi | Boutique Hotel in Old Tbilisi with Free Parking')
+@section('title', 'Hotel Magnolia Tbilisi | Boutique Hotel in Old Tbilisi with Free Parking')
 @section('description', 'Small boutique hotel at 5 Kirile Ukleba St, Old Tbilisi, 950 m from Freedom Square. Rooms from GEL 106, free parking, rooftop terrace and a 127-year-old magnolia. Book direct, pay at the hotel.')
 
 @push('head')
@@ -20,7 +20,7 @@
 @section('content')
 <!-- HERO -->
 <section class="hero">
-<img class="hero__img" src="{{ asset('assets/img/hero-facade.webp') }}" alt="Magnolia Hotel at golden hour: a red-brick facade with glowing windows, a wrought-iron balcony and two street trees" fetchpriority="high" width="1086" height="1448">
+<img class="hero__img" src="{{ asset('assets/img/hero-facade.webp') }}" alt="Hotel Magnolia at golden hour: a red-brick facade with glowing windows, a wrought-iron balcony and two street trees" fetchpriority="high" width="1086" height="1448">
 <div class="hero__shade" aria-hidden="true"></div>
 <div class="container hero__content">
 <div class="hero__copy">

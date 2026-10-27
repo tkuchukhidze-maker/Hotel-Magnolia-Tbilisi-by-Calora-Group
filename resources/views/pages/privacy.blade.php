@@ -1,8 +1,8 @@
 @extends('layouts.app')
 @php($c = config('hotel.contact'))
 
-@section('title', 'Privacy Policy | Magnolia Hotel Tbilisi')
-@section('description', 'How Magnolia Hotel Tbilisi uses the personal details you give us when you book or contact us.')
+@section('title', 'Privacy Policy | Hotel Magnolia Tbilisi')
+@section('description', 'How Hotel Magnolia Tbilisi uses the personal details you give us when you book or contact us.')
 @section('crumb', 'Privacy policy')
 
 @section('content')

@@ -8,8 +8,8 @@
     'Children' => $p['children'], 'Pets' => $p['pets'],
 ])
 
-@section('title', 'Contact, Check-in & FAQ | Magnolia Hotel Tbilisi')
-@section('description', 'Call or WhatsApp +995 533 33 44 22, 24 hours. Magnolia Hotel, 5 Kirile Ukleba St, Old Tbilisi. Check-in, cancellation, parking, breakfast and answers to common questions.')
+@section('title', 'Contact, Check-in & FAQ | Hotel Magnolia Tbilisi')
+@section('description', 'Call or WhatsApp +995 533 33 44 22, 24 hours. Hotel Magnolia, 5 Kirile Ukleba St, Old Tbilisi. Check-in, cancellation, parking, breakfast and answers to common questions.')
 @section('crumb', 'Contact & FAQ')
 @section('og_image', asset('assets/img/entrance-door.webp'))
 

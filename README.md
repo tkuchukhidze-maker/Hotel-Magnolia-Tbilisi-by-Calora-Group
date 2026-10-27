@@ -1,6 +1,6 @@
-# Magnolia Hotel Tbilisi — website (Laravel)
+# Hotel Magnolia Tbilisi — website (Laravel)
 
-Website for **Magnolia Hotel Tbilisi** (Calora Group): a small hotel in an old brick house in Old Tbilisi, with a 127-year-old magnolia in the courtyard.
+Website for **Hotel Magnolia Tbilisi** (Calora Group): a small hotel in an old brick house in Old Tbilisi, with a 127-year-old magnolia in the courtyard.
 
 Brand idea: **A little different. A lot more personal.**
 
@@ -53,7 +53,7 @@ php artisan test                      # run the tests
 ### .env settings for the hotel
 
 ```
-APP_NAME="Magnolia Hotel Tbilisi"
+APP_NAME="Hotel Magnolia Tbilisi"
 APP_URL=https://your-domain.ge
 
 HOTEL_PHONE_DISPLAY="+995 ..."

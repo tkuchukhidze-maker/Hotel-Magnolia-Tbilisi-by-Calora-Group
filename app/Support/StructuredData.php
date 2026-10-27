@@ -19,6 +19,8 @@ class StructuredData
             '@type' => 'Hotel',
             '@id' => url('/').'#hotel',
             'name' => config('hotel.name'),
+            'alternateName' => [config('hotel.short_name'), 'Hotel Magnolia', 'Magnolia Hotel Tbilisi'],
+            'parentOrganization' => ['@type' => 'Organization', 'name' => 'Calora Group'],
             'description' => 'A small boutique hotel in a restored brick house in Tbilisi\'s Old Town, with a rooftop terrace, free parking and a 127-year-old magnolia in the courtyard.',
             'url' => url('/'),
             'telephone' => $c['phone_tel'],

@@ -1,4 +1,4 @@
-/* Magnolia Hotel — shared behaviour: navigation, header, mobile booking bar, gallery filter */
+/* Hotel Magnolia — shared behaviour: navigation, header, mobile booking bar, gallery filter */
 (function () {
   'use strict';
 

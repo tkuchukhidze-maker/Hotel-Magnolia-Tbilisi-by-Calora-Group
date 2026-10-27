@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'About the Hotel & Photo Gallery | Magnolia Hotel Tbilisi')
+@section('title', 'About the Hotel & Photo Gallery | Hotel Magnolia Tbilisi')
 @section('description', 'A restored brick house in Old Tbilisi with classic furniture, a rooftop terrace with glass domes facing Mtatsminda, and a 127-year-old magnolia in the courtyard. See the photos.')
 @section('crumb', 'Our hotel & gallery')
 @section('og_image', asset('assets/img/lobby.webp'))
