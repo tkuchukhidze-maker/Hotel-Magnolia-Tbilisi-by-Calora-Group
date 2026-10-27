@@ -10,9 +10,9 @@
 @if($errors->any())<p class="notice" role="alert">{{ $errors->first() }}</p>@endif
 <section id="overview"><h2>Overview</h2><div class="metrics">
 <div class="metric"><small>Pending requests</small><strong>{{ $stats['new_requests'] }}</strong></div>
-<div class="metric"><small>Today's arrivals</small><strong>{{ $stats['arrivals'] }}</strong></div>
+<div class="metric"><small>Today's expected arrivals / requests</small><strong>{{ $stats['arrivals'] }}</strong></div>
 <div class="metric"><small>Guests arriving today</small><strong>{{ $stats['guests_today'] }}</strong></div>
-<div class="metric"><small>Monthly booking base value*</small><strong>{{ number_format($stats['base_value']) }} ₾</strong></div></div>
+<div class="metric"><small>Monthly requested / confirmed base value*</small><strong>{{ number_format($stats['base_value']) }} ₾</strong></div></div>
 <p class="notice">*Requested/confirmed room value, not collected revenue. Extra beds, refunds and channel bookings are not reconciled.</p></section>
 <section id="bookings" class="panel"><h2>Latest booking requests</h2><div class="scroll"><table><thead><tr><th>Reference</th><th>Guest</th><th>Phone</th><th>Stay</th><th>Rooms</th><th>Base total</th><th>Status</th><th>Update</th></tr></thead><tbody>
 @forelse($bookings as $booking)<tr><td>{{ $booking->reference }}</td><td>{{ $booking->guestName() }}</td><td>{{ $booking->phone }}</td><td>{{ $booking->checkin->format('d M') }} – {{ $booking->checkout->format('d M') }}</td><td>{{ $booking->roomsSummary() }}</td><td>{{ number_format($booking->total) }} ₾</td><td>{{ $booking->status }}</td><td>
