@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class RoomCatalog
 {
@@ -13,6 +14,11 @@ class RoomCatalog
     public static function all(): array
     {
         $rooms = config('hotel.rooms', []);
+        // Preserve the public website during a rolling deployment before migrations.
+        if (!Schema::hasTable('room_rates')) {
+            return $rooms;
+        }
+
         $rates = DB::table('room_rates')->get()->keyBy('room_type');
 
         foreach ($rooms as $type => &$room) {
