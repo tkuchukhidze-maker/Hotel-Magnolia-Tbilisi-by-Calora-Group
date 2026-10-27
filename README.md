@@ -67,6 +67,41 @@ HOTEL_BOOKINGS_EMAIL=reservations@your-domain.ge
 MAIL_MAILER=smtp      # until set, booking emails go to storage/logs/laravel.log
 ```
 
+## Room gallery, tariffs and booking requests (2026-10-27 update)
+
+The Rooms page lists five room categories and four **sample** tariff variants (1 or 2 guests, with or without breakfast) where applicable. Current and former GEL prices come from the rates supplied for 27 October 2026; they are not automatically date-specific.
+
+### Photos
+
+Room images must be **real, verified photographs of the same room type**. The page includes an accessible gallery modal, keyboard controls, room filter and photo captions. The currently verified source files are:
+
+- Double Room: `public/assets/img/room-double.webp`
+- Deluxe Room: `public/assets/img/room-deluxe.webp`
+- Double or Twin: `public/assets/img/room-twin.webp`
+- Triple Room: photos pending — add verified `public/assets/img/room-triple-01.webp`, `room-triple-02.webp` etc.
+- Single Room: photos pending — add verified `public/assets/img/room-single-01.webp`, `room-single-02.webp` etc.
+
+Add each new image to `config/hotel.php`, room `photos` array, e.g.
+
+```php
+'photos' => [
+    ['src' => 'assets/img/room-triple-01.webp', 'alt' => 'Triple Room with three single beds', 'caption' => 'Beds and room'],
+    ['src' => 'assets/img/room-triple-02.webp', 'alt' => 'Triple Room private bathroom', 'caption' => 'Bathroom'],
+],
+```
+
+Do **not** use photos from other room types as substitutes, stock/AI images, or inaccessible locations.
+
+### Occupancy and extra beds
+
+- Room minimum and standard maximum guest counts are configured by type. Children are counted toward total occupancy **without requiring ages**. Do not ask for birth dates in the initial request.
+- One **extra bed per selected room** can be requested but is **not guaranteed**. The extra bed is not priced automatically: staff must approve suitability, supply and any supplement. Base room totals exclude this supplement, both in the UI and the hotel notification.
+- The supplied listing shows **3 twin beds** in Triple but refers to an offer for **2 guests**. The configured room capacity remains 3 (the room has three beds), while the published tariff is labelled as a 2-guest sample. Confirm the real 3-guest tariff and any extra-bed occupancy caps before production.
+- Static `stock` is an upper request limit, **not live availability**. Never show `Only N left`, `fully booked` or instant confirmation without a PMS.
+- Date-specific cancellation cutoff in the supplied sample (6 PM on 28 October 2026) must not be hard-coded for future bookings.
+
+The flow intentionally ends in `requested` with a unique reference. It is not a confirmed reservation until staff or a PMS approves it.
+
 ## Bookings
 
 `POST /bookings` validates the request, checks room capacity, **recalculates the price on the server** from `config/hotel.php` (never trusts the browser), saves a `Booking` with a reference like `MG-7KQ2ZD`, and emails the hotel. It is rate-limited (10 requests/minute). Bookings are stored with status `requested` — staff confirm them with the guest and enter them in the PMS.
