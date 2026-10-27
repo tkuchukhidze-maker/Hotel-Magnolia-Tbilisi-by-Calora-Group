@@ -39,7 +39,7 @@ class BookingController extends Controller
             'last_name' => ['required', 'string', 'max:80'],
             'email' => ['required', 'email', 'max:160'],
             'phone' => ['required', 'string', 'min:6', 'max:40', 'regex:/^[0-9+()\-\s]+$/'],
-            'country' => ['required', 'string', 'max:80'],
+            'country' => ['nullable', 'string', 'max:80'],
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:120'],
             'postal_code' => ['nullable', 'string', 'max:20'],
@@ -55,7 +55,6 @@ class BookingController extends Controller
             'phone.required' => 'Please add a phone number.',
             'phone.regex' => 'Please check your phone number.',
             'phone.min' => 'Please check your phone number.',
-            'country.required' => 'Please tell us your country.',
             'privacy.accepted' => 'Please agree to the privacy policy to book.',
             'checkin.required' => 'Please choose your check-in date.',
             'checkin.after_or_equal' => 'Check-in can\'t be in the past.',
@@ -103,7 +102,7 @@ class BookingController extends Controller
             'last_name' => $data['last_name'],
             'email' => $data['email'],
             'phone' => $data['phone'],
-            'country' => $data['country'],
+            'country' => $data['country'] ?? 'Not specified',
             'address' => $data['address'] ?? null,
             'city' => $data['city'] ?? null,
             'postal_code' => $data['postal_code'] ?? null,
@@ -121,6 +120,8 @@ class BookingController extends Controller
         }
 
         return response()->json([
+            'status' => 'requested',
+            'message' => 'Request received. Your stay is not confirmed until our team checks availability and contacts you.',
             'reference' => $booking->reference,
             'items' => $quote->lines,
             'nightly' => $quote->nightly,
