@@ -33,7 +33,7 @@
 </div>
 <div class="ages" data-ages hidden></div>
 <div class="search-summary">
-<span class="ticks"><span>✓ Free cancellation</span><span>✓ Pay at the hotel</span>@if ($promo['active'])<span>✓ −{{ $promo['discount'] }}% book-direct rate until {{ $promo['ends_label'] }}</span>@else<span>✓ Lowest price, guaranteed</span>@endif</span>
+<span class="ticks"><span>✓ Date-specific prices</span><span>✓ Multiple rate plans</span><span>✓ Booking requests checked by our team</span></span>
 <span class="small">Bigger group than {{ config('hotel.max_adults') }} adults? <a href="https://wa.me/{{ $c['whatsapp'] }}">Message us</a>.</span>
 </div>
 </section>
@@ -93,6 +93,8 @@ window.MAGNOLIA = {!! json_encode([
     'childMaxAge' => config('hotel.child_max_age'),
     'maxNights' => config('hotel.max_nights'),
     'bookingUrl' => route('bookings.store'),
+    'pricePreviewUrl' => route('booking-prices.preview'),
+    'ratePlans' => \App\Support\RoomPricing::plans(),
     'privacyUrl' => route('privacy'),
     'whatsapp' => 'https://wa.me/'.$c['whatsapp'],
     'phone' => $c['phone_display'],

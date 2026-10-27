@@ -7,10 +7,10 @@ Rate:      {{ $booking->rateName() }}
 
 Rooms ({{ $booking->rooms_count }}):
 @foreach ($booking->items ?? [] as $line)
-  {{ $line['qty'] }} × {{ $line['name'] }} — GEL {{ $line['nightly'] }} per room per night = GEL {{ $line['subtotal'] }} per night
+  {{ $line['qty'] }} × {{ $line['name'] }} — GEL {{ $line['stay_total'] ?? ($line['subtotal'] * $booking->nights) }} for the full stay@if($line['nightly_varies'] ?? false) (prices vary by night)@endif
 @endforeach
 
-Total:     GEL {{ $booking->total }} (GEL {{ $booking->nightly_price }} per night, taxes included, pay at the hotel)
+Total:     GEL {{ $booking->total }} (average GEL {{ $booking->nightly_price }} per night; nightly rates may vary, taxes included, pay at the hotel)
 
 Guest:     {{ $booking->guestName() }}
 Country:   {{ $booking->country }}
