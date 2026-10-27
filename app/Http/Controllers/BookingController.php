@@ -6,6 +6,7 @@ use App\Mail\BookingReceived;
 use App\Models\Booking;
 use App\Support\BookingQuote;
 use App\Support\RoomCatalog;
+use App\Support\RoomPricing;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -29,7 +30,7 @@ class BookingController extends Controller
             'items' => ['required', 'array', 'min:1', 'max:'.count($rooms)],
             'items.*.room' => ['required', 'distinct', Rule::in(array_keys($rooms))],
             'items.*.qty' => ['required', 'integer', 'min:1', 'max:10'],
-            'rate' => ['required', Rule::in(['room', 'bf'])],
+            'rate' => ['required', Rule::in(array_column(RoomPricing::plans(strict: true), 'code'))],
             'checkin' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
             'nights' => ['required', 'integer', 'min:1', 'max:'.config('hotel.max_nights')],
             'adults' => ['required', 'integer', 'min:1', 'max:'.config('hotel.max_adults')],
@@ -76,7 +77,7 @@ class BookingController extends Controller
         }
 
         $guests = $data['adults'] + $data['children'];
-        $quote = new BookingQuote($data['items'], $guests, $data['rate'], $data['nights']);
+        $quote = new BookingQuote($data['items'], $guests, $data['rate'], $data['nights'], $data['checkin']);
 
         if ($quote->capacity < $guests) {
             $errors['items'] = 'These rooms sleep '.$quote->capacity.', but you are '.$guests.' guests. Please add another room.';
@@ -126,6 +127,7 @@ class BookingController extends Controller
             'items' => $quote->lines,
             'nightly' => $quote->nightly,
             'total' => $booking->total,
+            'daily_totals' => $quote->dailyTotals,
             'checkin' => $booking->checkin->toDateString(),
             'checkout' => $booking->checkout->toDateString(),
         ], 201);
