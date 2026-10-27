@@ -10,6 +10,7 @@
 
   var M = window.MAGNOLIA || {};
   var ROOMS = M.rooms || [];
+  var RATE_PLANS = M.ratePlans || [{code:'room',name:'Room only'},{code:'bf',name:'With buffet breakfast'}];
   var MAX_ADULTS = M.maxAdults || 12;
   var MAX_KIDS = M.maxChildren || 6;
   var CHILD_MAX_AGE = M.childMaxAge == null ? 17 : M.childMaxAge;
@@ -43,7 +44,11 @@
     sending: false,
     error: '',
     result: null,
-    form: {}
+    form: {},
+    pricePreview: null,
+    priceLoading: false,
+    priceError: '',
+    priceRevision: 0
   };
   (params.get('ages') || '').split(',').forEach(function (a, i) {
     var n = parseInt(a, 10);
@@ -83,19 +88,39 @@
   function roomsCount() { return items().reduce(function (s, i) { return s + i.qty; }, 0); }
 
   /* Same rule as BookingQuote.php: the 1-guest price only for one room, one guest. */
+  function stayRate(r, plan, single) {
+    var entry = state.pricePreview && state.pricePreview.rooms && state.pricePreview.rooms[r.id] && state.pricePreview.rooms[r.id][plan];
+    if (entry) return single || r.cap === 1 ? entry.one : entry.two;
+    if (plan !== 'room' && plan !== 'bf') return 0;
+    var p = (single || r.cap === 1) ? r.p1 : r.p2;
+    return p[plan === 'bf' ? 1 : 0] * state.nights;
+  }
+
+  function refreshPricing() {
+    var revision = ++state.priceRevision;
+    state.pricePreview = null; state.priceError = '';
+    if (!state.checkin || state.checkin < today()) { state.priceLoading = false; render(); return; }
+    state.priceLoading = true; render();
+    fetch(M.pricePreviewUrl + '?checkin=' + encodeURIComponent(state.checkin) + '&nights=' + state.nights, { headers: { 'Accept': 'application/json' } })
+      .then(function (response) { if (!response.ok) throw new Error('Rates unavailable'); return response.json(); })
+      .then(function (data) { if (revision !== state.priceRevision) return; state.pricePreview = data; state.priceLoading = false; state.priceError = ''; render(); })
+      .catch(function () { if (revision !== state.priceRevision) return; state.priceLoading = false; state.priceError = 'Prices could not be verified. Please try again or contact the hotel.'; render(); });
+  }
+
   function quote(its, rate) {
     var rooms = its.reduce(function (s, i) { return s + i.qty; }, 0);
     var single = rooms === 1 && guests() === 1;
     var q = { lines: [], capacity: 0, rooms: rooms, nightly: 0 };
     its.forEach(function (i) {
       var r = BY_ID[i.room];
-      var p = single ? r.p1 : r.p2;
-      var per = rate === 'bf' ? p[1] : p[0];
+      var stay = stayRate(r, rate, single);
+      var per = Math.round(stay / state.nights);
       q.lines.push({ room: r.id, name: r.name, qty: i.qty, nightly: per, subtotal: per * i.qty });
       q.capacity += r.cap * i.qty;
-      q.nightly += per * i.qty;
+      q.total = (q.total || 0) + stay * i.qty;
     });
-    q.total = q.nightly * state.nights;
+    q.total = q.total || 0;
+    q.nightly = Math.round(q.total / state.nights);
     return q;
   }
 
@@ -182,6 +207,8 @@
     var q = state.qty[r.id] || 0;
     var single = guests() === 1 && r.cap === 1;
     var price = single || (guests() === 1 && roomsCount() <= 1) ? r.p1 : r.p2;
+    var dynamicPrice = stayRate(r, state.rate, price === r.p1);
+    var nightlyDisplay = state.pricePreview && dynamicPrice ? Math.round(dynamicPrice / state.nights) : price[0];
     var was = price === r.p1 ? r.w1 : r.w2;
     var stock = r.stock || 0;
     var control;
@@ -207,7 +234,7 @@
             '<p class="small" style="font-size:14px">Air conditioning · Private bathroom · TV · Free Wi‑Fi · City &amp; garden view</p>' +
           '</div>' +
           '<div class="room__price">' +
-            '<div><span class="small">per room per night</span><div class="big"><s>' + gel(was) + '</s><strong>' + gel(price[0]) + '</strong></div><span class="small">' + gel(price[1]) + ' with breakfast · taxes included</span></div>' +
+            '<div><span class="small">' + (state.pricePreview ? 'Average per night for selected dates' : 'Indicative per room / night') + '</span><div class="big"><strong>' + gel(nightlyDisplay) + '</strong></div><span class="small">' + (state.pricePreview ? 'Exact stay total shown in booking summary' : 'Choose dates for final rate · taxes included') + '</span></div>' +
             '<div class="room__ctrl">' + control + '</div>' +
           '</div>' +
         '</div>' +
@@ -319,23 +346,21 @@
     if (q.rooms) {
       var bf = quote(items(), 'bf'), ro = quote(items(), 'room');
       if (state.step === 'choose') {
-        html += '<div role="group" aria-label="Choose your rate" class="stack" style="gap:8px">' +
-          '<button type="button" class="rate" data-action="rate" data-rate="room" aria-pressed="' + (state.rate === 'room') + '"><span><strong>Room only</strong><small>Free cancellation · pay at the hotel</small></span><strong>' + gel(ro.nightly) + '</strong></button>' +
-          '<button type="button" class="rate" data-action="rate" data-rate="bf" aria-pressed="' + (state.rate === 'bf') + '"><span><strong>With buffet breakfast</strong><small>+' + gel(bf.nightly - ro.nightly) + ' per night, all rooms</small></span><strong>' + gel(bf.nightly) + '</strong></button>' +
-        '</div>';
+        html += '<div role="group" aria-label="Choose your rate" class="stack" style="gap:8px">' + RATE_PLANS.map(function (p) { var amount = quote(items(), p.code); return '<button type="button" class="rate" data-action="rate" data-rate="' + esc(p.code) + '" aria-pressed="' + (state.rate === p.code) + '"><span><strong>' + esc(p.name) + '</strong><small>Price for selected stay</small></span><strong>' + gel(amount.total) + '</strong></button>'; }).join('') + '</div>';
       } else {
-        html += '<p class="small" style="margin:0">' + (state.rate === 'bf' ? 'With buffet breakfast' : 'Room only') + '</p>';
+        html += '<p class="small" style="margin:0">' + esc((RATE_PLANS.filter(function (p) { return p.code === state.rate; })[0] || {name:state.rate}).name) + '</p>';
       }
       html += '<div class="summary">' +
-        '<div><span>' + gel(q.nightly) + ' × ' + nightsLabel() + '</span><span>' + gel(q.total) + '</span></div>' +
+        '<div><span>Room total for ' + nightsLabel() + '</span><span>' + gel(q.total) + '</span></div>' +
         '<div class="muted"><span>Taxes &amp; fees</span><span>Included</span></div>' +
         '<div class="total"><strong>Total</strong><strong>' + gel(q.total) + '</strong></div>' +
         '<p class="ok-note">You pay nothing now. Cancellation: ' + esc((M.cancellation || '').toLowerCase()) + '.</p>' +
       '</div>';
     }
 
+    if (state.step === 'choose' && (state.priceLoading || state.priceError)) html += '<p class="small" role="status">' + esc(state.priceError || 'Checking nightly prices…') + '</p>';
     if (state.step === 'choose') {
-      var why = !q.rooms ? 'Add at least one room' : !enough ? 'Add room for everyone first' : agesMissing() ? 'Add the children\'s ages above' : '';
+      var why = !state.checkin ? 'Select a check-in date' : state.priceLoading ? 'Checking nightly prices…' : state.priceError ? 'Could not verify prices' : !state.pricePreview ? 'Choose dates for exact rates' : !q.rooms ? 'Add at least one room' : !enough ? 'Add room for everyone first' : agesMissing() ? 'Add the children\'s ages above' : '';
       html += '<button type="button" class="btn btn--primary btn--block" data-action="next"' + (why ? ' disabled' : '') + '>' + (why || 'Continue · ' + gel(q.total)) + '</button>';
     }
     return html;
@@ -446,6 +471,7 @@
     else if (a === 'back') { rememberForm(); state.step = 'choose'; state.error = ''; render(); focusIn(list, '.room.is-selected button, .room button'); return; }
     else if (a === 'restart') { state.step = 'choose'; state.qty = {}; state.result = null; render(); focusIn(document.getElementById('search'), 'input, button'); return; }
     else return;
+    if (a === 'nights+' || a === 'nights-') { refreshPricing(); return; }
     render();
   });
 
@@ -462,7 +488,7 @@
   if (checkinEl) {
     checkinEl.min = today();
     if (state.checkin) checkinEl.value = state.checkin;
-    checkinEl.addEventListener('change', function () { state.checkin = checkinEl.value; render(); });
+    checkinEl.addEventListener('change', function () { state.checkin = checkinEl.value; refreshPricing(); });
   }
 
   document.addEventListener('submit', function (e) {
@@ -521,7 +547,7 @@
     });
   });
 
-  render();
+  if (state.checkin) refreshPricing(); else render();
   if (preRoom && BY_ID[preRoom]) {
     var pre = document.getElementById('room-' + preRoom);
     if (pre) pre.scrollIntoView({ block: 'start' });
