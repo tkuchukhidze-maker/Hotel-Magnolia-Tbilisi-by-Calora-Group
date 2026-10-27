@@ -92,6 +92,7 @@ window.MAGNOLIA = {!! json_encode([
     'maxNights' => config('hotel.max_nights'),
     'bookingUrl' => route('bookings.store'),
     'pricePreviewUrl' => route('booking-prices.preview'),
+    'ratePlans' => \App\Support\RoomPricing::plans(),
     'privacyUrl' => route('privacy'),
     'whatsapp' => 'https://wa.me/'.$c['whatsapp'],
     'phone' => $c['phone_display'],
