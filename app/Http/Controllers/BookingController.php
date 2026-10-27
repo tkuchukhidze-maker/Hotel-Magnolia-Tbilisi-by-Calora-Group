@@ -75,6 +75,9 @@ class BookingController extends Controller
         $guests = $data['adults'] + $data['children'];
         $quote = new BookingQuote($data['items'], $guests, $data['rate'], $data['nights']);
 
+        if ($quote->rooms > $guests) {
+            $errors['items'] = 'Each selected room needs at least one guest. Please reduce the number of rooms.';
+        }
         if ($quote->capacity < $guests) {
             $errors['items'] = 'These rooms sleep '.$quote->capacity.', but you are '.$guests.' guests. Please add another room.';
         }
