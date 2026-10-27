@@ -7,6 +7,7 @@ use App\Models\Booking;
 use App\Support\BookingQuote;
 use App\Support\RoomCatalog;
 use App\Support\RoomPricing;
+use App\Support\Services;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -48,6 +49,8 @@ class BookingController extends Controller
             'arrival' => ['nullable', 'string', 'max:40'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'privacy' => ['accepted'],
+            'extras' => ['nullable', 'array', 'max:20'],
+            'extras.*' => ['integer'],
         ], [
             'items.required' => 'Please choose at least one room.',
             'first_name.required' => 'Please add your first name.',
@@ -86,11 +89,16 @@ class BookingController extends Controller
             throw ValidationException::withMessages($errors);
         }
 
+        // Paid extras (airport transfer …), priced here from the admin's list.
+        $extras = Services::quote($data['extras'] ?? [], (int) $data['nights'], $guests, $quote->rooms);
+
         $checkin = Carbon::createFromFormat('Y-m-d', $data['checkin'])->startOfDay();
 
         $booking = Booking::create([
             'reference' => $this->newReference(),
             'items' => $quote->lines,
+            'extras' => $extras['lines'],
+            'extras_total' => $extras['total'],
             'rooms_count' => $quote->rooms,
             'rate' => $data['rate'],
             'checkin' => $checkin,
@@ -100,7 +108,7 @@ class BookingController extends Controller
             'children' => $data['children'],
             'children_ages' => array_values($data['children_ages']),
             'nightly_price' => $quote->nightly,
-            'total' => $quote->total,
+            'total' => $quote->total + $extras['total'],
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'email' => $data['email'],
@@ -126,6 +134,8 @@ class BookingController extends Controller
             'reference' => $booking->reference,
             'items' => $quote->lines,
             'nightly' => $quote->nightly,
+            'extras' => $extras['lines'],
+            'extras_total' => $extras['total'],
             'total' => $booking->total,
             'daily_totals' => $quote->dailyTotals,
             'checkin' => $booking->checkin->toDateString(),

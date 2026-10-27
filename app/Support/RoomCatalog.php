@@ -13,7 +13,7 @@ class RoomCatalog
      */
     public static function all(bool $strict = false): array
     {
-        $rooms = self::withOfferApplied(config('hotel.rooms', []));
+        $rooms = self::withPhotos(self::withOfferApplied(config('hotel.rooms', [])));
 
         // Pricing overrides are optional for public page rendering. An unavailable
         // DB must not take down the entire hotel website during an outage or a
@@ -48,6 +48,19 @@ class RoomCatalog
             $room['w1'] = $room['p1'][0];
             $room['w2'] = $room['p2'][0];
             $room['rates_overridden'] = true;
+        }
+        unset($room);
+
+        return $rooms;
+    }
+
+    /** Room photos replaced in the admin panel (Photos page). `img` stays a path; use Media::src() to show it. */
+    private static function withPhotos(array $rooms): array
+    {
+        foreach ($rooms as $type => &$room) {
+            $photo = Media::slot('room.'.$type);
+            $room['img'] = $photo['path'];
+            $room['alt'] = $photo['alt'];
         }
         unset($room);
 

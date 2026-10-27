@@ -13,7 +13,7 @@
     ? $promo['label'].': '.$promo['discount'].'% off every room at our boutique hotel in Old Tbilisi when you book direct by '.$promo['ends_label'].'. From GEL '.$from.' a night, pay at the hotel, free cancellation.'
     : 'Book direct with Hotel Magnolia Tbilisi by Calora Group for our lowest price, guaranteed. Pay at the hotel, free cancellation.')
 @section('crumb', $on ? $promo['label'] : 'Offers')
-@section('og_image', asset('assets/img/rooftop-view.webp'))
+@section('og_image', \App\Support\Media::slot('offer.hero')['src'])
 
 @push('head')
 {!! \App\Support\StructuredData::render(\App\Support\StructuredData::hotel()) !!}
@@ -22,7 +22,7 @@
 @section('content')
 <!-- HERO -->
 <section class="hero offer-hero">
-<img class="hero__img" src="{{ asset('assets/img/rooftop-view.webp') }}" alt="The view from our rooftop terrace over the old roofs of Tbilisi" fetchpriority="high">
+<img class="hero__img" src="{{ \App\Support\Media::slot('offer.hero')['src'] }}" alt="{{ \App\Support\Media::slot('offer.hero')['alt'] }}" fetchpriority="high">
 <div class="hero__shade" aria-hidden="true"></div>
 <svg class="decor decor--hide-sm" width="520" height="434" stroke-width=".35" style="right:-80px;top:90px;opacity:.28;color:var(--gold-light);z-index:1" aria-hidden="true"><use href="#mg-flower"/></svg>
 <div class="container hero__content">
@@ -65,7 +65,7 @@
 @php($was = $r['cap'] === 1 ? $r['w1'] : $r['w2'])
 <article class="save-card">
 <div class="save-card__media">
-@if ($r['img'])<img src="{{ asset($r['img']) }}" alt="{{ $r['alt'] }}" loading="lazy" width="920" height="600">@else<svg width="120" height="100" stroke-width=".7" style="color:var(--terracotta);opacity:.45" aria-hidden="true"><use href="#mg-flower"/></svg>@endif
+@if ($r['img'])<img src="{{ \App\Support\Media::src($r['img']) }}" alt="{{ $r['alt'] }}" loading="lazy" width="920" height="600">@else<svg width="120" height="100" stroke-width=".7" style="color:var(--terracotta);opacity:.45" aria-hidden="true"><use href="#mg-flower"/></svg>@endif
 @if ($on && $was > $now)<span class="tag tag--deal">−{{ $promo['discount'] }}%</span>@endif
 </div>
 <div class="save-card__body">
@@ -103,7 +103,7 @@
 <section class="section section--sand decor-host">
 <div class="container split">
 <figure class="magnolia__media figure">
-<img class="arch" src="{{ asset('assets/img/magnolia-courtyard.webp') }}" alt="The 127-year-old magnolia in the hotel courtyard, rising between brick walls and a spiral staircase" loading="lazy" width="1086" height="1448">
+<img class="arch" src="{{ \App\Support\Media::slot('magnolia')['src'] }}" alt="{{ \App\Support\Media::slot('magnolia')['alt'] }}" loading="lazy" width="1086" height="1448">
 <div class="badge-127"><b>127</b><span>YEARS OLD</span></div>
 </figure>
 <div class="stack">

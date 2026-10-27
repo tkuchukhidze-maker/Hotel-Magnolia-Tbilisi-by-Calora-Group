@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Booking extends Model
 {
     protected $fillable = [
-        'reference', 'room', 'items', 'rooms_count', 'rate', 'checkin', 'checkout', 'nights',
+        'reference', 'room', 'items', 'extras', 'extras_total', 'rooms_count', 'rate', 'checkin', 'checkout', 'nights',
         'adults', 'children', 'children_ages', 'nightly_price', 'total',
         'first_name', 'last_name', 'email', 'phone', 'country',
         'address', 'city', 'postal_code',
@@ -18,6 +18,8 @@ class Booking extends Model
     {
         return [
             'items' => 'array',
+            'extras' => 'array',
+            'extras_total' => 'integer',
             'children_ages' => 'array',
             'checkin' => 'date',
             'checkout' => 'date',

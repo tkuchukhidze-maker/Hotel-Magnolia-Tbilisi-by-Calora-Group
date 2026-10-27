@@ -9,6 +9,13 @@ Rooms ({{ $booking->rooms_count }}):
 @foreach ($booking->items ?? [] as $line)
   {{ $line['qty'] }} × {{ $line['name'] }} — GEL {{ $line['stay_total'] ?? ($line['subtotal'] * $booking->nights) }} for the full stay@if($line['nightly_varies'] ?? false) (prices vary by night)@endif
 @endforeach
+@if (! empty($booking->extras))
+
+Extras:
+@foreach ($booking->extras as $extra)
+  {{ $extra['name'] }} — GEL {{ $extra['amount'] }} (GEL {{ $extra['price'] }} {{ \App\Support\Services::UNITS[$extra['unit']] ?? '' }})
+@endforeach
+@endif
 
 Total:     GEL {{ $booking->total }} (average GEL {{ $booking->nightly_price }} per night; nightly rates may vary, taxes included, pay at the hotel)
 

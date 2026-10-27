@@ -3,35 +3,18 @@
 @section('title', 'About the Hotel & Photo Gallery | Hotel Magnolia Tbilisi by Calora Group')
 @section('description', 'A restored brick house in Old Tbilisi with classic furniture, a rooftop terrace with glass domes facing Mtatsminda, and a 127-year-old magnolia in the courtyard. See the photos.')
 @section('crumb', 'Our hotel & gallery')
-@section('og_image', asset('assets/img/lobby.webp'))
+@section('og_image', \App\Support\Media::slot('our-hotel.banner')['src'])
 
 @php
-$gallery = [
-    ['rooftop-view', 'spaces', true, 'Rooftop terrace with glass domes facing Mount Mtatsminda and the TV tower', 'Glass domes on the roof, Mtatsminda straight ahead.'],
-    ['bathroom', 'details rooms', false, 'Bathroom with black-and-white patterned tiles', 'Patterned tiles, plenty of hot water.'],
-    ['room-deluxe', 'rooms', false, 'Deluxe Room under two skylights', 'Wake up to sky, not street.'],
-    ['room-double', 'rooms', false, 'Double Room with a skylight over a writing desk', 'A desk under the skylight.'],
-    ['room-twin', 'details rooms', false, 'A gold-framed painting of haystacks above twin beds', 'Real paintings, in real gold frames.'],
-    ['welcome-tray', 'details', false, 'Welcome tea and fruit on a small black table', 'Tea and fruit, waiting for you.'],
-    ['lobby', 'spaces', false, 'The lobby with chandeliers and red armchairs', 'The lobby, for slow mornings.'],
-    ['aerial', 'spaces', true, 'The hotel from above: old brick walls under a white louvred roof', 'Old brick below, a light new roof above.'],
-    ['facade-street', 'spaces', true, 'The brick facade with tall wooden windows on a quiet street', 'A quiet street in the old town.'],
-];
-$extras = [
-    ['Buffet breakfast', 'Every morning, from GEL 11 per room.'],
-    ['Free parking', 'Rare in the old town. Free for every guest.'],
-    ['Free Wi‑Fi', 'In every room and on the terrace.'],
-    ['24-hour front desk', "Someone's always here."],
-    ['Garden & terrace', 'Green below, the whole city above.'],
-    ['Family rooms', 'Triples with a balcony.'],
-    ['Air conditioning', 'In every room.'],
-    ['Airport transfer', '[On request — confirm]'],
-];
+$gallery = \App\Support\Media::gallery();
+$amenities = \App\Support\Services::active('amenity');
+$extras = \App\Support\Services::active('extra');
+$units = \App\Support\Services::UNITS;
 @endphp
 
 @section('content')
 <section class="page-banner">
-<img src="{{ asset('assets/img/lobby.webp') }}" alt="Magnolia's lobby: gold chandeliers, red floral armchairs, blue tiles and a carved wooden door" fetchpriority="high">
+<img src="{{ \App\Support\Media::slot('our-hotel.banner')['src'] }}" alt="{{ \App\Support\Media::slot('our-hotel.banner')['alt'] }}" fetchpriority="high">
 <div class="container">
 <p class="eyebrow">Our hotel</p>
 <h1 class="display h1-page">A little different. <em>A lot more personal.</em></h1>
@@ -48,8 +31,8 @@ $extras = [
 <svg width="280" height="140" stroke-width="1.1" style="color:var(--terracotta);opacity:.55;max-width:100%" aria-hidden="true"><use href="#mg-branch"/></svg>
 </div>
 <div style="display:flex;gap:20px;align-items:flex-end">
-<img class="arch-sm" src="{{ asset('assets/img/entrance-door.webp') }}" alt="Magnolia's carved wooden front door with wrought-iron grilles" loading="lazy" style="flex:1 1 0;min-width:0;height:clamp(320px,40vw,520px);object-fit:cover">
-<img src="{{ asset('assets/img/magnolia-stair.webp') }}" alt="A magnolia tree growing around a black spiral staircase" loading="lazy" style="flex:1 1 0;min-width:0;height:clamp(240px,30vw,380px);object-fit:cover;border-radius:16px">
+<img class="arch-sm" src="{{ \App\Support\Media::slot('our-hotel.door')['src'] }}" alt="{{ \App\Support\Media::slot('our-hotel.door')['alt'] }}" loading="lazy" style="flex:1 1 0;min-width:0;height:clamp(320px,40vw,520px);object-fit:cover">
+<img src="{{ \App\Support\Media::slot('our-hotel.stair')['src'] }}" alt="{{ \App\Support\Media::slot('our-hotel.stair')['alt'] }}" loading="lazy" style="flex:1 1 0;min-width:0;height:clamp(240px,30vw,380px);object-fit:cover;border-radius:16px">
 </div>
 </div>
 </section>
@@ -72,7 +55,7 @@ $extras = [
 
 <section class="section section--sand" style="padding:72px 0">
 <div class="container split">
-<img class="arch-sm" src="{{ asset('assets/img/magnolia-courtyard.webp') }}" alt="The 127-year-old magnolia tree in the hotel courtyard" loading="lazy" style="flex:0 1 320px;height:360px;object-fit:cover;width:100%">
+<img class="arch-sm" src="{{ \App\Support\Media::slot('magnolia')['src'] }}" alt="{{ \App\Support\Media::slot('magnolia')['alt'] }}" loading="lazy" style="flex:0 1 320px;height:360px;object-fit:cover;width:100%">
 <div class="stack" style="flex:2 1 480px;gap:16px">
 <p class="eyebrow">The courtyard</p>
 <h2 class="h3">A 127-year-old magnolia. <em>We're the new ones here.</em></h2>
@@ -96,8 +79,8 @@ $extras = [
 </div>
 </div>
 <div class="gallery">
-@foreach ($gallery as [$img, $cat, $wide, $alt, $caption])
-<figure class="figure {{ $wide ? 'figure--wide' : '' }}" data-cat="{{ $cat }}"><img src="{{ asset('assets/img/'.$img.'.webp') }}" alt="{{ $alt }}" loading="lazy" @if ($img === 'room-twin') style="object-position:80% 30%" @endif><figcaption class="caption">{{ $caption }}</figcaption></figure>
+@foreach ($gallery as $photo)
+<figure class="figure {{ $photo->wide ? 'figure--wide' : '' }}" data-cat="{{ $photo->category ?: 'spaces' }}"><img src="{{ \App\Support\Media::src($photo->path) }}" alt="{{ $photo->alt }}" loading="lazy" @if (str_contains($photo->path, 'room-twin')) style="object-position:80% 30%" @endif>@if ($photo->caption)<figcaption class="caption">{{ $photo->caption }}</figcaption>@endif</figure>
 @endforeach
 </div>
 </div>
@@ -110,10 +93,22 @@ $extras = [
 <h2 id="extras-h" class="h2">Little things, <em>already sorted.</em></h2>
 </div>
 <div class="extras">
-@foreach ($extras as [$title, $text])
-<div class="extra"><strong>{{ $title }}</strong><span>{{ $text }}</span></div>
+@foreach ($amenities as $a)
+<div class="extra"><span class="extra__icon">{!! \App\Support\Services::icon($a->icon) !!}</span><strong>{{ $a->name }}</strong>@if ($a->description)<span>{{ $a->description }}</span>@endif</div>
 @endforeach
 </div>
+@if ($extras)
+<div class="stack" style="gap:10px;margin:48px 0 24px">
+<p class="eyebrow">Add to your stay</p>
+<h3 class="h3" style="font-size:clamp(28px,3vw,40px)">A few things <em>we can arrange.</em></h3>
+<p class="lead" style="font-size:16px;max-width:560px">Tick them when you book, or ask us any time before you arrive.</p>
+</div>
+<div class="extras">
+@foreach ($extras as $e)
+<div class="extra"><span class="extra__icon">{!! \App\Support\Services::icon($e->icon) !!}</span><strong>{{ $e->name }}</strong>@if ($e->description)<span>{{ $e->description }}</span>@endif<span class="extra__price">GEL {{ $e->price }} {{ $units[$e->price_unit] ?? '' }}</span></div>
+@endforeach
+</div>
+@endif
 </div>
 </section>
 

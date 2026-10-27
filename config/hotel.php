@@ -103,6 +103,11 @@ return [
     'child_max_age' => 17,
     'max_nights' => 30,
 
+    // Where photos uploaded in the admin panel are stored. "public" works on a single
+    // server (run `php artisan storage:link`). On Laravel Cloud attach an Object Storage
+    // bucket and put its disk name here, so photos survive deploys.
+    'media_disk' => env('HOTEL_MEDIA_DISK', 'public'),
+
     'rooms' => [
         'double' => [
             'name' => 'Double Room', 'img' => 'assets/img/room-double.webp',

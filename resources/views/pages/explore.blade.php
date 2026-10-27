@@ -3,7 +3,7 @@
 @section('title', 'Location & What\'s Nearby in Old Tbilisi | Hotel Magnolia Tbilisi by Calora Group')
 @section('description', 'Hotel Magnolia Tbilisi by Calora Group is at 5 Kirile Ukleba St, Old Tbilisi: 950 m to Freedom Square, 750 m to the metro, 2.2 km to Narikala Fortress, 15 km to the airport. Free parking.')
 @section('crumb', 'Explore Tbilisi')
-@section('og_image', asset('assets/img/rooftop-domes.webp'))
+@section('og_image', \App\Support\Media::slot('explore.banner')['src'])
 
 @php
 $see = [['Mtatsminda Pantheon', '550 m'], ['9 April Park', '700 m'], ['Freedom Square', '950 m'], ['Bridge of Peace', '1.6 km'], ['Narikala Fortress', '2.2 km'], ['National Botanical Garden', '2.5 km']];
@@ -13,7 +13,7 @@ $move = [['Freedom Square metro', '750 m'], ['Rustaveli metro', '1.2 km'], ['Tbi
 
 @section('content')
 <section class="page-banner">
-<img src="{{ asset('assets/img/rooftop-domes.webp') }}" alt="Old Tbilisi rooftops around the hotel's terrace with glass domes" fetchpriority="high">
+<img src="{{ \App\Support\Media::slot('explore.banner')['src'] }}" alt="{{ \App\Support\Media::slot('explore.banner')['alt'] }}" fetchpriority="high">
 <div class="container">
 <p class="eyebrow">Explore Tbilisi</p>
 <h1 class="display h1-page">A city worth <em>getting lost in.</em></h1>

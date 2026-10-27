@@ -573,3 +573,14 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .promo-bar__cta { display: none; }
   .promo-bar__time::after { content: " →"; }
 }
+
+/* Services (managed in the admin) */
+.extra .extra__icon { color: var(--terracotta); display: inline-flex; margin-bottom: 4px; }
+.extra .extra__price { margin-top: auto; padding-top: 6px; font-weight: 700; color: var(--cocoa); }
+.book-extras { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--line); padding-top: 14px; }
+.book-extras__title { margin: 0; font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.book-extra { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 10px 12px; border: 1px solid #D9C7AE; border-radius: 12px; background: #fff; cursor: pointer; font-size: 14px; }
+.book-extra input { width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--terracotta); }
+.book-extra small { display: block; color: var(--muted); font-size: 12px; }
+.book-extra strong:last-child { white-space: nowrap; }
+.book-extra:has(input:checked) { border-color: var(--terracotta); background: var(--ivory); }

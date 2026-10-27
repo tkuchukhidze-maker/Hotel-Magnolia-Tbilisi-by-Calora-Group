@@ -5,6 +5,7 @@ on:
     branches:
       - feature/magnolia-pricing-calendar-integrated
       - feature/autumn-offer-landing
+      - feature/admin-calendar-media-services
       - fix/magnolia-admin-username-login
       - hotfix/public-500-database-fallback
       - fix/admin-404-main
@@ -62,3 +63,5 @@ jobs:
         run: |
           node --check public/assets/js/rooms.js
           node --check public/assets/js/main.js
+          node --check public/assets/js/admin-pricing.js
+          node --check public/assets/js/admin-media.js

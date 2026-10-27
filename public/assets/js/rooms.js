@@ -10,6 +10,7 @@
 
   var M = window.MAGNOLIA || {};
   var ROOMS = M.rooms || [];
+  var EXTRAS = M.extras || [];
   var RATE_PLANS = M.ratePlans || [{code:'room',name:'Room only'},{code:'bf',name:'With buffet breakfast'}];
   var MAX_ADULTS = M.maxAdults || 12;
   var MAX_KIDS = M.maxChildren || 6;
@@ -48,7 +49,8 @@
     pricePreview: null,
     priceLoading: false,
     priceError: '',
-    priceRevision: 0
+    priceRevision: 0,
+    extras: {}
   };
   (params.get('ages') || '').split(',').forEach(function (a, i) {
     var n = parseInt(a, 10);
@@ -86,6 +88,14 @@
       .map(function (r) { return { room: r.id, qty: state.qty[r.id] }; });
   }
   function roomsCount() { return items().reduce(function (s, i) { return s + i.qty; }, 0); }
+
+  /* Paid extras: same maths as App\Support\Services::amount(). */
+  function extraAmount(e) {
+    var n = state.nights, g = guests(), r = roomsCount();
+    return e.price * ({ night: n, guest: g, guest_night: g * n, room_night: r * n }[e.unit] || 1);
+  }
+  function chosenExtras() { return EXTRAS.filter(function (e) { return state.extras[e.id]; }); }
+  function extrasTotal() { return chosenExtras().reduce(function (s, e) { return s + extraAmount(e); }, 0); }
 
   /* Same rule as BookingQuote.php: the 1-guest price only for one room, one guest. */
   function stayRate(r, plan, single) {
@@ -274,7 +284,7 @@
         '<p class="small" data-error role="alert"' + (state.error ? '' : ' hidden') + ' style="color:var(--terracotta);font-weight:700">' + esc(state.error) + '</p>' +
         '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
           '<button type="button" class="btn btn--outline" data-action="back">← Change rooms</button>' +
-          '<button type="submit" class="btn btn--primary" style="flex-grow:1"' + (state.sending ? ' disabled aria-busy="true"' : '') + '>' + (state.sending ? 'Sending…' : 'Send booking request · ' + gel(q.total)) + '</button>' +
+          '<button type="submit" class="btn btn--primary" style="flex-grow:1"' + (state.sending ? ' disabled aria-busy="true"' : '') + '>' + (state.sending ? 'Sending…' : 'Send booking request · ' + gel(q.total + extrasTotal())) + '</button>' +
         '</div>' +
         '<p class="small">No card needed. You\'ll pay at the hotel.</p>' +
       '</form>' +
@@ -283,7 +293,8 @@
 
   function doneView() {
     var res = state.result || {};
-    var lines = (res.items || []).map(function (l) { return '<li>' + l.qty + ' × ' + esc(l.name) + '</li>'; }).join('');
+    var lines = (res.items || []).map(function (l) { return '<li>' + l.qty + ' × ' + esc(l.name) + '</li>'; }).join('') +
+      (res.extras || []).map(function (x) { return '<li>' + esc(x.name) + ' · ' + gel(x.amount) + '</li>'; }).join('');
     return '<div class="checkout stack" role="status" style="gap:14px;align-items:flex-start">' +
       '<span class="done-icon">' + ICON.check + '</span>' +
       '<h2 class="h3" style="margin:0">Request received. <em>We\'ll be in touch.</em></h2>' +
@@ -350,10 +361,20 @@
       } else {
         html += '<p class="small" style="margin:0">' + esc((RATE_PLANS.filter(function (p) { return p.code === state.rate; })[0] || {name:state.rate}).name) + '</p>';
       }
+      if (EXTRAS.length && state.step === 'choose') {
+        html += '<div class="book-extras" role="group" aria-label="Add to your stay"><p class="book-extras__title">Add to your stay</p>' +
+          EXTRAS.map(function (e) {
+            return '<label class="book-extra"><input type="checkbox" data-extra="' + e.id + '"' + (state.extras[e.id] ? ' checked' : '') + '>' +
+              '<span><strong>' + esc(e.name) + '</strong><small>' + (e.description ? esc(e.description) + ' · ' : '') + gel(e.price) + ' ' + esc(e.unitLabel) + '</small></span>' +
+              '<strong>' + gel(extraAmount(e)) + '</strong></label>';
+          }).join('') + '</div>';
+      }
+      var ex = chosenExtras();
       html += '<div class="summary">' +
         '<div><span>Room total for ' + nightsLabel() + '</span><span>' + gel(q.total) + '</span></div>' +
+        ex.map(function (e) { return '<div><span>' + esc(e.name) + '</span><span>' + gel(extraAmount(e)) + '</span></div>'; }).join('') +
         '<div class="muted"><span>Taxes &amp; fees</span><span>Included</span></div>' +
-        '<div class="total"><strong>Total</strong><strong>' + gel(q.total) + '</strong></div>' +
+        '<div class="total"><strong>Total</strong><strong>' + gel(q.total + extrasTotal()) + '</strong></div>' +
         '<p class="ok-note">This is a booking request; our team will confirm availability and cancellation terms.</p>' +
       '</div>';
     }
@@ -361,7 +382,7 @@
     if (state.step === 'choose' && (state.priceLoading || state.priceError)) html += '<p class="small" role="status">' + esc(state.priceError || 'Checking nightly prices…') + '</p>';
     if (state.step === 'choose') {
       var why = !state.checkin ? 'Select a check-in date' : state.priceLoading ? 'Checking nightly prices…' : state.priceError ? 'Could not verify prices' : !state.pricePreview ? 'Choose dates for exact rates' : !q.rooms ? 'Add at least one room' : !enough ? 'Add room for everyone first' : agesMissing() ? 'Add the children\'s ages above' : '';
-      html += '<button type="button" class="btn btn--primary btn--block" data-action="next"' + (why ? ' disabled' : '') + '>' + (why || 'Continue · ' + gel(q.total)) + '</button>';
+      html += '<button type="button" class="btn btn--primary btn--block" data-action="next"' + (why ? ' disabled' : '') + '>' + (why || 'Continue · ' + gel(q.total + extrasTotal())) + '</button>';
     }
     return html;
   }
@@ -381,7 +402,7 @@
 
     if (mobileLabel) {
       mobileLabel.innerHTML = q.rooms
-        ? plural(q.rooms, 'room', 'rooms') + ' · ' + nightsLabel() + '<strong data-mobile-price>' + gel(q.total) + '</strong>'
+        ? plural(q.rooms, 'room', 'rooms') + ' · ' + nightsLabel() + '<strong data-mobile-price>' + gel(q.total + extrasTotal()) + '</strong>'
         : 'per night from<strong data-mobile-price>' + gel(Math.min.apply(null, ROOMS.map(function (r) { return guests() === 1 ? r.p1[0] : r.p2[0]; }))) + '</strong>';
     }
     if (mobileCta) mobileCta.textContent = state.step === 'details' ? 'Your booking' : q.rooms ? 'Review & book' : 'Choose rooms';
@@ -469,7 +490,7 @@
     else if (a === 'rate') state.rate = btn.getAttribute('data-rate');
     else if (a === 'next') { state.step = 'details'; state.error = ''; render(); focusIn(list, 'input'); return; }
     else if (a === 'back') { rememberForm(); state.step = 'choose'; state.error = ''; render(); focusIn(list, '.room.is-selected button, .room button'); return; }
-    else if (a === 'restart') { state.step = 'choose'; state.qty = {}; state.result = null; render(); focusIn(document.getElementById('search'), 'input, button'); return; }
+    else if (a === 'restart') { state.step = 'choose'; state.qty = {}; state.extras = {}; state.result = null; render(); focusIn(document.getElementById('search'), 'input, button'); return; }
     else return;
     if (a === 'nights+' || a === 'nights-') { refreshPricing(); return; }
     render();
@@ -484,6 +505,15 @@
       render();
     });
   }
+
+  aside.addEventListener('change', function (e) {
+    var box = e.target.closest('[data-extra]');
+    if (!box) return;
+    state.extras[box.getAttribute('data-extra')] = box.checked;
+    render();
+    var again = aside.querySelector('[data-extra="' + box.getAttribute('data-extra') + '"]');
+    if (again) again.focus({ preventScroll: true });
+  });
 
   if (checkinEl) {
     checkinEl.min = today();
@@ -521,6 +551,7 @@
       body: JSON.stringify({
         items: items(), rate: state.rate, checkin: state.checkin, nights: state.nights,
         adults: state.adults, children: state.kids, children_ages: state.ages.slice(0, state.kids),
+        extras: chosenExtras().map(function (e) { return e.id; }),
         first_name: f.first_name.trim(), last_name: f.last_name.trim(), email: f.email.trim(),
         phone: f.phone.trim(), country: f.country.trim(),
         address: f.address || null, city: f.city || null, postal_code: f.postal_code || null,
