@@ -46,7 +46,7 @@ class SiteTest extends TestCase
 
         $res = $this->postJson(route('bookings.store'), $this->payload(['items' => [['room' => 'deluxe', 'qty' => 1]], 'rate' => 'bf', 'nights' => 3]));
 
-        $res->assertCreated()->assertJsonPath('total', 166 * 3);
+        $res->assertCreated()->assertJsonPath('total', 166 * 3)->assertJsonPath('status', 'requested');
         $this->assertDatabaseHas('bookings', ['room' => 'deluxe', 'total' => 498, 'email' => 'guest@example.com']);
         Mail::assertSent(BookingReceived::class);
     }
@@ -130,12 +130,26 @@ class SiteTest extends TestCase
     public function test_guest_details_and_privacy_consent_are_required(): void
     {
         $this->postJson(route('bookings.store'), $this->payload([
-            'first_name' => '', 'last_name' => '', 'country' => '', 'phone' => 'call me', 'privacy' => false,
+            'first_name' => '', 'last_name' => '', 'phone' => 'call me', 'privacy' => false,
         ]))
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['first_name', 'last_name', 'country', 'phone', 'privacy']);
+            ->assertJsonValidationErrors(['first_name', 'last_name', 'phone', 'privacy']);
 
         $this->assertSame(0, Booking::count());
+    }
+
+    public function test_country_is_optional_for_a_booking_request(): void
+    {
+        Mail::fake();
+
+        $payload = $this->payload();
+        unset($payload['country']);
+
+        $this->postJson(route('bookings.store'), $payload)
+            ->assertCreated()
+            ->assertJsonPath('status', 'requested');
+
+        $this->assertDatabaseHas('bookings', ['country' => 'Not specified', 'status' => 'requested']);
     }
 
     public function test_booking_stores_guest_details(): void
