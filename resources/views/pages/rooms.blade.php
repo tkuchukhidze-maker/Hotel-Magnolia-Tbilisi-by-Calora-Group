@@ -60,7 +60,7 @@
 <p class="lead" style="font-size:16px">{{ $r['blurb'] }}</p>
 </div>
 <div class="room__price">
-<div><span class="small">sample rate per room / night</span><div class="big"><s>GEL {{ $r['cap'] === 1 ? $r['w1'] : $r['w2'] }}</s><strong>GEL {{ $r['cap'] === 1 ? $r['p1'][0] : $r['p2'][0] }}</strong></div><span class="small">GEL {{ $r['cap'] === 1 ? $r['p1'][1] : $r['p2'][1] }} with breakfast · listed taxes included</span></div>
+<div><span class="small">sample rate per room / night</span><div class="big">@unless ($r['rates_overridden'] ?? false)<s>GEL {{ $r['cap'] === 1 ? $r['w1'] : $r['w2'] }}</s>@endunless<strong>GEL {{ $r['cap'] === 1 ? $r['p1'][0] : $r['p2'][0] }}</strong></div><span class="small">GEL {{ $r['cap'] === 1 ? $r['p1'][1] : $r['p2'][1] }} with breakfast · listed taxes included</span></div>
 <a class="btn btn--primary" href="tel:{{ $c['phone_tel'] }}">Ask about this room</a>
 </div>
 </div>
