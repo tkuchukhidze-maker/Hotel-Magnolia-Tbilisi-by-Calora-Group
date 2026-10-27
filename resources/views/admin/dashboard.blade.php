@@ -43,5 +43,12 @@
 @forelse($promotions as $promotion)<tr><td>{{ $promotion->name }}</td><td>{{ $promotion->code }}</td><td>{{ $promotion->discount_percent }}%</td><td>{{ $promotion->starts_at }} – {{ $promotion->ends_at }}</td><td>Draft · not published</td></tr>
 @empty<tr><td colspan="5">No promotions yet.</td></tr>@endforelse
 </tbody></table></div></section>
+@php($mail = \App\Http\Controllers\AdminMailController::status())
+<section id="email" class="panel"><h2>Email delivery</h2>
+<p>@if ($mail['mandrill'])<strong style="color:#2F6B45">✓ Mailchimp Transactional (Mandrill)</strong>@elseif ($mail['sends'])<strong>{{ strtoupper($mail['mailer']) }}</strong> via {{ $mail['host'] }}@else<strong style="color:#A3261B">Not sending</strong> — emails are only written to the log (MAIL_MAILER={{ $mail['mailer'] }}).@endif
+ · From: {{ $mail['from'] }} · Booking alerts go to: {{ $mail['to'] }}</p>
+<form class="promotion-form" method="post" action="{{ route('admin.mail.test') }}">@csrf
+<label>Send a test email to<input type="email" name="to" value="{{ $mail['to'] }}" required></label>
+<button type="submit">Send test email</button></form></section>
 <section id="analytics" class="panel"><h2>Analytics & Google integrations</h2><p>Booking-request metrics are displayed above. Google Analytics 4, Google Tag Manager, Search Console, Google Business Profile and Looker Studio are planned connections and are <strong>not connected yet</strong>.</p><p>Connect verified accounts and consent-aware measurement before showing external traffic, conversions, or campaign attribution.</p></section>
 @endsection

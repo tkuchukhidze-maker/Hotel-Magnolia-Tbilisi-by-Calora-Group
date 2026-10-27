@@ -199,4 +199,18 @@ class AdminToolsTest extends TestCase
         $this->admin()->post(route('admin.services.store'), ['kind' => 'extra', 'name' => 'Tour', 'icon' => 'map'])
             ->assertSessionHasErrors('price');
     }
+
+    /* ---------- Email delivery check ---------- */
+
+    public function test_mail_test_reports_when_email_is_switched_off_and_sends_when_configured(): void
+    {
+        config(['mail.default' => 'log']);
+        $this->admin()->get(route('admin.dashboard'))->assertOk()->assertSee('Not sending');
+        $this->admin()->post(route('admin.mail.test'), ['to' => 'manager@example.com'])->assertSessionHasErrors('mail');
+
+        Mail::fake();
+        config(['mail.default' => 'smtp', 'mail.mailers.smtp.host' => 'smtp.mandrillapp.com']);
+        $this->admin()->get(route('admin.dashboard'))->assertSee('Mailchimp Transactional');
+        $this->admin()->post(route('admin.mail.test'), ['to' => 'manager@example.com'])->assertSessionHas('success');
+    }
 }

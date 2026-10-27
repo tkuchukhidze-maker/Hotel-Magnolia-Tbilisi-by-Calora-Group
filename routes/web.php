@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminMailController;
 use App\Http\Controllers\AdminMediaController;
 use App\Http\Controllers\AdminServicesController;
 use App\Http\Controllers\AdminPricingController;
@@ -43,6 +44,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/rates/default', [AdminPricingController::class, 'saveBase'])->name('pricing.base');
     Route::post('/rates/calendar', [AdminPricingController::class, 'saveSchedule'])->name('pricing.schedule');
     Route::post('/rates/bulk', [AdminPricingController::class, 'bulk'])->name('pricing.bulk');
+
+    Route::post('/mail-test', [AdminMailController::class, 'test'])->middleware('throttle:5,1')->name('mail.test');
 
     // Photos
     Route::get('/photos', [AdminMediaController::class, 'index'])->name('media.index');
