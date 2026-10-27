@@ -330,7 +330,7 @@
         '<div><span>' + gel(q.nightly) + ' × ' + nightsLabel() + '</span><span>' + gel(q.total) + '</span></div>' +
         '<div class="muted"><span>Taxes &amp; fees</span><span>Included</span></div>' +
         '<div class="total"><strong>Total</strong><strong>' + gel(q.total) + '</strong></div>' +
-        '<p class="ok-note">You pay nothing now. Cancellation: ' + esc((M.cancellation || '').toLowerCase()) + '.</p>' +
+        '<p class="ok-note">You pay nothing now. ' + esc(M.cancellation || 'Free cancellation') + '.</p>' +
       '</div>';
     }
 

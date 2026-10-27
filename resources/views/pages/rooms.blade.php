@@ -68,8 +68,8 @@
 <section class="container" style="padding-top:40px;padding-bottom:96px">
 <div class="why">
 <div><strong>Lowest price here</strong><span>Found it cheaper? We'll match it.</span></div>
-<div><strong>Nothing to pay now</strong><span>Payment: {{ config('hotel.policies.payment') }}.</span></div>
-<div><strong>Change your mind?</strong><span>Cancellation: {{ strtolower(config('hotel.policies.cancellation')) }}.</span></div>
+<div><strong>Nothing to pay now</strong><span>Payment: {{ strtolower(\App\Support\HotelFacts::payment()) }}.</span></div>
+<div><strong>Change your mind?</strong><span>{{ \App\Support\HotelFacts::cancellation() }}.</span></div>
 <div><strong>Rated {{ config('hotel.rating.score') }}</strong><span>{{ config('hotel.rating.label') }}, on {{ config('hotel.rating.source') }}.</span></div>
 </div>
 </section>
@@ -96,7 +96,7 @@ window.MAGNOLIA = {!! json_encode([
     'privacyUrl' => route('privacy'),
     'whatsapp' => 'https://wa.me/'.$c['whatsapp'],
     'phone' => $c['phone_display'],
-    'cancellation' => config('hotel.policies.cancellation'),
+    'cancellation' => \App\Support\HotelFacts::cancellation(),
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!};
 </script>
 <script src="{{ asset('assets/js/rooms.js') }}?v={{ filemtime(public_path('assets/js/rooms.js')) }}" defer></script>

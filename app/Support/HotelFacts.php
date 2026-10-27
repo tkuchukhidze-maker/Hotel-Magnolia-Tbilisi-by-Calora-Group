@@ -100,6 +100,14 @@ class HotelFacts
         return self::filled($value) ? $value : 'Free cancellation';
     }
 
+    /** Payment wording that never shows unfilled payment methods. */
+    public static function payment(): string
+    {
+        $value = config('hotel.policies.payment');
+
+        return self::filled($value) ? $value : 'At the hotel';
+    }
+
     /**
      * Every config value under hotel.* that still contains a [placeholder].
      *

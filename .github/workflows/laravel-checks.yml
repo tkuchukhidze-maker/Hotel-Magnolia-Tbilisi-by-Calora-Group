@@ -47,9 +47,7 @@ jobs:
           MAIL_MAILER: array
 
       - name: Run Laravel tests
-        run: |
-          set -o pipefail
-          php artisan test --no-ansi 2>&1 | tee test-output.txt || { grep -E "FAILED|⨯|Failed asserting|Error|Exception|at tests/" test-output.txt | head -40 | while IFS= read -r l; do echo "::error::$l"; done; exit 1; }
+        run: php artisan test --no-ansi
         env:
           APP_ENV: testing
           DB_CONNECTION: sqlite
