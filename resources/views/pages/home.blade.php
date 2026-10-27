@@ -155,13 +155,14 @@
 <ul>
 <li><strong>Lowest price</strong><span>Found it cheaper elsewhere? Send it to us and we'll match it.</span></li>
 @if ($promo['active'])<li><strong>−{{ $promo['discount'] }}% this autumn</strong><span>On every room you book by {{ $promo['ends_label'] }}. <a href="{{ route('offer') }}">The offer</a></span></li>@endif
-<li><strong>Nothing to pay now</strong><span>Pay at the hotel. Cancellation: {{ strtolower(config('hotel.policies.cancellation')) }}.</span></li>
+<li><strong>Nothing to pay now</strong><span>Pay at the hotel. {{ \App\Support\HotelFacts::cancellation() }}.</span></li>
 <li><strong>A real person</strong><span>Questions first? <a href="https://wa.me/{{ $c['whatsapp'] }}">WhatsApp us</a>.</span></li>
 </ul>
 </div>
 </section>
 
-<!-- REVIEWS -->
+<!-- REVIEWS: shown only once real guest reviews are added to config/hotel.php -->
+@if (count(config('hotel.reviews', [])) > 0)
 <section class="section section--sand decor-host" aria-labelledby="reviews-h">
 <svg class="decor decor--hide-sm" width="460" height="384" stroke-width=".35" style="right:-90px;top:-60px;opacity:.2;transform:rotate(18deg);color:var(--terracotta)" aria-hidden="true"><use href="#mg-flower"/></svg>
 <div class="container">
@@ -170,15 +171,16 @@
 <p class="eyebrow">Good words from our guests</p>
 <h2 id="reviews-h" class="h2">In their own words.</h2>
 </div>
-<div class="rating"><span class="rating__score">{{ $rating['score'] }}</span><span style="display:flex;flex-direction:column;font-size:14px"><strong style="font-size:16px">{{ $rating['label'] }}</strong><span class="small">{{ $rating['source'] }} · {{ $rating['count'] }} reviews</span></span><a href="https://www.booking.com" style="font-weight:700;font-size:14px">Read all reviews</a></div>
+<div class="rating"><span class="rating__score">{{ $rating['score'] }}</span><span style="display:flex;flex-direction:column;font-size:14px"><strong style="font-size:16px">{{ $rating['label'] }}</strong><span class="small">{{ $rating['source'] }}@if (\App\Support\HotelFacts::filled($rating['count'])) · {{ $rating['count'] }} reviews @endif</span></span>@if (\App\Support\HotelFacts::filled($rating['url'] ?? ''))<a href="{{ $rating['url'] }}" style="font-weight:700;font-size:14px">Read all reviews</a>@endif</div>
 </div>
 <div class="reviews">
-@foreach (['Booking.com', 'Google', '[Source]'] as $source)
-<blockquote class="review"><span class="review__stars" aria-label="5 out of 5">★★★★★</span><p>“[Real guest review, copied word for word]”</p><footer>[Guest name] · [Country] · {{ $source }}, [month year]</footer></blockquote>
+@foreach (config('hotel.reviews') as $review)
+<blockquote class="review"><p>“{{ $review['quote'] }}”</p><footer>{{ $review['name'] }} · {{ $review['country'] }} · {{ $review['source'] }}, {{ $review['date'] }}</footer></blockquote>
 @endforeach
 </div>
 </div>
 </section>
+@endif
 
 <!-- MORE OF MAGNOLIA -->
 <section class="section" aria-labelledby="more-h">

@@ -13,7 +13,7 @@
 <a href="{{ route('explore') }}">Explore Tbilisi</a>
 <a href="{{ route('contact') }}">Contact &amp; FAQ</a>
 </nav>
-<address><a href="{{ $c['google_maps'] }}">{{ $c['address'] }}<br>Old Town, Tbilisi, Georgia</a><br><a href="tel:{{ $c['phone_tel'] }}">{{ $c['phone_display'] }}</a><br><a href="mailto:{{ $c['email'] }}">{{ $c['email_display'] }}</a></address>
+<address><a href="{{ $c['google_maps'] }}">{{ $c['address'] }}<br>Old Town, Tbilisi, Georgia</a><br><a href="tel:{{ $c['phone_tel'] }}">{{ $c['phone_display'] }}</a>@if (\App\Support\HotelFacts::filled($c['email_display']))<br><a href="mailto:{{ $c['email'] }}">{{ $c['email_display'] }}</a>@endif</address>
 <div class="footer-col">
 <div class="social">
 @if ($c['instagram'])
@@ -25,7 +25,6 @@
 <a href="{{ $c['google_maps'] }}" aria-label="Google Maps"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg></a>
 <a href="https://wa.me/{{ $c['whatsapp'] }}" aria-label="WhatsApp"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"/></svg></a>
 </div>
-<span>EN · ქარ · RU</span>
 </div>
 </div>
 <div class="footer-bottom"><span>© {{ date('Y') }} {{ config('hotel.name') }}</span><a href="{{ route('privacy') }}">Privacy policy</a></div>

@@ -1,0 +1,1357 @@
+{
+  "schema_version": "1.0.0",
+  "corpus_id": "magnolia-seo-research-2026-10-27",
+  "research_id": null,
+  "research_sha256": null,
+  "created_at": "2026-10-27T14:30:00Z",
+  "frozen_at": "2026-10-27T14:30:00Z",
+  "scope": "Hotel Magnolia Tbilisi (magnoliatbilisi.com): conventional search and AI-prompt hypotheses, en/ru/ka, 5 canonical pages.",
+  "queries": [
+    {
+      "query_id": "q-brand-en",
+      "need_id": "n-brand",
+      "query_type": "observed_search_query",
+      "text": "Hotel Magnolia Tbilisi Kirile Ukleba",
+      "locale": "en-US",
+      "country": "US",
+      "location": null,
+      "device": "unspecified",
+      "engine": "websearch-tool",
+      "surface": "web-results-titles",
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "navigational: find official hotel",
+      "audience": "international-traveller",
+      "journey_stage": "decision",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "direct_observation",
+        "source_url": null,
+        "source_ref": "raw/serp-observations-2026-10-27.md",
+        "source_sha256": "8b8ae911a029f751f53d860c3068965e69b27fabe7121500f0f7788afb16d3ab",
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "WebSearch tool, top ~10 links, titles only, 2026-10-27.",
+        "limitations": [
+          "Generic US-routed web index, not a localized Google SERP; no map/hotel pack; no rank claims."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "covered",
+        "current_urls": [
+          "https://magnoliatbilisi.com/"
+        ],
+        "target_url": "https://magnoliatbilisi.com/",
+        "competing_urls": [],
+        "evidence_ref": "raw/site-capture-2026-10-27.md",
+        "evidence_sha256": "15665258034555319a21dd83c1c8b53a4a3f1e267d6429517f5276d4e95b6678"
+      },
+      "confidence": "high",
+      "limitations": [
+        "On-site covered but official site absent from observed results; OTAs dominate."
+      ]
+    },
+    {
+      "query_id": "q-head-en",
+      "need_id": "n-head-tbilisi-hotels",
+      "query_type": "user_need",
+      "text": "tbilisi hotels / boutique hotel tbilisi",
+      "locale": "en-US",
+      "country": null,
+      "location": null,
+      "device": "unspecified",
+      "engine": null,
+      "surface": null,
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "commercial: choose a hotel in Tbilisi",
+      "audience": "international-traveller",
+      "journey_stage": "consideration",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "editorial_hypothesis",
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "Derived from site FAQ, OTA filter attributes and travel-guide topics.",
+        "limitations": [
+          "Unqualified hypothesis; needs demand and SERP evidence."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "covered",
+        "current_urls": [
+          "https://magnoliatbilisi.com/"
+        ],
+        "target_url": "https://magnoliatbilisi.com/",
+        "competing_urls": [],
+        "evidence_ref": "raw/site-capture-2026-10-27.md",
+        "evidence_sha256": "15665258034555319a21dd83c1c8b53a4a3f1e267d6429517f5276d4e95b6678"
+      },
+      "confidence": "medium",
+      "limitations": [
+        "Head-term leadership family; demand size unknown; SERP not observed."
+      ]
+    },
+    {
+      "query_id": "q-head-ru",
+      "need_id": "n-head-tbilisi-hotels",
+      "query_type": "user_need",
+      "text": "отели тбилиси / бутик отель тбилиси",
+      "locale": "ru-GE",
+      "country": null,
+      "location": null,
+      "device": "unspecified",
+      "engine": null,
+      "surface": null,
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "commercial: choose a hotel in Tbilisi",
+      "audience": "russian-speaking-traveller",
+      "journey_stage": "consideration",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "editorial_hypothesis",
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "Derived from site FAQ, OTA filter attributes and travel-guide topics.",
+        "limitations": [
+          "Unqualified hypothesis; needs demand and SERP evidence."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "gap",
+        "current_urls": [],
+        "target_url": null,
+        "competing_urls": [],
+        "evidence_ref": "raw/site-capture-2026-10-27.md",
+        "evidence_sha256": "15665258034555319a21dd83c1c8b53a4a3f1e267d6429517f5276d4e95b6678"
+      },
+      "confidence": "medium",
+      "limitations": [
+        "No Russian page exists."
+      ]
+    },
+    {
+      "query_id": "q-head-ka",
+      "need_id": "n-head-tbilisi-hotels",
+      "query_type": "user_need",
+      "text": "სასტუმროები თბილისში",
+      "locale": "ka-GE",
+      "country": null,
+      "location": null,
+      "device": "unspecified",
+      "engine": null,
+      "surface": null,
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "commercial: choose a hotel in Tbilisi",
+      "audience": "domestic-traveller",
+      "journey_stage": "consideration",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "editorial_hypothesis",
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "Derived from site FAQ, OTA filter attributes and travel-guide topics.",
+        "limitations": [
+          "Unqualified hypothesis; needs demand and SERP evidence."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "gap",
+        "current_urls": [],
+        "target_url": null,
+        "competing_urls": [],
+        "evidence_ref": "raw/site-capture-2026-10-27.md",
+        "evidence_sha256": "15665258034555319a21dd83c1c8b53a4a3f1e267d6429517f5276d4e95b6678"
+      },
+      "confidence": "low",
+      "limitations": [
+        "No Georgian page exists."
+      ]
+    },
+    {
+      "query_id": "q-oldtown-en",
+      "need_id": "n-old-town-boutique",
+      "query_type": "observed_search_query",
+      "text": "boutique hotel Old Tbilisi",
+      "locale": "en-US",
+      "country": "US",
+      "location": null,
+      "device": "unspecified",
+      "engine": "websearch-tool",
+      "surface": "web-results-titles",
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "commercial: small characterful hotel in the old town",
+      "audience": "international-traveller",
+      "journey_stage": "consideration",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "direct_observation",
+        "source_url": null,
+        "source_ref": "raw/serp-observations-2026-10-27.md",
+        "source_sha256": "8b8ae911a029f751f53d860c3068965e69b27fabe7121500f0f7788afb16d3ab",
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "WebSearch tool, top ~10 links, titles only, 2026-10-27.",
+        "limitations": [
+          "Generic US-routed web index, not a localized Google SERP; no map/hotel pack; no rank claims."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "covered",
+        "current_urls": [
+          "https://magnoliatbilisi.com/"
+        ],
+        "target_url": "https://magnoliatbilisi.com/",
+        "competing_urls": [],
+        "evidence_ref": "raw/site-capture-2026-10-27.md",
+        "evidence_sha256": "15665258034555319a21dd83c1c8b53a4a3f1e267d6429517f5276d4e95b6678"
+      },
+      "confidence": "high",
+      "limitations": [
+        "Name collision with competitor 'Boutique Old Tbilisi'."
+      ]
+    },
+    {
+      "query_id": "q-oldtown-ka",
+      "need_id": "n-old-town-boutique",
+      "query_type": "observed_search_query",
+      "text": "სასტუმრო ძველ თბილისში",
+      "locale": "ka-GE",
+      "country": "US",
+      "location": null,
+      "device": "unspecified",
+      "engine": "websearch-tool",
+      "surface": "web-results-titles",
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "commercial: hotel in Old Tbilisi",
+      "audience": "domestic-traveller",
+      "journey_stage": "consideration",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "direct_observation",
+        "source_url": null,
+        "source_ref": "raw/serp-observations-2026-10-27.md",
+        "source_sha256": "8b8ae911a029f751f53d860c3068965e69b27fabe7121500f0f7788afb16d3ab",
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "WebSearch tool, top ~10 links, titles only, 2026-10-27.",
+        "limitations": [
+          "Generic US-routed web index, not a localized Google SERP; no map/hotel pack; no rank claims."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "gap",
+        "current_urls": [],
+        "target_url": null,
+        "competing_urls": [],
+        "evidence_ref": "raw/site-capture-2026-10-27.md",
+        "evidence_sha256": "15665258034555319a21dd83c1c8b53a4a3f1e267d6429517f5276d4e95b6678"
+      },
+      "confidence": "low",
+      "limitations": [
+        "Observed results weak/mixed; no KA page."
+      ]
+    },
+    {
+      "query_id": "q-oldtown-ru",
+      "need_id": "n-old-town-boutique",
+      "query_type": "observed_search_query",
+      "text": "бутик отель старый Тбилиси с парковкой",
+      "locale": "ru-GE",
+      "country": "US",
+      "location": null,
+      "device": "unspecified",
+      "engine": "websearch-tool",
+      "surface": "web-results-titles",
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "commercial: old-town boutique hotel with parking",
+      "audience": "russian-speaking-traveller",
+      "journey_stage": "consideration",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "direct_observation",
+        "source_url": null,
+        "source_ref": "raw/serp-observations-2026-10-27.md",
+        "source_sha256": "8b8ae911a029f751f53d860c3068965e69b27fabe7121500f0f7788afb16d3ab",
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "WebSearch tool, top ~10 links, titles only, 2026-10-27.",
+        "limitations": [
+          "Generic US-routed web index, not a localized Google SERP; no map/hotel pack; no rank claims."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "gap",
+        "current_urls": [],
+        "target_url": null,
+        "competing_urls": [],
+        "evidence_ref": "raw/site-capture-2026-10-27.md",
+        "evidence_sha256": "15665258034555319a21dd83c1c8b53a4a3f1e267d6429517f5276d4e95b6678"
+      },
+      "confidence": "medium",
+      "limitations": [
+        "RU OTA results dominate; no RU page."
+      ]
+    },
+    {
+      "query_id": "q-near-freedom-en",
+      "need_id": "n-near-landmark",
+      "query_type": "observed_search_query",
+      "text": "hotel near Freedom Square Tbilisi",
+      "locale": "en-US",
+      "country": "US",
+      "location": null,
+      "device": "unspecified",
+      "engine": "websearch-tool",
+      "surface": "web-results-titles",
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "commercial: hotel close to a landmark",
+      "audience": "international-traveller",
+      "journey_stage": "consideration",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "direct_observation",
+        "source_url": null,
+        "source_ref": "raw/serp-observations-2026-10-27.md",
+        "source_sha256": "8b8ae911a029f751f53d860c3068965e69b27fabe7121500f0f7788afb16d3ab",
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "WebSearch tool, top ~10 links, titles only, 2026-10-27.",
+        "limitations": [
+          "Generic US-routed web index, not a localized Google SERP; no map/hotel pack; no rank claims."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "covered",
+        "current_urls": [
+          "https://magnoliatbilisi.com/explore"
+        ],
+        "target_url": "https://magnoliatbilisi.com/explore",
+        "competing_urls": [],
+        "evidence_ref": "raw/site-capture-2026-10-27.md",
+        "evidence_sha256": "15665258034555319a21dd83c1c8b53a4a3f1e267d6429517f5276d4e95b6678"
+      },
+      "confidence": "high",
+      "limitations": [
+        "Distances in metres only; no walking minutes."
+      ]
+    },
+    {
+      "query_id": "q-near-freedom-ru",
+      "need_id": "n-near-landmark",
+      "query_type": "observed_search_query",
+      "text": "гостиница Тбилиси центр площадь Свободы недорого",
+      "locale": "ru-GE",
+      "country": "US",
+      "location": null,
+      "device": "unspecified",
+      "engine": "websearch-tool",
+      "surface": "web-results-titles",
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "commercial: affordable central hotel",
+      "audience": "russian-speaking-traveller",
+      "journey_stage": "consideration",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "direct_observation",
+        "source_url": null,
+        "source_ref": "raw/serp-observations-2026-10-27.md",
+        "source_sha256": "8b8ae911a029f751f53d860c3068965e69b27fabe7121500f0f7788afb16d3ab",
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "WebSearch tool, top ~10 links, titles only, 2026-10-27.",
+        "limitations": [
+          "Generic US-routed web index, not a localized Google SERP; no map/hotel pack; no rank claims."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "gap",
+        "current_urls": [],
+        "target_url": null,
+        "competing_urls": [],
+        "evidence_ref": "raw/site-capture-2026-10-27.md",
+        "evidence_sha256": "15665258034555319a21dd83c1c8b53a4a3f1e267d6429517f5276d4e95b6678"
+      },
+      "confidence": "medium",
+      "limitations": [
+        "No RU page."
+      ]
+    },
+    {
+      "query_id": "q-parking-en",
+      "need_id": "n-parking",
+      "query_type": "observed_search_query",
+      "text": "Tbilisi hotel with free parking Old Town",
+      "locale": "en-US",
+      "country": "US",
+      "location": null,
+      "device": "unspecified",
+      "engine": "websearch-tool",
+      "surface": "web-results-titles",
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "commercial: drive and park at hotel",
+      "audience": "driving-traveller",
+      "journey_stage": "consideration",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "direct_observation",
+        "source_url": null,
+        "source_ref": "raw/serp-observations-2026-10-27.md",
+        "source_sha256": "8b8ae911a029f751f53d860c3068965e69b27fabe7121500f0f7788afb16d3ab",
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "WebSearch tool, top ~10 links, titles only, 2026-10-27.",
+        "limitations": [
+          "Generic US-routed web index, not a localized Google SERP; no map/hotel pack; no rank claims."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "covered",
+        "current_urls": [
+          "https://magnoliatbilisi.com/explore"
+        ],
+        "target_url": "https://magnoliatbilisi.com/explore",
+        "competing_urls": [],
+        "evidence_ref": "raw/site-capture-2026-10-27.md",
+        "evidence_sha256": "15665258034555319a21dd83c1c8b53a4a3f1e267d6429517f5276d4e95b6678"
+      },
+      "confidence": "high",
+      "limitations": [
+        "Parking answer is one sentence; details missing."
+      ]
+    },
+    {
+      "query_id": "q-rooftop-en",
+      "need_id": "n-character",
+      "query_type": "observed_search_query",
+      "text": "Tbilisi hotel rooftop terrace view Old Town",
+      "locale": "en-US",
+      "country": "US",
+      "location": null,
+      "device": "unspecified",
+      "engine": "websearch-tool",
+      "surface": "web-results-titles",
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "consideration: atmosphere and views",
+      "audience": "couple-traveller",
+      "journey_stage": "consideration",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "direct_observation",
+        "source_url": null,
+        "source_ref": "raw/serp-observations-2026-10-27.md",
+        "source_sha256": "8b8ae911a029f751f53d860c3068965e69b27fabe7121500f0f7788afb16d3ab",
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "WebSearch tool, top ~10 links, titles only, 2026-10-27.",
+        "limitations": [
+          "Generic US-routed web index, not a localized Google SERP; no map/hotel pack; no rank claims."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "covered",
+        "current_urls": [
+          "https://magnoliatbilisi.com/our-hotel"
+        ],
+        "target_url": "https://magnoliatbilisi.com/our-hotel",
+        "competing_urls": [],
+        "evidence_ref": "raw/site-capture-2026-10-27.md",
+        "evidence_sha256": "15665258034555319a21dd83c1c8b53a4a3f1e267d6429517f5276d4e95b6678"
+      },
+      "confidence": "medium",
+      "limitations": [
+        "History paragraph is a placeholder."
+      ]
+    },
+    {
+      "query_id": "q-rooms-en",
+      "need_id": "n-rooms-prices",
+      "query_type": "user_need",
+      "text": "magnolia tbilisi room prices",
+      "locale": "en-US",
+      "country": null,
+      "location": null,
+      "device": "unspecified",
+      "engine": null,
+      "surface": null,
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "decision: compare rooms and nightly prices",
+      "audience": "international-traveller",
+      "journey_stage": "decision",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "editorial_hypothesis",
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "Derived from site FAQ, OTA filter attributes and travel-guide topics.",
+        "limitations": [
+          "Unqualified hypothesis; needs demand and SERP evidence."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "covered",
+        "current_urls": [
+          "https://magnoliatbilisi.com/rooms"
+        ],
+        "target_url": "https://magnoliatbilisi.com/rooms",
+        "competing_urls": [],
+        "evidence_ref": "raw/site-capture-2026-10-27.md",
+        "evidence_sha256": "15665258034555319a21dd83c1c8b53a4a3f1e267d6429517f5276d4e95b6678"
+      },
+      "confidence": "high",
+      "limitations": [
+        "Mixed 'from' price display across pages."
+      ]
+    },
+    {
+      "query_id": "q-family-en",
+      "need_id": "n-room-fit",
+      "query_type": "observed_search_query",
+      "text": "family hotel Tbilisi triple room city center",
+      "locale": "en-US",
+      "country": "US",
+      "location": null,
+      "device": "unspecified",
+      "engine": "websearch-tool",
+      "surface": "web-results-titles",
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "decision: room for three",
+      "audience": "family-traveller",
+      "journey_stage": "decision",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "direct_observation",
+        "source_url": null,
+        "source_ref": "raw/serp-observations-2026-10-27.md",
+        "source_sha256": "8b8ae911a029f751f53d860c3068965e69b27fabe7121500f0f7788afb16d3ab",
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "WebSearch tool, top ~10 links, titles only, 2026-10-27.",
+        "limitations": [
+          "Generic US-routed web index, not a localized Google SERP; no map/hotel pack; no rank claims."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "covered",
+        "current_urls": [
+          "https://magnoliatbilisi.com/rooms"
+        ],
+        "target_url": "https://magnoliatbilisi.com/rooms",
+        "competing_urls": [],
+        "evidence_ref": "raw/site-capture-2026-10-27.md",
+        "evidence_sha256": "15665258034555319a21dd83c1c8b53a4a3f1e267d6429517f5276d4e95b6678"
+      },
+      "confidence": "medium",
+      "limitations": [
+        "Triple room has no photos; child policy is a placeholder."
+      ]
+    },
+    {
+      "query_id": "q-direct-en",
+      "need_id": "n-direct-booking",
+      "query_type": "user_need",
+      "text": "is it cheaper to book direct than booking.com",
+      "locale": "en-US",
+      "country": null,
+      "location": null,
+      "device": "unspecified",
+      "engine": null,
+      "surface": null,
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "decision: direct vs OTA",
+      "audience": "price-comparer",
+      "journey_stage": "decision",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "editorial_hypothesis",
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "Derived from site FAQ, OTA filter attributes and travel-guide topics.",
+        "limitations": [
+          "Unqualified hypothesis; needs demand and SERP evidence."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "covered",
+        "current_urls": [
+          "https://magnoliatbilisi.com/contact"
+        ],
+        "target_url": "https://magnoliatbilisi.com/contact",
+        "competing_urls": [],
+        "evidence_ref": "raw/site-capture-2026-10-27.md",
+        "evidence_sha256": "15665258034555319a21dd83c1c8b53a4a3f1e267d6429517f5276d4e95b6678"
+      },
+      "confidence": "medium",
+      "limitations": [
+        "Cancellation deadline placeholder."
+      ]
+    },
+    {
+      "query_id": "q-policies-en",
+      "need_id": "n-policies",
+      "query_type": "user_need",
+      "text": "magnolia tbilisi check in time, cancellation, breakfast time, pets, children",
+      "locale": "en-US",
+      "country": null,
+      "location": null,
+      "device": "unspecified",
+      "engine": null,
+      "surface": null,
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "support: pre-arrival policies",
+      "audience": "booked-guest",
+      "journey_stage": "support",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "editorial_hypothesis",
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "Derived from site FAQ, OTA filter attributes and travel-guide topics.",
+        "limitations": [
+          "Unqualified hypothesis; needs demand and SERP evidence."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "gap",
+        "current_urls": [],
+        "target_url": null,
+        "competing_urls": [],
+        "evidence_ref": "raw/site-capture-2026-10-27.md",
+        "evidence_sha256": "15665258034555319a21dd83c1c8b53a4a3f1e267d6429517f5276d4e95b6678"
+      },
+      "confidence": "high",
+      "limitations": [
+        "Seven placeholders on /contact; treated as gap until filled."
+      ]
+    },
+    {
+      "query_id": "q-airport-en",
+      "need_id": "n-arrival-transport",
+      "query_type": "observed_search_query",
+      "text": "Tbilisi airport to Old Town taxi Bolt price how long",
+      "locale": "en-US",
+      "country": "US",
+      "location": null,
+      "device": "unspecified",
+      "engine": "websearch-tool",
+      "surface": "web-results-titles",
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "support: get from airport to hotel",
+      "audience": "booked-guest",
+      "journey_stage": "support",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "direct_observation",
+        "source_url": null,
+        "source_ref": "raw/serp-observations-2026-10-27.md",
+        "source_sha256": "8b8ae911a029f751f53d860c3068965e69b27fabe7121500f0f7788afb16d3ab",
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "WebSearch tool, top ~10 links, titles only, 2026-10-27.",
+        "limitations": [
+          "Generic US-routed web index, not a localized Google SERP; no map/hotel pack; no rank claims."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "covered",
+        "current_urls": [
+          "https://magnoliatbilisi.com/explore"
+        ],
+        "target_url": "https://magnoliatbilisi.com/explore",
+        "competing_urls": [],
+        "evidence_ref": "raw/site-capture-2026-10-27.md",
+        "evidence_sha256": "15665258034555319a21dd83c1c8b53a4a3f1e267d6429517f5276d4e95b6678"
+      },
+      "confidence": "medium",
+      "limitations": [
+        "Transfer marked 'confirm'; no time/price guidance."
+      ]
+    },
+    {
+      "query_id": "q-where-stay-en",
+      "need_id": "n-where-to-stay",
+      "query_type": "observed_search_query",
+      "text": "where to stay in Tbilisi first time Sololaki Old Town",
+      "locale": "en-US",
+      "country": "US",
+      "location": null,
+      "device": "unspecified",
+      "engine": "websearch-tool",
+      "surface": "web-results-titles",
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "awareness: choose a neighbourhood",
+      "audience": "first-time-visitor",
+      "journey_stage": "awareness",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "direct_observation",
+        "source_url": null,
+        "source_ref": "raw/serp-observations-2026-10-27.md",
+        "source_sha256": "8b8ae911a029f751f53d860c3068965e69b27fabe7121500f0f7788afb16d3ab",
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "WebSearch tool, top ~10 links, titles only, 2026-10-27.",
+        "limitations": [
+          "Generic US-routed web index, not a localized Google SERP; no map/hotel pack; no rank claims."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "gap",
+        "current_urls": [],
+        "target_url": null,
+        "competing_urls": [],
+        "evidence_ref": "raw/site-capture-2026-10-27.md",
+        "evidence_sha256": "15665258034555319a21dd83c1c8b53a4a3f1e267d6429517f5276d4e95b6678"
+      },
+      "confidence": "medium",
+      "limitations": [
+        "Blogs own this intent; planned guide page."
+      ]
+    },
+    {
+      "query_id": "q-reviews-en",
+      "need_id": "n-reviews",
+      "query_type": "user_need",
+      "text": "magnolia hotel tbilisi reviews",
+      "locale": "en-US",
+      "country": null,
+      "location": null,
+      "device": "unspecified",
+      "engine": null,
+      "surface": null,
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "trust: is the hotel good",
+      "audience": "international-traveller",
+      "journey_stage": "trust",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "editorial_hypothesis",
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "Derived from site FAQ, OTA filter attributes and travel-guide topics.",
+        "limitations": [
+          "Unqualified hypothesis; needs demand and SERP evidence."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "gap",
+        "current_urls": [],
+        "target_url": null,
+        "competing_urls": [],
+        "evidence_ref": "raw/site-capture-2026-10-27.md",
+        "evidence_sha256": "15665258034555319a21dd83c1c8b53a4a3f1e267d6429517f5276d4e95b6678"
+      },
+      "confidence": "high",
+      "limitations": [
+        "Site reviews are placeholders; OTA shows 7.8/10 from 36 reviews."
+      ]
+    },
+    {
+      "query_id": "q-ai-boutique-parking",
+      "need_id": "n-ai-recommendation",
+      "query_type": "ai_prompt",
+      "text": "Recommend a small boutique hotel in Old Tbilisi with free parking, walking distance to Freedom Square.",
+      "locale": "en-US",
+      "country": null,
+      "location": null,
+      "device": "unspecified",
+      "engine": null,
+      "surface": null,
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "ai recommendation",
+      "audience": "driving-traveller",
+      "journey_stage": "consideration",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "editorial_hypothesis",
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "Derived from site FAQ, OTA filter attributes and travel-guide topics.",
+        "limitations": [
+          "Unqualified hypothesis; needs demand and SERP evidence."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "unknown",
+        "current_urls": [],
+        "target_url": null,
+        "competing_urls": [],
+        "evidence_ref": null,
+        "evidence_sha256": null
+      },
+      "confidence": "unknown",
+      "limitations": [
+        "Not run on any engine; route to ai-search-research."
+      ]
+    },
+    {
+      "query_id": "q-ai-budget-couple",
+      "need_id": "n-ai-recommendation",
+      "query_type": "ai_prompt",
+      "text": "Charming hotel in Tbilisi old town for a couple under 150 GEL a night, with breakfast?",
+      "locale": "en-US",
+      "country": null,
+      "location": null,
+      "device": "unspecified",
+      "engine": null,
+      "surface": null,
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "ai recommendation",
+      "audience": "couple-traveller",
+      "journey_stage": "consideration",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "editorial_hypothesis",
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "Derived from site FAQ, OTA filter attributes and travel-guide topics.",
+        "limitations": [
+          "Unqualified hypothesis; needs demand and SERP evidence."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "unknown",
+        "current_urls": [],
+        "target_url": null,
+        "competing_urls": [],
+        "evidence_ref": null,
+        "evidence_sha256": null
+      },
+      "confidence": "unknown",
+      "limitations": [
+        "Not run on any engine."
+      ]
+    },
+    {
+      "query_id": "q-ai-family",
+      "need_id": "n-ai-recommendation",
+      "query_type": "ai_prompt",
+      "text": "Family-friendly hotel in central Tbilisi with a room for three and parking?",
+      "locale": "en-US",
+      "country": null,
+      "location": null,
+      "device": "unspecified",
+      "engine": null,
+      "surface": null,
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "ai recommendation",
+      "audience": "family-traveller",
+      "journey_stage": "consideration",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "editorial_hypothesis",
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "Derived from site FAQ, OTA filter attributes and travel-guide topics.",
+        "limitations": [
+          "Unqualified hypothesis; needs demand and SERP evidence."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "unknown",
+        "current_urls": [],
+        "target_url": null,
+        "competing_urls": [],
+        "evidence_ref": null,
+        "evidence_sha256": null
+      },
+      "confidence": "unknown",
+      "limitations": [
+        "Not run on any engine."
+      ]
+    },
+    {
+      "query_id": "q-ai-brand-facts",
+      "need_id": "n-brand",
+      "query_type": "ai_prompt",
+      "text": "Tell me about Hotel Magnolia Tbilisi: is it good, where is it, does it have parking?",
+      "locale": "en-US",
+      "country": null,
+      "location": null,
+      "device": "unspecified",
+      "engine": null,
+      "surface": null,
+      "parent_query_id": null,
+      "conversation_id": null,
+      "turn_index": null,
+      "intent": "ai brand facts",
+      "audience": "international-traveller",
+      "journey_stage": "trust",
+      "target_entities": [
+        "hotel-magnolia-tbilisi"
+      ],
+      "fact_ids": [],
+      "applicability": [],
+      "source": {
+        "source_kind": "editorial_hypothesis",
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "observed_at": "2026-10-27T13:45:00Z",
+        "methodology": "Derived from site FAQ, OTA filter attributes and travel-guide topics.",
+        "limitations": [
+          "Unqualified hypothesis; needs demand and SERP evidence."
+        ]
+      },
+      "demand": {
+        "status": "unavailable",
+        "monthly_volume": null,
+        "trend_index": null,
+        "difficulty": null,
+        "provider": null,
+        "observed_at": null,
+        "source_url": null,
+        "source_ref": null,
+        "source_sha256": null,
+        "limitations": [
+          "No Search Console, Keyword Planner or Trends access in this session."
+        ]
+      },
+      "coverage": {
+        "state": "unknown",
+        "current_urls": [],
+        "target_url": null,
+        "competing_urls": [],
+        "evidence_ref": null,
+        "evidence_sha256": null
+      },
+      "confidence": "unknown",
+      "limitations": [
+        "Not run on any engine."
+      ]
+    }
+  ],
+  "limitations": [
+    "No demand data; all volumes unavailable.",
+    "Result-set observations come from a generic US-routed index, not localized Google.",
+    "Site captured via summarised extraction; raw HTML not stored.",
+    "AI prompts are hypotheses, not observed engine behaviour."
+  ]
+}
