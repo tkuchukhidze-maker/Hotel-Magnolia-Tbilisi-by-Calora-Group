@@ -28,6 +28,6 @@
 <span>EN · ქარ · RU</span>
 </div>
 </div>
-<div class="footer-bottom"><span>© {{ date('Y') }} {{ config('hotel.name') }}</span><span>Privacy · Booking &amp; cancellation terms</span></div>
+<div class="footer-bottom"><span>© {{ date('Y') }} {{ config('hotel.name') }}</span><a href="{{ route('privacy') }}">Privacy policy</a></div>
 </div>
 </footer>

@@ -108,13 +108,22 @@
           '<p class="small">' + stayLine(r) + ' · <strong style="color:var(--cocoa)">' + gel(total) + '</strong></p>' +
           (state.checkin ? '' :
             '<label class="input">Check-in date<input name="checkin" type="date" min="' + today() + '" required></label>') +
-          '<label class="input">Full name<input name="name" type="text" autocomplete="name" required value="' + esc(f.name) + '"></label>' +
+          '<p class="list-title" style="margin:4px 0 0">Your details</p>' +
           '<div class="form-grid">' +
-            '<label class="input">Email<input name="email" type="email" autocomplete="email" required value="' + esc(f.email) + '"></label>' +
-            '<label class="input">Phone / WhatsApp<input name="phone" type="tel" autocomplete="tel" required value="' + esc(f.phone) + '"></label>' +
+            '<label class="input">First name *<input name="first_name" type="text" autocomplete="given-name" required maxlength="80" value="' + esc(f.first_name) + '"></label>' +
+            '<label class="input">Last name *<input name="last_name" type="text" autocomplete="family-name" required maxlength="80" value="' + esc(f.last_name) + '"></label>' +
           '</div>' +
-          '<label class="input">Arrival time<select name="arrival"><option>I don\'t know yet</option><option>Morning</option><option>Afternoon</option><option>Evening</option><option>Late night</option></select></label>' +
-          '<label class="input">Anything we should know? (optional)<textarea name="notes" rows="2">' + esc(f.notes) + '</textarea></label>' +
+          '<div class="form-grid">' +
+            '<label class="input">Email *<input name="email" type="email" autocomplete="email" required maxlength="160" value="' + esc(f.email) + '"></label>' +
+            '<label class="input">Phone / WhatsApp *<input name="phone" type="tel" autocomplete="tel" required placeholder="+995 5XX XX XX XX" maxlength="40" value="' + esc(f.phone) + '"></label>' +
+          '</div>' +
+          '<div class="form-grid">' +
+            '<label class="input">Country *<input name="country" type="text" autocomplete="country-name" list="countries" required maxlength="80" value="' + esc(f.country) + '"></label>' +
+            '<label class="input">Arrival time<select name="arrival">' + ['I don\'t know yet', 'Morning', 'Afternoon', 'Evening', 'Late night'].map(function (o) { return '<option' + (f.arrival === o ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select></label>' +
+          '</div>' +
+          '<datalist id="countries">' + ['Georgia', 'Armenia', 'Azerbaijan', 'Turkey', 'Israel', 'Russia', 'Ukraine', 'Kazakhstan', 'Germany', 'Poland', 'United Kingdom', 'France', 'Italy', 'Spain', 'Netherlands', 'United States', 'Saudi Arabia', 'United Arab Emirates', 'Iran', 'India', 'China'].map(function (c) { return '<option value="' + c + '">'; }).join('') + '</datalist>' +
+          '<label class="input">Anything we should know? (optional)<textarea name="notes" rows="2" maxlength="1000" placeholder="Late arrival, a baby cot, a quiet room…">' + esc(f.notes) + '</textarea></label>' +
+          '<label style="display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.5;cursor:pointer"><input name="privacy" type="checkbox" required style="width:20px;height:20px;margin-top:1px;accent-color:var(--terracotta)"' + (f.privacy ? ' checked' : '') + '><span>I agree that Magnolia Hotel uses my details to handle this booking, as described in the <a href="' + esc(M.privacyUrl) + '" target="_blank" rel="noopener">privacy policy</a>. *</span></label>' +
           '<p class="small" data-error role="alert"' + (state.error ? '' : ' hidden') + ' style="color:var(--terracotta);font-weight:700">' + esc(state.error) + '</p>' +
           '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
             '<button type="button" class="btn btn--outline" data-action="back">← Back</button>' +
@@ -213,10 +222,12 @@
   function rememberForm() {
     var form = list.querySelector('[data-details]');
     if (!form) return;
-    ['name', 'email', 'phone', 'notes'].forEach(function (k) {
+    ['first_name', 'last_name', 'email', 'phone', 'country', 'arrival', 'notes'].forEach(function (k) {
       var el = form.elements.namedItem(k);
       if (el) state.form[k] = el.value;
     });
+    var p = form.elements.namedItem('privacy');
+    if (p) state.form.privacy = p.checked;
   }
 
   document.addEventListener('click', function (e) {
@@ -256,8 +267,20 @@
       if (checkinEl) checkinEl.value = state.checkin;
     }
     var f = state.form;
-    if (!state.checkin || !f.name.trim() || !/\S+@\S+\.\S+/.test(f.email) || f.phone.trim().length < 6) {
-      state.error = 'Please add your check-in date, name, a valid email and a phone number.';
+    var missing = [];
+    if (!state.checkin) missing.push('check-in date');
+    if (!(f.first_name || '').trim()) missing.push('first name');
+    if (!(f.last_name || '').trim()) missing.push('last name');
+    if (!/^\S+@\S+\.\S+$/.test((f.email || '').trim())) missing.push('a valid email');
+    if (!/^[0-9+()\-\s]{6,}$/.test((f.phone || '').trim())) missing.push('a phone number');
+    if (!(f.country || '').trim()) missing.push('country');
+    if (missing.length) {
+      state.error = 'Please add your ' + missing.join(', ') + '.';
+      render(); focusPanel('[data-error]');
+      return;
+    }
+    if (!f.privacy) {
+      state.error = 'Please agree to the privacy policy to book.';
       render(); focusPanel('[data-error]');
       return;
     }
@@ -269,8 +292,9 @@
       body: JSON.stringify({
         room: state.openId, rate: state.rate, checkin: state.checkin, nights: state.nights,
         adults: state.adults, children: state.kids,
-        name: f.name, email: f.email, phone: f.phone,
-        arrival: (el.namedItem('arrival') || {}).value || null, notes: f.notes || null
+        first_name: f.first_name.trim(), last_name: f.last_name.trim(), email: f.email.trim(),
+        phone: f.phone.trim(), country: f.country.trim(),
+        arrival: f.arrival || null, notes: f.notes || null, privacy: true
       })
     }).then(function (res) {
       return res.json().catch(function () { return {}; }).then(function (data) { return { ok: res.ok, status: res.status, data: data }; });

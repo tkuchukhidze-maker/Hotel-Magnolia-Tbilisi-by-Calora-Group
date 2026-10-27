@@ -12,6 +12,6 @@
 </nav>
 <address style="font-style:normal"><a href="{{ $c['google_maps'] }}">{{ $c['address'] }}, Tbilisi</a> · <a href="tel:{{ $c['phone_tel'] }}">{{ $c['phone_display'] }}</a> · <a href="https://wa.me/{{ $c['whatsapp'] }}">WhatsApp</a></address>
 </div>
-<div class="footer-bottom"><span>© {{ date('Y') }} {{ config('hotel.name') }}</span><span>Privacy · Booking &amp; cancellation terms</span></div>
+<div class="footer-bottom"><span>© {{ date('Y') }} {{ config('hotel.name') }}</span><a href="{{ route('privacy') }}">Privacy policy</a></div>
 </div>
 </footer>

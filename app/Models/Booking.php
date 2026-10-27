@@ -9,7 +9,8 @@ class Booking extends Model
     protected $fillable = [
         'reference', 'room', 'rate', 'checkin', 'checkout', 'nights',
         'adults', 'children', 'nightly_price', 'total',
-        'name', 'email', 'phone', 'arrival', 'notes', 'status',
+        'first_name', 'last_name', 'email', 'phone', 'country',
+        'arrival', 'notes', 'privacy_accepted_at', 'status',
     ];
 
     protected function casts(): array
@@ -22,7 +23,13 @@ class Booking extends Model
             'children' => 'integer',
             'nightly_price' => 'integer',
             'total' => 'integer',
+            'privacy_accepted_at' => 'datetime',
         ];
+    }
+
+    public function guestName(): string
+    {
+        return trim($this->first_name.' '.$this->last_name);
     }
 
     public function roomName(): string

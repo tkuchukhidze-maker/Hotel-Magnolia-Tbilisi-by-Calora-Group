@@ -10,6 +10,7 @@ Route::get('/rooms', [PageController::class, 'rooms'])->name('rooms');
 Route::get('/our-hotel', [PageController::class, 'ourHotel'])->name('our-hotel');
 Route::get('/explore', [PageController::class, 'explore'])->name('explore');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
+Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
 
 Route::post('/bookings', [BookingController::class, 'store'])
     ->middleware('throttle:10,1')

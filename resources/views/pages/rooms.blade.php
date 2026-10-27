@@ -88,6 +88,7 @@ window.MAGNOLIA = {!! json_encode([
     'maxGuests' => config('hotel.max_guests'),
     'maxNights' => config('hotel.max_nights'),
     'bookingUrl' => route('bookings.store'),
+    'privacyUrl' => route('privacy'),
     'whatsapp' => 'https://wa.me/'.$c['whatsapp'],
     'cancellation' => config('hotel.policies.cancellation'),
     'img' => ['bathroom' => asset('assets/img/bathroom.webp'), 'tray' => asset('assets/img/welcome-tray.webp')],

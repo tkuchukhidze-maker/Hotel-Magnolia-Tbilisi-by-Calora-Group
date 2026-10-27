@@ -69,6 +69,30 @@ class SiteTest extends TestCase
         $this->assertSame(0, Booking::count());
     }
 
+    public function test_guest_details_and_privacy_consent_are_required(): void
+    {
+        $this->postJson(route('bookings.store'), $this->payload([
+            'first_name' => '', 'last_name' => '', 'country' => '', 'phone' => 'call me', 'privacy' => false,
+        ]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['first_name', 'last_name', 'country', 'phone', 'privacy']);
+
+        $this->assertSame(0, Booking::count());
+    }
+
+    public function test_booking_stores_guest_details(): void
+    {
+        Mail::fake();
+
+        $this->postJson(route('bookings.store'), $this->payload())->assertCreated();
+
+        $booking = Booking::first();
+        $this->assertSame('Nino Beridze', $booking->guestName());
+        $this->assertSame('Georgia', $booking->country);
+        $this->assertNotNull($booking->privacy_accepted_at);
+        $this->get(route('privacy'))->assertOk()->assertSee('What we collect');
+    }
+
     public function test_invalid_input_is_rejected(): void
     {
         $this->postJson(route('bookings.store'), $this->payload(['email' => 'nope', 'checkin' => '2000-01-01', 'room' => 'penthouse']))
@@ -85,11 +109,14 @@ class SiteTest extends TestCase
             'nights' => 2,
             'adults' => 2,
             'children' => 0,
-            'name' => 'Test Guest',
+            'first_name' => 'Nino',
+            'last_name' => 'Beridze',
             'email' => 'guest@example.com',
-            'phone' => '+995555000000',
+            'phone' => '+995 555 00 00 00',
+            'country' => 'Georgia',
             'arrival' => 'Evening',
             'notes' => null,
+            'privacy' => true,
         ], $override);
     }
 }
