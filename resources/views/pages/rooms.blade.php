@@ -91,6 +91,7 @@ window.MAGNOLIA = {!! json_encode([
     'childMaxAge' => config('hotel.child_max_age'),
     'maxNights' => config('hotel.max_nights'),
     'bookingUrl' => route('bookings.store'),
+    'pricePreviewUrl' => route('booking-prices.preview'),
     'privacyUrl' => route('privacy'),
     'whatsapp' => 'https://wa.me/'.$c['whatsapp'],
     'phone' => $c['phone_display'],
