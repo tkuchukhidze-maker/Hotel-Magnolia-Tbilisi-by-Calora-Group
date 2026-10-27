@@ -28,18 +28,17 @@ class BookingController extends Controller
             'items' => ['required', 'array', 'min:1', 'max:'.count($rooms)],
             'items.*.room' => ['required', 'distinct', Rule::in(array_keys($rooms))],
             'items.*.qty' => ['required', 'integer', 'min:1', 'max:10'],
+            'items.*.extra_beds' => ['sometimes', 'integer', 'min:0', 'max:10'],
             'rate' => ['required', Rule::in(['room', 'bf'])],
             'checkin' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
             'nights' => ['required', 'integer', 'min:1', 'max:'.config('hotel.max_nights')],
             'adults' => ['required', 'integer', 'min:1', 'max:'.config('hotel.max_adults')],
             'children' => ['required', 'integer', 'min:0', 'max:'.config('hotel.max_children')],
-            'children_ages' => ['present', 'array'],
-            'children_ages.*' => ['required', 'integer', 'min:0', 'max:'.config('hotel.child_max_age')],
             'first_name' => ['required', 'string', 'max:80'],
             'last_name' => ['required', 'string', 'max:80'],
             'email' => ['required', 'email', 'max:160'],
             'phone' => ['required', 'string', 'min:6', 'max:40', 'regex:/^[0-9+()\-\s]+$/'],
-            'country' => ['required', 'string', 'max:80'],
+            'country' => ['nullable', 'string', 'max:80'],
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:120'],
             'postal_code' => ['nullable', 'string', 'max:20'],
@@ -55,28 +54,30 @@ class BookingController extends Controller
             'phone.required' => 'Please add a phone number.',
             'phone.regex' => 'Please check your phone number.',
             'phone.min' => 'Please check your phone number.',
-            'country.required' => 'Please tell us your country.',
             'privacy.accepted' => 'Please agree to the privacy policy to book.',
             'checkin.required' => 'Please choose your check-in date.',
             'checkin.after_or_equal' => 'Check-in can\'t be in the past.',
-            'children_ages.*.required' => 'Please add the age of each child.',
         ]);
 
-        // Room stock and children's ages must match what was asked for.
+        // Static stock is a maximum request quantity, not date-specific availability.
         $errors = [];
         foreach ($data['items'] as $i => $item) {
             $stock = $rooms[$item['room']]['stock'];
             if ($item['qty'] > $stock) {
-                $errors["items.$i.qty"] = 'Only '.$stock.' '.$rooms[$item['room']]['name'].($stock === 1 ? ' is' : 's are').' available.';
+                $errors["items.$i.qty"] = 'For this many rooms, please contact our team.';
             }
-        }
-        if (count($data['children_ages']) !== (int) $data['children']) {
-            $errors['children_ages'] = 'Please add the age of each child.';
+            $extraBeds = (int) ($item['extra_beds'] ?? 0);
+            if ($extraBeds > $item['qty']) {
+                $errors["items.$i.extra_beds"] = 'You can request up to one extra bed per selected room.';
+            }
         }
 
         $guests = $data['adults'] + $data['children'];
         $quote = new BookingQuote($data['items'], $guests, $data['rate'], $data['nights']);
 
+        if ($quote->rooms > $guests) {
+            $errors['items'] = 'Each selected room needs at least one guest. Please reduce the number of rooms.';
+        }
         if ($quote->capacity < $guests) {
             $errors['items'] = 'These rooms sleep '.$quote->capacity.', but you are '.$guests.' guests. Please add another room.';
         }
@@ -96,14 +97,14 @@ class BookingController extends Controller
             'nights' => $data['nights'],
             'adults' => $data['adults'],
             'children' => $data['children'],
-            'children_ages' => array_values($data['children_ages']),
+            'children_ages' => [],
             'nightly_price' => $quote->nightly,
             'total' => $quote->total,
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'email' => $data['email'],
             'phone' => $data['phone'],
-            'country' => $data['country'],
+            'country' => $data['country'] ?? 'Not specified',
             'address' => $data['address'] ?? null,
             'city' => $data['city'] ?? null,
             'postal_code' => $data['postal_code'] ?? null,
@@ -121,10 +122,15 @@ class BookingController extends Controller
         }
 
         return response()->json([
+            'status' => 'requested',
+            'message' => 'Request received. Availability, any extra-bed supplements, and your final price require hotel confirmation.',
             'reference' => $booking->reference,
             'items' => $quote->lines,
             'nightly' => $quote->nightly,
             'total' => $booking->total,
+            'extra_beds_requested' => $quote->extraBeds,
+            'extra_bed_supplement_pending' => $quote->extraBeds > 0,
+            'total_excludes_extra_bed_supplements' => $quote->extraBeds > 0,
             'checkin' => $booking->checkin->toDateString(),
             'checkout' => $booking->checkout->toDateString(),
         ], 201);

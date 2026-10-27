@@ -43,15 +43,22 @@
     var today = new Date();
     var inEl = homeForm.querySelector('[name="checkin"]');
     var outEl = homeForm.querySelector('[name="checkout"]');
-    var iso = function (d) { return d.toISOString().slice(0, 10); };
+    var iso = function (d) { return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-'); };
     if (inEl && !inEl.value) { inEl.min = iso(today); }
     if (inEl && outEl) {
       inEl.addEventListener('change', function () {
         if (!inEl.value) return;
-        var next = new Date(inEl.value);
+        var next = new Date(inEl.value + 'T12:00:00');
         next.setDate(next.getDate() + 1);
         outEl.min = iso(next);
         if (!outEl.value || outEl.value <= inEl.value) outEl.value = iso(next);
+      });
+      homeForm.addEventListener('submit', function (e) {
+        if (!inEl.value || !outEl.value || outEl.value <= inEl.value) {
+          e.preventDefault();
+          if (!inEl.value) inEl.focus(); else outEl.focus();
+          return;
+        }
       });
     }
   }

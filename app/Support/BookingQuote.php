@@ -16,6 +16,8 @@ class BookingQuote
 
     public int $capacity = 0;
 
+    public int $extraBeds = 0;
+
     public int $rooms = 0;
 
     public int $nightly = 0;
@@ -36,16 +38,19 @@ class BookingQuote
             $prices = $single ? $r['p1'] : $r['p2'];
             $perRoom = $rate === 'bf' ? $prices[1] : $prices[0];
             $sub = $perRoom * $item['qty'];
+            $extraBeds = (int) ($item['extra_beds'] ?? 0);
 
             $this->lines[] = [
                 'room' => $item['room'],
                 'name' => $r['name'],
                 'qty' => $item['qty'],
                 'cap' => $r['cap'],
+                'extra_beds' => $extraBeds,
                 'nightly' => $perRoom,
                 'subtotal' => $sub,
             ];
-            $this->capacity += $r['cap'] * $item['qty'];
+            $this->capacity += $r['cap'] * $item['qty'] + $extraBeds;
+            $this->extraBeds += $extraBeds;
             $this->nightly += $sub;
         }
 
