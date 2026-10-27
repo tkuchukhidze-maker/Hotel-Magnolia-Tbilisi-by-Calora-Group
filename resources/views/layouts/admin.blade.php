@@ -18,6 +18,7 @@
 <a href="{{ route('admin.pricing.index') }}" @if (request()->routeIs('admin.pricing.*')) aria-current="page" @endif>Prices</a>
 <a href="{{ route('admin.media.index') }}" @if (request()->routeIs('admin.media.*')) aria-current="page" @endif>Photos</a>
 <a href="{{ route('admin.services.index') }}" @if (request()->routeIs('admin.services.*')) aria-current="page" @endif>Services</a>
+<a href="{{ route('admin.offers.index') }}" @if (request()->routeIs('admin.offers.*')) aria-current="page" @endif>Offers</a>
 <a href="{{ route('home') }}" target="_blank" rel="noopener">View site ↗</a>
 </nav>
 <form method="post" action="{{ route('admin.logout') }}">@csrf<button class="a-btn a-btn--ghost">Sign out</button></form>

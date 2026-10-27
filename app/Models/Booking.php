@@ -6,12 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class Booking extends Model
 {
+    public const STATUSES = ['requested', 'confirmed', 'cancelled', 'no_show', 'rejected', 'checked_in', 'checked_out'];
+
+    /** Bookings in these states no longer hold a room. */
+    public const CLOSED = ['cancelled', 'no_show', 'rejected'];
+
     protected $fillable = [
         'reference', 'room', 'items', 'extras', 'extras_total', 'rooms_count', 'rate', 'checkin', 'checkout', 'nights',
         'adults', 'children', 'children_ages', 'nightly_price', 'total',
         'first_name', 'last_name', 'email', 'phone', 'country',
         'address', 'city', 'postal_code',
         'arrival', 'notes', 'privacy_accepted_at', 'status',
+        'cancelled_at', 'cancel_reason', 'cancel_note', 'cancel_emailed_at',
     ];
 
     protected function casts(): array
@@ -30,6 +36,8 @@ class Booking extends Model
             'nightly_price' => 'integer',
             'total' => 'integer',
             'privacy_accepted_at' => 'datetime',
+            'cancelled_at' => 'datetime',
+            'cancel_emailed_at' => 'datetime',
         ];
     }
 

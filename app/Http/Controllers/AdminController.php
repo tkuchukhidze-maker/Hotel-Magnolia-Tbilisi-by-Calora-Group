@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\BookingCancelled;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
+use Throwable;
 
 class AdminController extends Controller
 {
@@ -45,7 +48,7 @@ class AdminController extends Controller
     {
         $this->guard($request);
         $today = now()->toDateString();
-        $active = Booking::query()->whereNotIn('status', ['cancelled','rejected']);
+        $active = Booking::query()->whereNotIn('status', Booking::CLOSED);
         $stats = [
             'new_requests' => Booking::where('status', 'requested')->count(),
             'arrivals' => (clone $active)->whereDate('checkin', $today)->count(),
@@ -62,9 +65,42 @@ class AdminController extends Controller
     public function bookingStatus(Request $request, Booking $booking)
     {
         $this->guard($request);
-        $data = $request->validate(['status' => ['required', Rule::in(['requested','confirmed','cancelled','rejected','checked_in','checked_out'])]]);
+        $data = $request->validate(['status' => ['required', Rule::in(Booking::STATUSES)]]);
         $booking->update(['status' => $data['status']]);
         return back()->with('success', 'Booking status updated.');
+    }
+
+    /** Cancel a booking (guest asked, no-show, or the hotel) and, if asked, email the guest. */
+    public function cancelBooking(Request $request, Booking $booking)
+    {
+        $this->guard($request);
+        $data = $request->validate([
+            'reason' => ['required', Rule::in(array_keys(BookingCancelled::REASONS))],
+            'note' => ['nullable', 'string', 'max:1000'],
+            'notify' => ['nullable', 'boolean'],
+        ]);
+
+        $booking->update([
+            'status' => $data['reason'] === 'no_show' ? 'no_show' : 'cancelled',
+            'cancelled_at' => now(),
+            'cancel_reason' => $data['reason'],
+            'cancel_note' => $data['note'] ?? null,
+        ]);
+
+        if (! $request->boolean('notify')) {
+            return back()->with('success', "Booking {$booking->reference} is cancelled. No email was sent.");
+        }
+
+        try {
+            Mail::to($booking->email)->send(new BookingCancelled($booking));
+            $booking->update(['cancel_emailed_at' => now()]);
+        } catch (Throwable $e) {
+            report($e);
+
+            return back()->withErrors(['mail' => "Booking {$booking->reference} is cancelled, but the email to {$booking->email} failed: ".$e->getMessage()]);
+        }
+
+        return back()->with('success', "Booking {$booking->reference} is cancelled and {$booking->email} has been emailed.");
     }
 
     public function roomRate(Request $request, string $room)

@@ -15,7 +15,7 @@ class MarketingDashboardController extends Controller
     public function index(): View
     {
         $from = now()->subDays(29)->startOfDay();
-        $valid = fn () => Booking::query()->whereNotIn('status', ['cancelled', 'rejected']);
+        $valid = fn () => Booking::query()->whereNotIn('status', Booking::CLOSED);
         $period = $valid()->where('created_at', '>=', $from);
 
         $stats = [
@@ -53,9 +53,9 @@ class MarketingDashboardController extends Controller
         ]);
 
         $metrics = [
-            'booking_requests_last_30_days' => Booking::whereNotIn('status', ['cancelled', 'rejected'])
+            'booking_requests_last_30_days' => Booking::whereNotIn('status', Booking::CLOSED)
                 ->where('created_at', '>=', now()->subDays(29)->startOfDay())->count(),
-            'total_value_of_requests_gel' => Booking::whereNotIn('status', ['cancelled', 'rejected'])
+            'total_value_of_requests_gel' => Booking::whereNotIn('status', Booking::CLOSED)
                 ->where('created_at', '>=', now()->subDays(29)->startOfDay())->sum('total'),
         ];
 

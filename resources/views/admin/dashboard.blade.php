@@ -5,7 +5,8 @@
 <style>
 .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.metric,.panel{background:#fff;border:1px solid #e7dfd6;border-radius:16px;padding:22px}.metric small{display:block;color:#756b62;margin-bottom:10px}.metric strong{font-size:28px}.panel{margin-top:20px}table{width:100%;border-collapse:collapse;font-size:13px}td,th{text-align:left;border-bottom:1px solid #e8e1d9;padding:12px 9px;white-space:nowrap}th{color:#756b62}input,select,button{font:inherit;padding:9px;border:1px solid #d4c8bc;border-radius:7px}input[type=number]{width:95px}button{background:#654638;color:white;border:0;cursor:pointer}form.inline{display:flex;gap:7px;align-items:center}.scroll{overflow-x:auto}.room-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px}.room-grid article{background:#faf7f2;border-radius:12px;padding:18px}.room-grid label{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:8px 0;font-size:13px}.room-grid input{max-width:110px}.promotion-form{display:flex;flex-wrap:wrap;gap:10px;align-items:end}.promotion-form label{display:grid;gap:5px;font-size:13px}.notice{background:#fff3db;padding:12px;border-radius:8px}.success{background:#e3f3e8;padding:12px;border-radius:8px}@media(max-width:700px){.metrics{grid-template-columns:repeat(2,1fr)}}
 
-.a-main section[id]{scroll-margin-top:80px}</style>
+.a-main section[id]{scroll-margin-top:80px}
+.cx summary{cursor:pointer;color:#A3261B;font-weight:700}.cx[open]{min-width:260px}.cx-form{display:grid;gap:8px;margin-top:8px;white-space:normal}.cx-form label{display:grid;gap:4px;font-size:12px;font-weight:700}.cx-form select,.cx-form textarea{font:inherit;font-weight:400;padding:8px;border:1px solid #d4c8bc;border-radius:7px}.cx-form .cx-check{display:flex;gap:6px;align-items:center;font-weight:600}.cx-btn{background:#A3261B!important}</style>
 @endpush
 
 @section('content')
@@ -16,11 +17,23 @@
 <div class="metric"><small>Guests arriving today</small><strong>{{ $stats['guests_today'] }}</strong></div>
 <div class="metric"><small>Monthly requested / confirmed base value*</small><strong>{{ number_format($stats['base_value']) }} ₾</strong></div></div>
 <p class="notice">*Requested/confirmed room value, not collected revenue. Extra beds, refunds and channel bookings are not reconciled.</p></section>
-<section id="bookings" class="panel"><h2>Latest booking requests</h2><div class="scroll"><table><thead><tr><th>Reference</th><th>Guest</th><th>Phone</th><th>Stay</th><th>Rooms</th><th>Base total</th><th>Status</th><th>Update</th></tr></thead><tbody>
+<section id="bookings" class="panel"><h2>Latest booking requests</h2><div class="scroll"><table><thead><tr><th>Reference</th><th>Guest</th><th>Phone</th><th>Stay</th><th>Rooms</th><th>Base total</th><th>Status</th><th>Update</th><th>Cancel</th></tr></thead><tbody>
 @forelse($bookings as $booking)<tr><td>{{ $booking->reference }}</td><td>{{ $booking->guestName() }}</td><td>{{ $booking->phone }}</td><td>{{ $booking->checkin->format('d M') }} – {{ $booking->checkout->format('d M') }}</td><td>{{ $booking->roomsSummary() }}@if (! empty($booking->extras))<br><small style="color:#7A6156">+ {{ collect($booking->extras)->pluck('name')->implode(', ') }}</small>@endif</td><td>{{ number_format($booking->total) }} ₾</td><td>{{ $booking->status }}</td><td>
 <form class="inline" method="post" action="{{ route('admin.bookings.status', $booking) }}">@csrf @method('PATCH')
-<select name="status" aria-label="Status for {{ $booking->reference }}">@foreach(['requested','confirmed','cancelled','rejected','checked_in','checked_out'] as $status)<option value="{{ $status }}" @selected($booking->status === $status)>{{ ucfirst(str_replace('_',' ',$status)) }}</option>@endforeach</select><button>Save</button></form></td></tr>
-@empty<tr><td colspan="8">No booking requests yet.</td></tr>@endforelse</tbody></table></div></section>
+<select name="status" aria-label="Status for {{ $booking->reference }}">@foreach(\App\Models\Booking::STATUSES as $status)<option value="{{ $status }}" @selected($booking->status === $status)>{{ ucfirst(str_replace('_',' ',$status)) }}</option>@endforeach</select><button>Save</button></form></td><td>
+@if (in_array($booking->status, ['cancelled', 'no_show'], true))
+<small style="color:#7A6156;white-space:normal">{{ \App\Mail\BookingCancelled::REASONS[$booking->cancel_reason] ?? 'Cancelled' }}@if ($booking->cancelled_at)<br>{{ $booking->cancelled_at->setTimezone('Asia/Tbilisi')->format('j M, H:i') }}@endif<br>{{ $booking->cancel_emailed_at ? '✓ guest emailed' : 'no email sent' }}</small>
+@else
+<details class="cx"><summary>Cancel…</summary>
+<form method="post" action="{{ route('admin.bookings.cancel', $booking) }}" class="cx-form">@csrf
+<label>Reason<select name="reason">@foreach (\App\Mail\BookingCancelled::REASONS as $k => $l)<option value="{{ $k }}">{{ $l }}</option>@endforeach</select></label>
+<label>Note to the guest <small>(optional)</small><textarea name="note" rows="2" maxlength="1000" placeholder="E.g. We hope to see you another time."></textarea></label>
+<label class="cx-check"><input type="hidden" name="notify" value="0"><input type="checkbox" name="notify" value="1" checked> Email {{ $booking->email }}</label>
+<button type="submit" class="cx-btn">Cancel booking</button>
+</form></details>
+@endif
+</td></tr>
+@empty<tr><td colspan="9">No booking requests yet.</td></tr>@endforelse</tbody></table></div></section>
 <section id="rooms" class="panel"><h2>Basic room prices</h2><p><a class="btn" href="{{ route('admin.pricing.index') }}">Open pricing calendar →</a></p><p>Rates are GEL per room / night, for 1 or 2 guests, with or without breakfast. Updates apply to new requests, not existing bookings.</p><div class="room-grid">
 @foreach($rooms as $id => $room)@php($override = $overrides->get($id))
 <article><h3>{{ $room['name'] }}</h3><p>{{ $room['size'] }} · standard max {{ $room['cap'] }} guests</p>
