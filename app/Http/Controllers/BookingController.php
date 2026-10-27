@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\BookingReceived;
+use App\Mail\BookingRequestAcknowledged;
 use App\Models\Booking;
 use App\Support\BookingQuote;
 use App\Support\RoomCatalog;
@@ -115,11 +116,29 @@ class BookingController extends Controller
             'status' => 'requested',
         ]);
 
+        // Send two independent notifications after the booking has been saved.
+        // Failure of one recipient must not prevent notification to the other.
         try {
-            Mail::to(config('hotel.bookings_email'))->send(new BookingReceived($booking));
+            Mail::to($booking->email)->send(new BookingRequestAcknowledged($booking));
         } catch (\Throwable $e) {
-            // The booking is saved either way; a mail failure must not lose it.
-            Log::error('Booking email failed', ['reference' => $booking->reference, 'error' => $e->getMessage()]);
+            Log::error('Guest booking acknowledgement email failed', [
+                'reference' => $booking->reference, 'error' => $e->getMessage(),
+            ]);
+        }
+
+        $managerAddress = (string) config('hotel.bookings_email', '');
+        if ($managerAddress !== '' && filter_var($managerAddress, FILTER_VALIDATE_EMAIL)) {
+            try {
+                Mail::to($managerAddress)->send(new BookingReceived($booking));
+            } catch (\Throwable $e) {
+                Log::error('Manager booking notification email failed', [
+                    'reference' => $booking->reference, 'error' => $e->getMessage(),
+                ]);
+            }
+        } else {
+            Log::warning('Manager booking notification recipient is not configured', [
+                'reference' => $booking->reference,
+            ]);
         }
 
         return response()->json([
