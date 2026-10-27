@@ -7,7 +7,7 @@ Rate:      {{ $booking->rateName() }}
 
 Rooms ({{ $booking->rooms_count }}):
 @foreach ($booking->items ?? [] as $line)
-  {{ $line['qty'] }} × {{ $line['name'] }} — GEL {{ $line['stay_total'] ?? ($line['subtotal'] * $booking->nights) }} for the full stay@if($line['nightly_varies'] ?? false) (prices vary by night)@endif
+  {{ $line['qty'] }} × {{ $line['name'] }} — GEL {{ $line['stay_total'] ?? ($line['subtotal'] * $booking->nights) }} for the full stay @if($line['nightly_varies'] ?? false) (prices vary by night)@endif
 @endforeach
 @if (! empty($booking->extras))
 
