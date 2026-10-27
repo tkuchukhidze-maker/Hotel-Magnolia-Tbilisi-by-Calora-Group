@@ -213,7 +213,7 @@
     var stock = r.stock || 0;
     var control;
     if (stock === 0) {
-      control = '<p class="small" style="font-weight:700">Fully booked for now. <a href="' + esc(M.whatsapp) + '">Ask us</a></p>';
+      control = '<p class="small" style="font-weight:700">Contact us about this room. <a href="' + esc(M.whatsapp) + '">Ask us</a></p>';
     } else if (q === 0) {
       control = '<button type="button" class="btn btn--primary" data-action="qty+" data-id="' + r.id + '">Add this room</button>';
     } else {
@@ -222,7 +222,7 @@
         '<span class="qty__value"><strong>' + q + '</strong> ' + (q === 1 ? 'room' : 'rooms') + '</span>' +
         '<button type="button" class="round-btn" data-action="qty+" data-id="' + r.id + '" aria-label="One more ' + esc(r.name) + '"' + (q >= stock ? ' disabled' : '') + '>+</button>' +
       '</div>' +
-      (q >= stock ? '<span class="small">That\'s all we have of this type.</span>' : '');
+      (q >= stock ? '<span class="small">For more rooms, contact our team.</span>' : '');
     }
     return '<article class="room' + (q ? ' is-selected' : '') + '" id="room-' + r.id + '">' +
       '<div class="room__main">' + media(r, q) +
@@ -289,7 +289,7 @@
       '<h2 class="h3" style="margin:0">Request received. <em>We\'ll be in touch.</em></h2>' +
       '<p class="lead" style="font-size:16px">' + fmtDate(res.checkin) + ' → ' + fmtDate(res.checkout) + ' · ' + guestsLabel() + '</p>' +
       '<ul class="checks" style="grid-template-columns:1fr">' + lines + '</ul>' +
-      '<p class="lead" style="font-size:16px">Total ' + gel(res.total) + ', paid at the hotel. Booking ref <strong>' + esc(res.reference) + '</strong>.</p>' +
+      '<p class="lead" style="font-size:16px">Quoted total ' + gel(res.total) + ', final terms require hotel confirmation. Request ref <strong>' + esc(res.reference) + '</strong>.</p>' +
       '<p class="small">Your room is not reserved until our team confirms availability. Questions? <a href="' + esc(M.whatsapp) + '">WhatsApp us</a>.</p>' +
       '<button type="button" class="btn btn--outline" data-action="restart">Make another booking</button>' +
     '</div>';
