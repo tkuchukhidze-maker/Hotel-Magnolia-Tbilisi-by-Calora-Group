@@ -7,6 +7,7 @@ use App\Support\RoomPricing;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -20,6 +21,19 @@ class AdminPricingController extends Controller
     public function index(Request $request)
     {
         $this->guard($request);
+        // A new deployment can precede its database migration; show an
+        // actionable setup message rather than a generic server error.
+        try {
+            foreach (['room_rate_plans', 'room_plan_prices', 'room_month_prices', 'room_day_prices'] as $table) {
+                if (!Schema::hasTable($table)) {
+                    return response('Room pricing calendar needs the database migration. Run php artisan migrate --force in Laravel Cloud, then reload.', 503);
+                }
+            }
+        } catch (\Throwable $e) {
+            report($e);
+            return response('Pricing database is temporarily unavailable. Please contact the administrator.', 503);
+        }
+
         $month = $request->query('month', now()->format('Y-m'));
         if (!is_string($month) || !preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $month)) {
             $month = now()->format('Y-m');
