@@ -73,6 +73,23 @@ MAIL_MAILER=smtp      # until set, booking emails go to storage/logs/laravel.log
 
 Availability is not checked yet: connect a PMS / channel manager before relying on "Only N left" labels or instant confirmation.
 
+## SEO & AEO
+
+Everything is generated from `config/hotel.php`, so the markup always matches the page.
+
+| What | Where |
+| --- | --- |
+| Unique title + description per page, canonical, Open Graph, Twitter card | `layouts/app.blade.php`, `@section('title'/'description'/'og_image')` in each page |
+| `noindex` everywhere except `APP_ENV=production` | layout `robots` meta + `/robots.txt` |
+| `/sitemap.xml` (with images), `/robots.txt` | `SeoController` |
+| `/llms.txt` — plain-language summary + FAQ for AI assistants | `SeoController::llms` |
+| JSON-LD: `Hotel` (home, rooms, contact), `HotelRoom` + `Offer` (rooms), `FAQPage` (contact), `BreadcrumbList` (inner pages), `WebSite` (home) | `app/Support/StructuredData.php` |
+| Rooms rendered on the server (crawlers and AI bots see them without JS) | `pages/rooms.blade.php` |
+| "At a glance" facts block, 11-question FAQ | `pages/our-hotel.blade.php`, `config('hotel.faq')` |
+| Same name, address and phone on every page (footer) and a Google Maps link to the Business Profile | `partials/footer*.blade.php`, `HOTEL_GOOGLE_MAPS` |
+
+After launch: add the site to Google Search Console and Bing Webmaster Tools, submit `/sitemap.xml`, put the website URL on the Google Business Profile, and check the JSON-LD with Google's Rich Results Test.
+
 ## Brand tokens
 
 | Token | Hex | Use |

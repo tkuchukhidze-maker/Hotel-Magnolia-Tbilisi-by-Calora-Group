@@ -17,14 +17,21 @@ return [
     'name' => 'Magnolia Hotel Tbilisi',
 
     'contact' => [
-        'phone_display' => env('HOTEL_PHONE_DISPLAY', '+995 [PHONE]'),
-        'phone_tel' => env('HOTEL_PHONE_TEL', '+995000000000'),
-        'whatsapp' => env('HOTEL_WHATSAPP', '995000000000'),
+        'phone_display' => env('HOTEL_PHONE_DISPLAY', '+995 533 33 44 22'),
+        'phone_tel' => env('HOTEL_PHONE_TEL', '+995533334422'),
+        'whatsapp' => env('HOTEL_WHATSAPP', '995533334422'),
         'email' => env('HOTEL_EMAIL', 'hello@example.com'),
         'email_display' => env('HOTEL_EMAIL_DISPLAY', '[EMAIL]'),
-        'address' => env('HOTEL_ADDRESS', '[Street address]'),
-        'instagram' => env('HOTEL_INSTAGRAM', 'https://instagram.com'),
-        'facebook' => env('HOTEL_FACEBOOK', 'https://facebook.com'),
+        'address' => env('HOTEL_ADDRESS', '5 Kirile Ukleba St'),
+        'city' => 'Tbilisi',
+        'country' => 'GE',
+        'neighbourhood' => 'Old Town',
+        // Google Business Profile (CID from Google Maps / Search).
+        'google_maps' => env('HOTEL_GOOGLE_MAPS', 'https://maps.google.com/?cid=15414144500935940587'),
+        'map_embed' => 'https://maps.google.com/maps?q='.rawurlencode('Magnolia Hotel, 5 Kirile Ukleba St, Tbilisi').'&output=embed',
+        'instagram' => env('HOTEL_INSTAGRAM', ''),
+        'facebook' => env('HOTEL_FACEBOOK', ''),
+        'booking_com' => env('HOTEL_BOOKING_COM', ''),
     ],
 
     // Where new booking requests are emailed.
@@ -52,6 +59,22 @@ return [
         'label' => 'Exceptional',
         'source' => 'Booking.com',
         'count' => '[N]',
+    ],
+
+    // Short, factual answers. Shown on the Contact page, marked up as FAQPage
+    // and listed in /llms.txt so search and AI answers can quote them.
+    'faq' => [
+        ['Where is Magnolia Hotel Tbilisi?', 'At 5 Kirile Ukleba St in the Old Town of Tbilisi, Georgia, on a quiet street below Mount Mtatsminda. Freedom Square is 950 m away and Freedom Square metro station 750 m.'],
+        ['How much does a room cost?', 'Rooms start from GEL 106 per night for one guest and GEL 129 for two, taxes included (autumn rates, 25% off). Prices depend on the room and dates; the Rooms page shows the exact total before you book.'],
+        ['What types of rooms are there?', 'Five: Single Room (15 m²), Double Room (18 m², king bed), Double or Twin (26 m², two single beds), Triple Room (26 m², three beds, balcony) and Deluxe Room (30 m², king bed, balcony). All have air conditioning, a private bathroom, a flat-screen TV and free Wi-Fi.'],
+        ['Do you serve breakfast?', 'Yes, a buffet breakfast every morning. You can add it when you book, from GEL 11 per room per night.'],
+        ['Is there parking?', 'Yes. Parking at the hotel is free for every guest, which is rare in Tbilisi\'s Old Town.'],
+        ['Do I need to pay in advance?', 'No. There is no prepayment: you pay at the hotel, and cancellation is free within the cancellation period.'],
+        ['Is booking directly cheaper than on Booking.com?', 'Booking on our website is never more expensive. If you find a lower price for the same room and dates, send it to us and we will match it.'],
+        ['Is the front desk open 24 hours?', 'Yes. Someone is at the front desk day and night, and you can also reach us on WhatsApp at +995 533 33 44 22.'],
+        ['Which room is best for a family of three?', 'The Triple Room: 26 m² with three single beds and a balcony. For larger groups we can give you rooms next to each other.'],
+        ['How far is the airport?', 'Tbilisi International Airport is about 15 km from the hotel.'],
+        ['What is special about the hotel?', 'Magnolia is a small hotel in a restored brick house, with classic furniture, a rooftop terrace with glass domes facing Mount Mtatsminda, and a 127-year-old magnolia tree in the courtyard.'],
     ],
 
     'max_guests' => 3,

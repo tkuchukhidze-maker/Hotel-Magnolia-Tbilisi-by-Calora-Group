@@ -19,6 +19,27 @@ class SiteTest extends TestCase
         }
     }
 
+    public function test_seo_files_are_served(): void
+    {
+        $this->get('/sitemap.xml')->assertOk()
+            ->assertHeader('Content-Type', 'application/xml; charset=UTF-8')
+            ->assertSee(route('rooms'), false);
+
+        $this->get('/robots.txt')->assertOk()->assertSee('User-agent: *', false);
+
+        $this->get('/llms.txt')->assertOk()
+            ->assertSee('5 Kirile Ukleba St', false)
+            ->assertSee('Deluxe Room', false);
+    }
+
+    public function test_pages_have_structured_data_and_contact_details(): void
+    {
+        $this->get(route('home'))->assertSee('"@type":"Hotel"', false)->assertSee('5 Kirile Ukleba St', false);
+        $this->get(route('rooms'))->assertSee('"@type":"HotelRoom"', false)->assertSee('Double or Twin', false);
+        $this->get(route('contact'))->assertSee('"@type":"FAQPage"', false)->assertSee('"@type":"BreadcrumbList"', false)
+            ->assertSee('tel:+995533334422', false);
+    }
+
     public function test_booking_is_saved_with_server_side_price(): void
     {
         Mail::fake();

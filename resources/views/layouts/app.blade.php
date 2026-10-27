@@ -7,11 +7,25 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>@yield('title', config('hotel.name'))</title>
 <meta name="description" content="@yield('description', 'A small hotel with a lot of character in Old Tbilisi.')">
+<meta name="robots" content="{{ app()->environment('production') ? 'index, follow, max-image-preview:large' : 'noindex, nofollow' }}">
 <link rel="canonical" href="{{ url()->current() }}">
+<meta property="og:type" content="{{ request()->routeIs('home') ? 'website' : 'article' }}">
+<meta property="og:site_name" content="{{ config('hotel.name') }}">
+<meta property="og:locale" content="en_US">
+<meta property="og:url" content="{{ url()->current() }}">
 <meta property="og:title" content="@yield('title', config('hotel.name'))">
 <meta property="og:description" content="@yield('description', 'A small hotel with a lot of character in Old Tbilisi.')">
-<meta property="og:image" content="{{ asset('assets/img/hero-facade.webp') }}">
+<meta property="og:image" content="@yield('og_image', asset('assets/img/hero-facade.webp'))">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="geo.region" content="GE-TB">
+<meta name="geo.placename" content="Tbilisi">
 <meta name="theme-color" content="#42271F">
+@if (! request()->routeIs('home'))
+{!! \App\Support\StructuredData::render(\App\Support\StructuredData::breadcrumb(array_filter([
+    'Home' => route('home'),
+    trim($__env->yieldContent('crumb')) => url()->current(),
+]))) !!}
+@endif
 <link rel="icon" href="{{ asset('assets/img/favicon.svg') }}" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

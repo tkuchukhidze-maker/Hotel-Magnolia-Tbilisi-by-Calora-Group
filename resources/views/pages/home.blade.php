@@ -3,24 +3,18 @@
 @php($offer = config('hotel.offer'))
 @php($rating = config('hotel.rating'))
 
-@section('title', 'Magnolia Hotel Tbilisi — A small hotel with a lot of character')
-@section('description', 'A small hotel in an old brick house in Old Tbilisi, with a 127-year-old magnolia in the courtyard. 25% off every room this autumn. Free cancellation, pay at the hotel.')
+@section('title', 'Magnolia Hotel Tbilisi | Boutique Hotel in Old Tbilisi with Free Parking')
+@section('description', 'Small boutique hotel at 5 Kirile Ukleba St, Old Tbilisi, 950 m from Freedom Square. Rooms from GEL 106, free parking, rooftop terrace and a 127-year-old magnolia. Book direct, pay at the hotel.')
 
 @push('head')
-<script type="application/ld+json">
-{!! json_encode([
+{!! \App\Support\StructuredData::render(\App\Support\StructuredData::hotel()) !!}
+{!! \App\Support\StructuredData::render([
     '@context' => 'https://schema.org',
-    '@type' => 'Hotel',
+    '@type' => 'WebSite',
     'name' => config('hotel.name'),
-    'description' => 'A small hotel in an old brick house in Old Tbilisi, with a 127-year-old magnolia in the courtyard.',
     'url' => url('/'),
-    'image' => asset('assets/img/hero-facade.webp'),
-    'telephone' => $c['phone_display'],
-    'address' => ['@type' => 'PostalAddress', 'streetAddress' => $c['address'], 'addressLocality' => 'Tbilisi', 'addressCountry' => 'GE'],
-    'priceRange' => 'GEL 106–190',
-    'amenityFeature' => collect(['Free parking', 'Free Wi-Fi', '24-hour front desk', 'Garden', 'Terrace'])->map(fn ($a) => ['@type' => 'LocationFeatureSpecification', 'name' => $a, 'value' => true])->all(),
-], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
-</script>
+    'publisher' => ['@id' => url('/').'#hotel'],
+]) !!}
 @endpush
 
 @section('content')

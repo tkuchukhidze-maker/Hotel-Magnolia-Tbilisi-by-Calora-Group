@@ -10,7 +10,7 @@
 <a href="{{ route('explore') }}">Explore Tbilisi</a>
 <a href="{{ route('contact') }}">Contact &amp; FAQ</a>
 </nav>
-<span><a href="tel:{{ $c['phone_tel'] }}">{{ $c['phone_display'] }}</a> · <a href="https://wa.me/{{ $c['whatsapp'] }}">WhatsApp</a></span>
+<address style="font-style:normal"><a href="{{ $c['google_maps'] }}">{{ $c['address'] }}, Tbilisi</a> · <a href="tel:{{ $c['phone_tel'] }}">{{ $c['phone_display'] }}</a> · <a href="https://wa.me/{{ $c['whatsapp'] }}">WhatsApp</a></address>
 </div>
 <div class="footer-bottom"><span>© {{ date('Y') }} {{ config('hotel.name') }}</span><span>Privacy · Booking &amp; cancellation terms</span></div>
 </div>

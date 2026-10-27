@@ -1,7 +1,9 @@
 @extends('layouts.app')
 
-@section('title', 'Explore Tbilisi — Magnolia Hotel Tbilisi')
-@section('description', 'What\'s near Magnolia Hotel in Old Tbilisi: Freedom Square 950 m, Narikala Fortress 2.2 km, two metro stations nearby and free parking.')
+@section('title', 'Location & What\'s Nearby in Old Tbilisi | Magnolia Hotel Tbilisi')
+@section('description', 'Magnolia Hotel is at 5 Kirile Ukleba St, Old Tbilisi: 950 m to Freedom Square, 750 m to the metro, 2.2 km to Narikala Fortress, 15 km to the airport. Free parking.')
+@section('crumb', 'Explore Tbilisi')
+@section('og_image', asset('assets/img/rooftop-domes.webp'))
 
 @php
 $see = [['Mtatsminda Pantheon', '550 m'], ['9 April Park', '700 m'], ['Freedom Square', '950 m'], ['Bridge of Peace', '1.6 km'], ['Narikala Fortress', '2.2 km'], ['National Botanical Garden', '2.5 km']];
@@ -23,7 +25,8 @@ $move = [['Freedom Square metro', '750 m'], ['Rustaveli metro', '1.2 km'], ['Tbi
 <div class="stack">
 <p style="margin:0;font-family:var(--font-display);font-size:30px;line-height:1.3">We're in the old town, on a quiet street below Mount Mtatsminda. Leave your car in our free parking and walk.</p>
 <p class="lead" style="font-size:17px">Freedom Square is ten minutes away. The old fortress is an easy afternoon. Ask us at the front desk for the places we'd send a friend.</p>
-<div class="map-ph">[Google Map: Magnolia and the places nearby]</div>
+<p class="lead" style="font-size:17px"><strong>Address:</strong> {{ config('hotel.contact.address') }}, Old Town, Tbilisi · <a href="{{ config('hotel.contact.google_maps') }}" style="font-weight:700">Open in Google Maps</a></p>
+@include('partials.map')
 </div>
 <div class="stack" style="gap:36px;flex-grow:1.2">
 <div>

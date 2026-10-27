@@ -1,8 +1,15 @@
 @extends('layouts.app')
 @php($c = config('hotel.contact'))
 
-@section('title', 'Rooms & Booking — Magnolia Hotel Tbilisi')
-@section('description', 'Five kinds of rooms in an old brick house in Old Tbilisi. Choose your room, see your total, and book with free cancellation and nothing to pay now.')
+@section('title', 'Rooms & Prices from GEL 106 | Magnolia Hotel Tbilisi')
+@section('description', 'Five room types in Old Tbilisi, 15–30 m², from GEL 106 per night with taxes. See your total, book direct with free cancellation and pay at the hotel.')
+@section('crumb', 'Rooms & booking')
+@section('og_image', asset('assets/img/room-deluxe.webp'))
+
+@push('head')
+{!! \App\Support\StructuredData::render(\App\Support\StructuredData::hotel()) !!}
+{!! \App\Support\StructuredData::render(\App\Support\StructuredData::rooms()) !!}
+@endpush
 
 @section('content')
 <section class="container decor-host" style="padding-top:64px;padding-bottom:28px">
@@ -31,7 +38,28 @@
 
 <section class="container" aria-label="Rooms">
 <div class="room-list" id="room-list">
-<noscript><p class="lead">Please enable JavaScript to see live prices, or call us on {{ $c['phone_display'] }}.</p></noscript>
+{{-- Server-rendered so search engines and AI crawlers see every room; rooms.js replaces it with the interactive list. --}}
+@foreach ($rooms as $id => $r)
+<article class="room" id="room-{{ $id }}">
+<div class="room__main">
+<div class="room__media">
+@if ($r['img'])<img src="{{ asset($r['img']) }}" alt="{{ $r['alt'] }}" loading="lazy" width="920" height="600">@else<div class="room__placeholder">[Room photos coming soon]</div>@endif
+</div>
+<div class="room__body">
+<div class="room__info">
+<h2 class="room__name">{{ $r['name'] }}</h2>
+<ul class="meta"><li>{{ $r['cap'] === 1 ? '1 guest' : 'Up to '.$r['cap'].' guests' }}</li><li>{{ $r['size'] }}</li><li>{{ $r['bed'] }}</li><li>{{ $r['extra'] }}</li></ul>
+<p class="lead" style="font-size:16px">{{ $r['blurb'] }}</p>
+<p class="small" style="font-size:14px">Air conditioning · Private bathroom · TV · Free Wi‑Fi · City &amp; garden view</p>
+</div>
+<div class="room__price">
+<div><span class="small">per night, from</span><div class="big"><s>GEL {{ $r['cap'] === 1 ? $r['w1'] : $r['w2'] }}</s><strong>GEL {{ $r['cap'] === 1 ? $r['p1'][0] : $r['p2'][0] }}</strong></div><span class="small">GEL {{ $r['cap'] === 1 ? $r['p1'][1] : $r['p2'][1] }} with breakfast · taxes included</span></div>
+<a class="btn btn--primary" href="tel:{{ $c['phone_tel'] }}">Call to book</a>
+</div>
+</div>
+</div>
+</article>
+@endforeach
 </div>
 </section>
 

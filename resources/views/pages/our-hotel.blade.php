@@ -1,7 +1,9 @@
 @extends('layouts.app')
 
-@section('title', 'Our Hotel & Gallery — Magnolia Hotel Tbilisi')
-@section('description', 'An old brick house in Old Tbilisi with classic furniture, a rooftop with glass domes and a 127-year-old magnolia in the courtyard.')
+@section('title', 'About the Hotel & Photo Gallery | Magnolia Hotel Tbilisi')
+@section('description', 'A restored brick house in Old Tbilisi with classic furniture, a rooftop terrace with glass domes facing Mtatsminda, and a 127-year-old magnolia in the courtyard. See the photos.')
+@section('crumb', 'Our hotel & gallery')
+@section('og_image', asset('assets/img/lobby.webp'))
 
 @php
 $gallery = [
@@ -49,6 +51,22 @@ $extras = [
 <img class="arch-sm" src="{{ asset('assets/img/entrance-door.webp') }}" alt="Magnolia's carved wooden front door with wrought-iron grilles" loading="lazy" style="flex:1 1 0;min-width:0;height:clamp(320px,40vw,520px);object-fit:cover">
 <img src="{{ asset('assets/img/magnolia-stair.webp') }}" alt="A magnolia tree growing around a black spiral staircase" loading="lazy" style="flex:1 1 0;min-width:0;height:clamp(240px,30vw,380px);object-fit:cover;border-radius:16px">
 </div>
+</div>
+</section>
+
+<section class="container" aria-labelledby="glance-h" style="padding-bottom:72px">
+<div style="border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2);padding:32px 0;display:flex;flex-wrap:wrap;gap:24px 48px">
+<h2 id="glance-h" class="h3" style="flex:1 1 220px">Magnolia <em>at a glance</em></h2>
+<dl class="facts" style="flex:3 1 560px">
+<div><dt>WHERE</dt><dd><a href="{{ config('hotel.contact.google_maps') }}">{{ config('hotel.contact.address') }}</a>, Old Town, Tbilisi</dd></div>
+<div><dt>NEARBY</dt><dd>Freedom Square 950 m · metro 750 m</dd></div>
+<div><dt>ROOMS</dt><dd>5 types, 15–30 m², 1–3 guests</dd></div>
+<div><dt>PRICES</dt><dd>From GEL 106 a night, taxes included</dd></div>
+<div><dt>INCLUDED</dt><dd>Free parking, Wi‑Fi, air conditioning</dd></div>
+<div><dt>SPACES</dt><dd>Rooftop terrace, garden, lobby</dd></div>
+<div><dt>FRONT DESK</dt><dd>24 hours · {{ config('hotel.contact.phone_display') }}</dd></div>
+<div><dt>THE TREE</dt><dd>A 127-year-old magnolia</dd></div>
+</dl>
 </div>
 </section>
 

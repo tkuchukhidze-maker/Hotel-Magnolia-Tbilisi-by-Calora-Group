@@ -1,35 +1,21 @@
 @extends('layouts.app')
 @php($c = config('hotel.contact'))
 @php($p = config('hotel.policies'))
-
-@section('title', 'Contact & FAQ — Magnolia Hotel Tbilisi')
-@section('description', 'Reach Magnolia Hotel by WhatsApp, phone or email. Check-in times, cancellation, payment, parking and answers to common questions.')
-
-@php
-$faq = [
-    ['Do you serve breakfast?', 'Yes, a buffet breakfast every morning. Add it when you book, from GEL 11 per room per night.'],
-    ['Can I park at the hotel?', 'Yes. Parking is free for every guest.'],
-    ['Do I need to pay in advance?', 'No. You pay at the hotel. Cancellation: '.strtolower($p['cancellation']).'.'],
-    ['Is booking here cheaper than on Booking.com?', "It's never more expensive. If you find a lower price for the same room and dates, send it to us and we'll match it."],
-    ['Do all rooms have a private bathroom?', 'Yes, every room has its own bathroom, air conditioning, a flat-screen TV and free Wi-Fi.'],
-    ["We're a family of three. Which room?", "The Triple Room: three beds and a balcony. For larger groups, we'll put you in rooms next to each other."],
-    ['How far is the airport?', '15 km. [Transfer info — confirm.]'],
-];
-$facts = [
+@php($faq = config('hotel.faq'))
+@php($facts = [
     'Check-in' => $p['check_in'], 'Check-out' => $p['check_out'], 'Cancellation' => $p['cancellation'],
     'Payment' => $p['payment'], 'Breakfast' => $p['breakfast'], 'Parking' => $p['parking'],
     'Children' => $p['children'], 'Pets' => $p['pets'],
-];
-@endphp
+])
+
+@section('title', 'Contact, Check-in & FAQ | Magnolia Hotel Tbilisi')
+@section('description', 'Call or WhatsApp +995 533 33 44 22, 24 hours. Magnolia Hotel, 5 Kirile Ukleba St, Old Tbilisi. Check-in, cancellation, parking, breakfast and answers to common questions.')
+@section('crumb', 'Contact & FAQ')
+@section('og_image', asset('assets/img/entrance-door.webp'))
 
 @push('head')
-<script type="application/ld+json">
-{!! json_encode([
-    '@context' => 'https://schema.org',
-    '@type' => 'FAQPage',
-    'mainEntity' => collect($faq)->map(fn ($q) => ['@type' => 'Question', 'name' => $q[0], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $q[1]]])->all(),
-], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
-</script>
+{!! \App\Support\StructuredData::render(\App\Support\StructuredData::hotel()) !!}
+{!! \App\Support\StructuredData::render(\App\Support\StructuredData::faq($faq)) !!}
 @endpush
 
 @section('content')
@@ -47,9 +33,9 @@ $facts = [
 <a class="contact-card contact-card--accent" href="https://wa.me/{{ $c['whatsapp'] }}"><span class="eyebrow">Fastest</span><strong>WhatsApp us</strong><span>{{ $c['phone_display'] }} →</span></a>
 <a class="contact-card" href="tel:{{ $c['phone_tel'] }}"><span class="eyebrow">24 hours</span><strong>Call the front desk</strong><span>{{ $c['phone_display'] }}</span></a>
 <a class="contact-card" href="mailto:{{ $c['email'] }}"><span class="eyebrow">Email</span><strong>Write to us</strong><span>{{ $c['email_display'] }}</span></a>
-<div class="contact-card"><span class="eyebrow">Address</span><strong>Find us</strong><address>{{ $c['address'] }}, Old Town, Tbilisi</address></div>
+<a class="contact-card" href="{{ $c['google_maps'] }}"><span class="eyebrow">Address</span><strong>Find us</strong><address>{{ $c['address'] }}, Old Town, Tbilisi, Georgia</address></a>
 </div>
-<div class="map-ph" style="margin-top:16px">[Google Map with directions to Magnolia]</div>
+<div style="margin-top:16px">@include('partials.map')</div>
 </section>
 
 <section class="section section--sand" aria-labelledby="know-h">
@@ -72,7 +58,7 @@ $facts = [
 </div>
 <div class="faq" style="flex:2 1 560px">
 @foreach ($faq as $i => [$q, $a])
-<details @if ($i === 0) open @endif><summary>{{ $q }}</summary><p>{{ $a }}</p></details>
+<details @if ($i < 2) open @endif><summary><h3 style="font:inherit;margin:0;display:inline">{{ $q }}</h3></summary><p>{{ $a }}</p></details>
 @endforeach
 </div>
 </div>
