@@ -215,7 +215,7 @@
       tariff(r, false, false) + tariff(r, false, true) +
       (r.max_guests > 1 ? tariff(r, true, false) + tariff(r, true, true) : '') + '</div>' +
       '</div><div class="room__price">' +
-      '<div><span class="small">From per room / night</span><div class="big"><strong>' + gel(r.p1[0]) + '</strong></div>' +
+      '<div><span class="small">From per room / night for your party</span><div class="big"><strong>' + gel(guests() === 1 ? r.p1[0] : r.p2[0]) + '</strong></div>' +
       '<span class="small">Prices may vary by dates. Cancellation and final pricing confirmed by our team.</span></div>' +
       '<div class="room__ctrl">' + control + '</div>' + beds +
       '</div></div></div></article>';
