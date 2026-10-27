@@ -1,0 +1,60 @@
+name: Magnolia Laravel checks
+
+on:
+  push:
+    branches:
+      - fix/admin-404-main
+      - feature/magnolia-admin-dashboard
+      - ux/booking-request-simplification
+  pull_request:
+    branches:
+      - main
+      - ux/booking-request-simplification
+  workflow_dispatch:
+
+jobs:
+  laravel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, fileinfo, pdo_sqlite
+          coverage: none
+
+      - name: Install PHP dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress --no-scripts
+
+      - name: Prepare Laravel application
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+          SESSION_DRIVER: array
+          CACHE_STORE: array
+          QUEUE_CONNECTION: sync
+          MAIL_MAILER: array
+
+      - name: Run Laravel tests
+        run: php artisan test --no-ansi
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+          SESSION_DRIVER: array
+          CACHE_STORE: array
+          QUEUE_CONNECTION: sync
+          MAIL_MAILER: array
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check public/assets/js/rooms.js
+          node --check public/assets/js/main.js
