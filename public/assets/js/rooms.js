@@ -220,7 +220,7 @@
     var f = state.form;
     return '<div class="checkout">' +
       '<h2 class="h3" style="margin:0">Your details</h2>' +
-      '<p class="small">This is a booking request, not an instant confirmation. We'll check availability and contact you.</p>' +
+      '<p class="small">This is a booking request, not an instant confirmation. Our team will check availability and contact you.</p>' +
       '<form class="stack" style="gap:12px" data-details novalidate>' +
         (state.checkin ? '' :
           '<label class="input">Check-in date *<input name="checkin" type="date" min="' + today() + '" required></label>') +
@@ -240,7 +240,7 @@
           '<button type="button" class="btn btn--outline" data-action="back">← Change rooms</button>' +
           '<button type="submit" class="btn btn--primary" style="flex-grow:1"' + (state.sending ? ' disabled aria-busy="true"' : '') + '>' + (state.sending ? 'Sending…' : 'Send booking request · ' + gel(q.total)) + '</button>' +
         '</div>' +
-        '<p class="small">No card needed. You\'ll pay at the hotel.</p>' +
+        '<p class="small">No card required to send a request. Your booking is subject to hotel confirmation.</p>' +
       '</form>' +
     '</div>';
   }
@@ -250,11 +250,11 @@
     var lines = (res.items || []).map(function (l) { return '<li>' + l.qty + ' × ' + esc(l.name) + '</li>'; }).join('');
     return '<div class="checkout stack" role="status" style="gap:14px;align-items:flex-start">' +
       '<span class="done-icon">' + ICON.check + '</span>' +
-      '<h2 class="h3" style="margin:0">You\'re booked. <em>We'll be in touch.</em></h2>' +
+      '<h2 class="h3" style="margin:0">Request received. <em>We\'ll be in touch.</em></h2>' +
       '<p class="lead" style="font-size:16px">' + fmtDate(res.checkin) + ' → ' + fmtDate(res.checkout) + ' · ' + guestsLabel() + '</p>' +
       '<ul class="checks" style="grid-template-columns:1fr">' + lines + '</ul>' +
       '<p class="lead" style="font-size:16px">Quoted total ' + gel(res.total) + ', payable after confirmation. Request ref <strong>' + esc(res.reference) + '</strong>.</p>' +
-      '<p class="small">We\'ll confirm by email or WhatsApp shortly. Questions? <a href="' + esc(M.whatsapp) + '">WhatsApp us</a>.</p>' +
+      '<p class="small">Your room is not reserved yet. Our team will check availability and contact you. Questions? <a href="' + esc(M.whatsapp) + '">WhatsApp us</a>.</p>' +
       '<button type="button" class="btn btn--outline" data-action="restart">Make another booking</button>' +
     '</div>';
   }
@@ -304,7 +304,7 @@
         '<span class="small">' + gel(quote(best.its, state.rate).nightly) + ' per night</span>' +
         '<button type="button" class="btn btn--outline btn--sm" data-action="suggest">Use this</button></div>';
     } else if (!best) {
-      html += '<div class="suggest"><span class="small">We don\'t have enough free rooms online for ' + guestsLabel() + '. Write to us and we\'ll sort it out.</span><a class="link-arrow" href="' + esc(M.whatsapp) + '">WhatsApp us →</a></div>';
+      html += '<div class="suggest"><span class="small">We cannot put together enough rooms online for ' + guestsLabel() + '. Write to us and we\'ll sort it out.</span><a class="link-arrow" href="' + esc(M.whatsapp) + '">WhatsApp us →</a></div>';
     }
 
     if (q.rooms) {
@@ -446,6 +446,7 @@
 
   if (checkinEl) {
     checkinEl.min = today();
+    if (state.checkin && state.checkin < today()) state.checkin = '';
     if (state.checkin) checkinEl.value = state.checkin;
     checkinEl.addEventListener('change', function () { state.checkin = checkinEl.value; render(); });
   }
