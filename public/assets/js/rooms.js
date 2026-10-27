@@ -326,7 +326,7 @@
 
     if (state.step === 'choose') {
       var why = !q.rooms ? 'Add at least one room' : !enough ? 'Add room for everyone first' : agesMissing() ? 'Add the children\'s ages above' : '';
-      html += '<button type="button" class="btn btn--primary btn--block" data-action="next"' + (why ? ' disabled' : '') + '>' + (why || 'Continue ·  + gel(q.total)) + '</button>';
+      html += '<button type="button" class="btn btn--primary btn--block" data-action="next"' + (why ? ' disabled' : '') + '>' + (why || 'Continue · ' + gel(q.total)) + '</button>';
     }
     return html;
   }
