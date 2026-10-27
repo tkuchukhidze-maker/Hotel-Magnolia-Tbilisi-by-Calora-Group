@@ -62,6 +62,7 @@ class AdminPricingController extends Controller
     public function createPlan(Request $request)
     {
         $this->guard($request);
+        $request->merge(['code' => strtolower(trim((string) $request->input('code', '')))]);
         $data = $request->validate([
             'code' => ['required','alpha_dash:ascii','max:8', Rule::notIn(['room','bf']), 'unique:room_rate_plans,code'],
             'name' => ['required','string','max:90'],
