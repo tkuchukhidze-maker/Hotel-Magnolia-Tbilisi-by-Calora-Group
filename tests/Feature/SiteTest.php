@@ -82,7 +82,6 @@ class SiteTest extends TestCase
             'items' => [['room' => 'double', 'qty' => 2], ['room' => 'triple', 'qty' => 1]],
             'adults' => 5,
             'children' => 2,
-            'children_ages' => [4, 11],
             'nights' => 2,
         ]));
 
@@ -91,7 +90,7 @@ class SiteTest extends TestCase
 
         $booking = Booking::first();
         $this->assertSame(3, $booking->rooms_count);
-        $this->assertSame([4, 11], $booking->children_ages);
+        $this->assertSame([], $booking->children_ages);
         $this->assertSame('double', $booking->room);
         $this->assertSame('2 × Double Room, 1 × Triple Room', $booking->roomsSummary());
     }
@@ -108,23 +107,38 @@ class SiteTest extends TestCase
             ->assertJsonValidationErrors('items.0.qty');
     }
 
-    public function test_each_child_needs_an_age(): void
+    public function test_children_can_be_added_without_ages(): void
+    {
+        Mail::fake();
+        $payload = $this->payload([
+            'items' => [['room' => 'triple', 'qty' => 1]],
+            'adults' => 2,
+            'children' => 1,
+        ]);
+        unset($payload['children_ages']);
+        $this->postJson(route('bookings.store'), $payload)->assertCreated()->assertJsonPath('status', 'requested');
+        $this->assertSame([], Booking::first()->children_ages);
+    }
+
+    public function test_extra_bed_request_is_recorded_without_unapproved_supplement(): void
+    {
+        Mail::fake();
+        $res = $this->postJson(route('bookings.store'), $this->payload([
+            'items' => [['room' => 'double', 'qty' => 1, 'extra_beds' => 1]],
+            'adults' => 3,
+        ]));
+        $res->assertCreated()->assertJsonPath('total', 258)
+            ->assertJsonPath('extra_beds_requested', 1)
+            ->assertJsonPath('extra_bed_supplement_pending', true);
+        $this->assertSame(1, Booking::first()->items[0]['extra_beds']);
+    }
+
+    public function test_only_one_extra_bed_per_room_is_allowed(): void
     {
         $this->postJson(route('bookings.store'), $this->payload([
-            'items' => [['room' => 'triple', 'qty' => 1]],
-            'children' => 1,
-            'children_ages' => [],
-        ]))
-            ->assertStatus(422)
-            ->assertJsonValidationErrors('children_ages');
-
-        $this->postJson(route('bookings.store'), $this->payload([
-            'items' => [['room' => 'triple', 'qty' => 1]],
-            'children' => 1,
-            'children_ages' => [25],
-        ]))
-            ->assertStatus(422)
-            ->assertJsonValidationErrors('children_ages.0');
+            'items' => [['room' => 'double', 'qty' => 1, 'extra_beds' => 2]],
+            'adults' => 3,
+        ]))->assertStatus(422)->assertJsonValidationErrors('items.0.extra_beds');
     }
 
     public function test_guest_details_and_privacy_consent_are_required(): void
@@ -192,7 +206,6 @@ class SiteTest extends TestCase
             'nights' => 2,
             'adults' => 2,
             'children' => 0,
-            'children_ages' => [],
             'first_name' => 'Nino',
             'last_name' => 'Beridze',
             'email' => 'guest@example.com',
