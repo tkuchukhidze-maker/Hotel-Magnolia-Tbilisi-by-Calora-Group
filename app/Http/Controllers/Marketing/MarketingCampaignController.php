@@ -32,7 +32,7 @@ class MarketingCampaignController extends Controller
             'status' => 'draft',
         ]);
 
-        return redirect()->route('marketing.dashboard', ['#campaigns'])
+        return redirect()->to(route('marketing.dashboard').'#campaigns')
             ->with('status', 'კამპანია შენახულია მონახაზად. ის ჯერ არსად გამოქვეყნებულა.');
     }
 
@@ -50,7 +50,7 @@ class MarketingCampaignController extends Controller
             'status' => 'content_ready',
         ]);
 
-        return redirect()->route('marketing.dashboard', ['#campaigns'])
+        return redirect()->to(route('marketing.dashboard').'#campaigns')
             ->with('status', 'AI მასალები მომზადებულია. გამოქვეყნებამდე გადაამოწმეთ.');
     }
 }
