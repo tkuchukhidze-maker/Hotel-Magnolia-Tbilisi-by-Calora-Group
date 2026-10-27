@@ -133,6 +133,14 @@ class SiteTest extends TestCase
         $this->assertSame(1, Booking::first()->items[0]['extra_beds']);
     }
 
+    public function test_each_selected_room_requires_at_least_one_guest(): void
+    {
+        $this->postJson(route('bookings.store'), $this->payload([
+            'items' => [['room' => 'double', 'qty' => 2]],
+            'adults' => 1,
+        ]))->assertStatus(422)->assertJsonValidationErrors('items');
+    }
+
     public function test_only_one_extra_bed_per_room_is_allowed(): void
     {
         $this->postJson(route('bookings.store'), $this->payload([
