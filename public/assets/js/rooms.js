@@ -73,8 +73,8 @@
   function guests() { return state.adults + state.kids; }
   function guestsLabel() { return plural(state.adults, 'adult', 'adults') + (state.kids ? ', ' + plural(state.kids, 'child', 'children') : ''); }
   function nightsLabel() { return plural(state.nights, 'night', 'nights'); }
-  function today() { return new Date().toISOString().slice(0, 10); }
-  function addDays(iso, d) { var x = new Date(iso + 'T00:00:00'); x.setDate(x.getDate() + d); return x.toISOString().slice(0, 10); }
+  function today() { var d = new Date(); return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-'); }
+  function addDays(iso, d) { var x = new Date(iso + 'T12:00:00'); x.setDate(x.getDate() + d); return [x.getFullYear(),String(x.getMonth()+1).padStart(2,'0'),String(x.getDate()).padStart(2,'0')].join('-'); }
   function fmtDate(iso) {
     if (!iso) return '';
     return new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
@@ -198,8 +198,8 @@
     var img = r.img
       ? '<img src="' + esc(r.img) + '" alt="' + esc(r.alt) + '" loading="lazy" width="920" height="600">'
       : '<div class="room__placeholder">[Room photos coming soon]</div>';
-    var left = r.stock > 0 && r.stock <= 3 ? '<span class="tag tag--left">' + (r.stock === 1 ? 'Last one' : r.stock + ' left') + '</span>' : '';
-    return '<div class="room__media">' + img + '<span class="tag tag--deal">−25%</span>' + left +
+    var left = ''; // Stock is not date-specific live availability.
+    return '<div class="room__media">' + img + '' + left +
       (sel ? '<span class="tag tag--picked">' + ICON.check.replace(/26/g, '14') + ' ' + sel + ' selected</span>' : '') + '</div>';
   }
 
@@ -274,7 +274,7 @@
         '<p class="small" data-error role="alert"' + (state.error ? '' : ' hidden') + ' style="color:var(--terracotta);font-weight:700">' + esc(state.error) + '</p>' +
         '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
           '<button type="button" class="btn btn--outline" data-action="back">← Change rooms</button>' +
-          '<button type="submit" class="btn btn--primary" style="flex-grow:1"' + (state.sending ? ' disabled aria-busy="true"' : '') + '>' + (state.sending ? 'Sending…' : 'Confirm booking · ' + gel(q.total)) + '</button>' +
+          '<button type="submit" class="btn btn--primary" style="flex-grow:1"' + (state.sending ? ' disabled aria-busy="true"' : '') + '>' + (state.sending ? 'Sending…' : 'Send booking request · ' + gel(q.total)) + '</button>' +
         '</div>' +
         '<p class="small">No card needed. You\'ll pay at the hotel.</p>' +
       '</form>' +
@@ -286,11 +286,11 @@
     var lines = (res.items || []).map(function (l) { return '<li>' + l.qty + ' × ' + esc(l.name) + '</li>'; }).join('');
     return '<div class="checkout stack" role="status" style="gap:14px;align-items:flex-start">' +
       '<span class="done-icon">' + ICON.check + '</span>' +
-      '<h2 class="h3" style="margin:0">You\'re booked. <em>See you in Tbilisi.</em></h2>' +
+      '<h2 class="h3" style="margin:0">Request received. <em>We\'ll be in touch.</em></h2>' +
       '<p class="lead" style="font-size:16px">' + fmtDate(res.checkin) + ' → ' + fmtDate(res.checkout) + ' · ' + guestsLabel() + '</p>' +
       '<ul class="checks" style="grid-template-columns:1fr">' + lines + '</ul>' +
       '<p class="lead" style="font-size:16px">Total ' + gel(res.total) + ', paid at the hotel. Booking ref <strong>' + esc(res.reference) + '</strong>.</p>' +
-      '<p class="small">We\'ll confirm by email or WhatsApp shortly. Questions? <a href="' + esc(M.whatsapp) + '">WhatsApp us</a>.</p>' +
+      '<p class="small">Your room is not reserved until our team confirms availability. Questions? <a href="' + esc(M.whatsapp) + '">WhatsApp us</a>.</p>' +
       '<button type="button" class="btn btn--outline" data-action="restart">Make another booking</button>' +
     '</div>';
   }
@@ -354,7 +354,7 @@
         '<div><span>Room total for ' + nightsLabel() + '</span><span>' + gel(q.total) + '</span></div>' +
         '<div class="muted"><span>Taxes &amp; fees</span><span>Included</span></div>' +
         '<div class="total"><strong>Total</strong><strong>' + gel(q.total) + '</strong></div>' +
-        '<p class="ok-note">You pay nothing now. Cancellation: ' + esc((M.cancellation || '').toLowerCase()) + '.</p>' +
+        '<p class="ok-note">This is a booking request; our team will confirm availability and cancellation terms.</p>' +
       '</div>';
     }
 
