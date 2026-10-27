@@ -53,7 +53,7 @@ class AdminController extends Controller
             'base_value' => (clone $active)->whereBetween('checkin', [now()->startOfMonth(), now()->endOfMonth()])->sum('total'),
         ];
         $bookings = Booking::orderByDesc('created_at')->limit(100)->get();
-        $rooms = config('hotel.rooms');
+        $rooms = \App\Support\RoomCatalog::all();
         $overrides = DB::table('room_rates')->get()->keyBy('room_type');
         $promotions = DB::table('hotel_promotions')->orderByDesc('created_at')->get();
         return view('admin.dashboard', compact('stats','bookings','rooms','overrides','promotions'));
