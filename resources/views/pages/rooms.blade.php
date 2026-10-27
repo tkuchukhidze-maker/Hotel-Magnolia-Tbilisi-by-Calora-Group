@@ -32,7 +32,7 @@
 </div>
 <div class="ages" data-ages hidden></div>
 <div class="search-summary">
-<span class="ticks"><span>✓ Free cancellation</span><span>✓ Pay at the hotel</span><span>✓ −{{ config('hotel.offer.discount') }}% autumn rate applied</span></span>
+<span class="ticks"><span>✓ Date-specific room prices</span><span>✓ Multiple rate plans</span><span>✓ Send a booking request</span></span>
 <span class="small">Bigger group than {{ config('hotel.max_adults') }} adults? <a href="https://wa.me/{{ $c['whatsapp'] }}">Message us</a>.</span>
 </div>
 </section>
