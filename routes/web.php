@@ -3,6 +3,9 @@
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\SeoController;
+use App\Http\Controllers\Marketing\MarketingAuthController;
+use App\Http\Controllers\Marketing\MarketingDashboardController;
+use App\Http\Controllers\Marketing\MarketingCampaignController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PageController::class, 'home'])->name('home');
@@ -20,3 +23,20 @@ Route::post('/bookings', [BookingController::class, 'store'])
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
 Route::get('/llms.txt', [SeoController::class, 'llms'])->name('llms');
+
+
+// Staff-only AI Hotel Marketing Assistant; never published in the public site map.
+Route::get('/admin/marketing/login', [MarketingAuthController::class, 'form'])->name('login');
+Route::post('/admin/marketing/login', [MarketingAuthController::class, 'login'])
+    ->middleware('throttle:5,1')->name('marketing.login.attempt');
+
+Route::prefix('admin/marketing')->middleware(['auth', 'can:manage-marketing'])->group(function () {
+    Route::get('/', [MarketingDashboardController::class, 'index'])->name('marketing.dashboard');
+    Route::post('/ask', [MarketingDashboardController::class, 'ask'])
+        ->middleware('throttle:10,1')->name('marketing.ask');
+    Route::post('/campaigns', [MarketingCampaignController::class, 'store'])
+        ->name('marketing.campaigns.store');
+    Route::post('/campaigns/{campaign}/generate', [MarketingCampaignController::class, 'generate'])
+        ->middleware('throttle:10,1')->name('marketing.campaigns.generate');
+    Route::post('/logout', [MarketingAuthController::class, 'logout'])->name('marketing.logout');
+});
