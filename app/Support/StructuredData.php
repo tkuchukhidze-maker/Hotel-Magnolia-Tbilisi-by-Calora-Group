@@ -11,7 +11,7 @@ class StructuredData
     public static function hotel(): array
     {
         $c = config('hotel.contact');
-        $rooms = collect(config('hotel.rooms'));
+        $rooms = collect(RoomCatalog::all());
         $prices = $rooms->flatMap(fn ($r) => array_merge($r['p1'], $r['p2']));
 
         $data = [
@@ -71,7 +71,7 @@ class StructuredData
     {
         return [
             '@context' => 'https://schema.org',
-            '@graph' => collect(config('hotel.rooms'))->map(function ($r, $id) {
+            '@graph' => collect(RoomCatalog::all())->map(function ($r, $id) {
                 $room = [
                     '@type' => 'HotelRoom',
                     '@id' => route('rooms').'#room-'.$id,

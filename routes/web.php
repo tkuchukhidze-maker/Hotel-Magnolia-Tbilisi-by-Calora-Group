@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\SeoController;
 use Illuminate\Support\Facades\Route;
@@ -15,6 +16,17 @@ Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
 Route::post('/bookings', [BookingController::class, 'store'])
     ->middleware('throttle:10,1')
     ->name('bookings.store');
+
+// Private hotel management. All mutations require session authentication and CSRF.
+Route::prefix('admin')->name('admin.')->middleware('web')->group(function () {
+    Route::get('/login', [AdminController::class, 'loginForm'])->name('login');
+    Route::post('/login', [AdminController::class, 'login'])->middleware('throttle:5,1')->name('login.submit');
+    Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
+    Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::patch('/bookings/{booking}/status', [AdminController::class, 'bookingStatus'])->name('bookings.status');
+    Route::put('/rooms/{room}/rates', [AdminController::class, 'roomRate'])->name('rooms.rate');
+    Route::post('/promotions', [AdminController::class, 'promotion'])->name('promotions.store');
+});
 
 // SEO / AEO
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
