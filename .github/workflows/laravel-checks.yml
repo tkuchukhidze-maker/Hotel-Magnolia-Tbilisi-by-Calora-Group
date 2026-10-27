@@ -3,6 +3,7 @@ name: Magnolia Laravel checks
 on:
   push:
     branches:
+      - feature/magnolia-pricing-calendar
       - fix/magnolia-admin-username-login
       - hotfix/public-500-database-fallback
       - fix/admin-404-main
