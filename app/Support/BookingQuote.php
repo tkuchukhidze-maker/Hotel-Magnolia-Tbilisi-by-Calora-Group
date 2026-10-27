@@ -27,7 +27,7 @@ class BookingQuote
      */
     public function __construct(array $items, int $guests, string $rate, int $nights)
     {
-        $config = config('hotel.rooms');
+        $config = RoomCatalog::all();
         $this->rooms = array_sum(array_column($items, 'qty'));
         $single = $this->rooms === 1 && $guests === 1;
 
