@@ -131,3 +131,11 @@ The map integration is already wired into `/explore`, `/contact`, and the guest 
 6. Verify mobile and desktop layouts; confirm the plain embedded map remains available if the Google script fails. Configure billing budgets/alerts and API quotas in Google Cloud. A budget alert does **not** itself enforce a spending cap.
 
 **Notes:** The guest's home address is optional, and autocomplete must accept international addresses. Google Maps keys used by browser scripts are public by design; domain and API restrictions are therefore essential. This repository does not contain credentials for the Google Cloud or Laravel Cloud consoles, so these account-level steps are not automated by a GitHub commit.
+
+### Google Maps Locator Plus iframe
+
+The hotel provided this Quick Builder Locator Plus embed:
+`https://storage.googleapis.com/maps-solutions-er47d39hch/locator-plus/phfs/locator-plus.html`.
+The Explore and Contact pages now use it by default. To switch to the branded Google Maps JavaScript map, set `HOTEL_LOCATOR_PLUS_IFRAME=` (blank) in Laravel Cloud and configure a restricted `GOOGLE_MAPS_API_KEY`. The hotel directions and direct Google Maps profile links remain visible in either mode.
+
+**Before merging or releasing**, open the Locator Plus embed and verify that it displays Hotel Magnolia at **5 Kirile Ukleba St, Tbilisi**, not sample or unrelated locations. External Google Cloud Storage content could not be verified from this environment. If it does not show the hotel, reconfigure the Locator Plus project or blank the variable to use the known address-based map instead.
