@@ -272,7 +272,7 @@
       return '<li class="' + (stepIdx >= i + 1 ? 'is-active' : '') + '"' + (stepIdx === i + 1 ? ' aria-current="step"' : '') + '>' + s + '</li>';
     }).join('');
     var need = guests();
-    var enough = q.rooms > 0 && q.capacity >= need;
+    var enough = q.rooms > 0 && q.capacity >= need && q.rooms <= need;
     var best = suggest();
     var html = '<ol class="steps" aria-label="Booking steps">' + steps + '</ol>' +
       '<div class="book-summary__stay">' +
@@ -327,7 +327,7 @@
     }
 
     if (state.step === 'choose') {
-      var why = !state.checkin || state.checkin < today() ? 'Choose a valid check-in date first' : !q.rooms ? 'Add at least one room' : !enough ? 'Add room for everyone first' : '';
+      var why = !state.checkin || state.checkin < today() ? 'Choose a valid check-in date first' : !q.rooms ? 'Add at least one room' : q.rooms > guests() ? 'Choose no more rooms than guests' : !enough ? 'Add room for everyone first' : '';
       html += '<button type="button" class="btn btn--primary btn--block" data-action="next"' + (why ? ' disabled' : '') + '>' + (why || 'Continue · ' + gel(q.total)) + '</button>';
     }
     return html;
