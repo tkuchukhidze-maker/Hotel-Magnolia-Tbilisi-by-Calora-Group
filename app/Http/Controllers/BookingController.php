@@ -124,8 +124,12 @@ class BookingController extends Controller
             'status' => 'requested',
         ]);
 
+        // Zapier (optional): post the booking to the Catch Hook.
+        \App\Support\BookingWebhook::send($booking);
+
         // Send two independent notifications after the booking has been saved.
         // Failure of one recipient must not prevent notification to the other.
+        if (config('hotel.send_booking_emails')) {
         try {
             Mail::to($booking->email)->send(new BookingRequestAcknowledged($booking));
         } catch (\Throwable $e) {
@@ -147,6 +151,7 @@ class BookingController extends Controller
             Log::warning('Manager booking notification recipient is not configured', [
                 'reference' => $booking->reference,
             ]);
+        }
         }
 
         return response()->json([

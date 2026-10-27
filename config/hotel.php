@@ -112,6 +112,11 @@ return [
     // and "magnolia-booking-admin" (editable in Mailchimp). Off = the same design from our own views.
     'mailchimp_templates' => (bool) env('HOTEL_MAILCHIMP_TEMPLATES', false),
 
+    // Zapier: every new booking is also posted to this "Catch Hook" URL (empty = off).
+    'zapier_hook_url' => env('HOTEL_ZAPIER_HOOK_URL', ''),
+    // Set to false once Zapier sends the booking emails, so guests don't get two.
+    'send_booking_emails' => (bool) env('HOTEL_SEND_BOOKING_EMAILS', true),
+
     'rooms' => [
         'double' => [
             'name' => 'Double Room', 'img' => 'assets/img/room-double.webp',

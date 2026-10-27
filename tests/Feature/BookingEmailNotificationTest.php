@@ -146,4 +146,27 @@ class BookingEmailNotificationTest extends TestCase
         $admin = file_get_contents(storage_path('app/mail-templates/magnolia-booking-admin.html'));
         $this->assertStringContainsString('*|GUEST_PHONE|*', $admin);
     }
+
+    public function test_booking_is_posted_to_zapier_and_site_emails_can_be_switched_off(): void
+    {
+        Mail::fake();
+        \Illuminate\Support\Facades\Http::fake(['hooks.zapier.com/*' => \Illuminate\Support\Facades\Http::response(['status' => 'success'])]);
+        config(['hotel.zapier_hook_url' => 'https://hooks.zapier.com/hooks/catch/1/abc/', 'hotel.send_booking_emails' => false]);
+
+        $this->postJson(route('bookings.store'), $this->payload())->assertCreated();
+
+        \Illuminate\Support\Facades\Http::assertSent(fn ($r) => $r->url() === 'https://hooks.zapier.com/hooks/catch/1/abc/'
+            && $r['first_name'] === 'Nino' && $r['rooms'] === '1 × Double Room' && $r['nights'] === 2);
+        Mail::assertNothingSent();
+    }
+
+    public function test_a_failing_zapier_hook_does_not_break_the_booking(): void
+    {
+        Mail::fake();
+        \Illuminate\Support\Facades\Http::fake(['hooks.zapier.com/*' => \Illuminate\Support\Facades\Http::response('down', 500)]);
+        config(['hotel.zapier_hook_url' => 'https://hooks.zapier.com/hooks/catch/1/abc/', 'hotel.bookings_email' => 'frontdesk@example.net']);
+
+        $this->postJson(route('bookings.store'), $this->payload())->assertCreated();
+        Mail::assertSentCount(2);
+    }
 }
