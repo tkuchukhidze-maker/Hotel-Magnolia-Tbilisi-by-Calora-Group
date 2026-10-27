@@ -28,9 +28,9 @@
 <label class="field"><span class="field__body"><span class="field__label">Check-in</span><input type="date" id="checkin"></span></label>
 <div class="stepper"><span class="stepper__value"><span class="field__label">Nights</span><strong data-value="nights">2 nights</strong></span><span class="stepper__btns"><button type="button" class="round-btn" data-action="nights-" aria-label="One night less">−</button><button type="button" class="round-btn" data-action="nights+" aria-label="One night more">+</button></span></div>
 <div class="stepper"><span class="stepper__value"><span class="field__label">Adults</span><strong data-value="adults">2</strong></span><span class="stepper__btns"><button type="button" class="round-btn" data-action="adults-" aria-label="Remove an adult">−</button><button type="button" class="round-btn" data-action="adults+" aria-label="Add an adult">+</button></span></div>
-<div class="stepper"><span class="stepper__value"><span class="field__label">Children <span style="font-weight:500">(0–{{ config('hotel.child_max_age') }})</span></span><strong data-value="kids">0</strong></span><span class="stepper__btns"><button type="button" class="round-btn" data-action="kids-" aria-label="Remove a child">−</button><button type="button" class="round-btn" data-action="kids+" aria-label="Add a child">+</button></span></div>
+<div class="stepper"><span class="stepper__value"><span class="field__label">Children</span><strong data-value="kids">0</strong></span><span class="stepper__btns"><button type="button" class="round-btn" data-action="kids-" aria-label="Remove a child">−</button><button type="button" class="round-btn" data-action="kids+" aria-label="Add a child">+</button></span></div>
 </div>
-<div class="room-filter-bar">
+<div class="room-filter-bar container">
 <label for="room-type-filter">Filter by room type</label>
 <select id="room-type-filter" aria-label="Filter rooms by type">
 <option value="all">All 5 room types</option>
@@ -60,7 +60,7 @@
 <p class="lead" style="font-size:16px">{{ $r['blurb'] }}</p>
 </div>
 <div class="room__price">
-<div><span class="small">per room per night</span><div class="big"><s>GEL {{ $r['cap'] === 1 ? $r['w1'] : $r['w2'] }}</s><strong>GEL {{ $r['cap'] === 1 ? $r['p1'][0] : $r['p2'][0] }}</strong></div><span class="small">GEL {{ $r['cap'] === 1 ? $r['p1'][1] : $r['p2'][1] }} with breakfast · taxes included</span></div>
+<div><span class="small">sample rate per room / night</span><div class="big"><s>GEL {{ $r['cap'] === 1 ? $r['w1'] : $r['w2'] }}</s><strong>GEL {{ $r['cap'] === 1 ? $r['p1'][0] : $r['p2'][0] }}</strong></div><span class="small">GEL {{ $r['cap'] === 1 ? $r['p1'][1] : $r['p2'][1] }} with breakfast · listed taxes included</span></div>
 <a class="btn btn--primary" href="tel:{{ $c['phone_tel'] }}">Ask about this room</a>
 </div>
 </div>
