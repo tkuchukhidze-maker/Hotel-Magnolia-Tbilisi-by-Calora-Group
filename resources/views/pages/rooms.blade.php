@@ -19,7 +19,7 @@
 <p class="eyebrow">Rooms &amp; booking</p>
 <h1 class="display h1-page">Find your kind of <em>comfort.</em></h1>
 </div>
-<p class="lead" style="max-width:440px;font-size:16px">Tell us your dates and who's coming, then choose one room or several. Your total updates as you go.</p>
+<p class="lead" style="max-width:440px;font-size:16px">Choose your dates, pick your room, and send us your details. Our team will confirm availability before your stay is reserved.</p>
 </div>
 </section>
 
@@ -32,7 +32,7 @@
 </div>
 <div class="ages" data-ages hidden></div>
 <div class="search-summary">
-<span class="ticks"><span>✓ Free cancellation</span><span>✓ Pay at the hotel</span><span>✓ −{{ config('hotel.offer.discount') }}% autumn rate applied</span></span>
+<span class="ticks"><span>✓ No payment to send a request</span><span>✓ Hotel confirmation required</span><span>✓ Indicative total before sending</span></span>
 <span class="small">Bigger group than {{ config('hotel.max_adults') }} adults? <a href="https://wa.me/{{ $c['whatsapp'] }}">Message us</a>.</span>
 </div>
 </section>
