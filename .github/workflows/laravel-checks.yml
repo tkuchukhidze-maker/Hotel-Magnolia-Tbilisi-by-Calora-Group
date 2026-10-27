@@ -3,6 +3,7 @@ name: Magnolia Laravel checks
 on:
   push:
     branches:
+      - feature/booking-guest-and-manager-emails
       - feature/magnolia-pricing-calendar-integrated
       - feature/autumn-offer-landing
       - fix/magnolia-admin-username-login
