@@ -52,10 +52,14 @@ return [
     // Where new booking requests are emailed.
     'bookings_email' => env('HOTEL_BOOKINGS_EMAIL', env('HOTEL_EMAIL', 'hello@example.com')),
 
+    // The book-direct offer. Prices above (p1/p2) are the offer prices; when
+    // `ends` has passed they automatically go back to the full price (w1/w2),
+    // the countdown disappears and every "−25%" line is hidden. Times are Tbilisi time.
     'offer' => [
-        'label' => 'Autumn at Magnolia',
-        'discount' => 25,
-        'ends' => '[OFFER END DATE]',
+        'label' => env('HOTEL_OFFER_LABEL', 'Autumn at Magnolia'),
+        'discount' => (int) env('HOTEL_OFFER_DISCOUNT', 25),
+        'ends' => env('HOTEL_OFFER_ENDS', '2026-11-30 23:59:59'), // [confirm the real end date]
+        'timezone' => 'Asia/Tbilisi',
     ],
 
     'policies' => [
@@ -80,7 +84,7 @@ return [
     // and listed in /llms.txt so search and AI answers can quote them.
     'faq' => [
         ['Where is Hotel Magnolia Tbilisi by Calora Group?', 'At 5 Kirile Ukleba St in the Old Town of Tbilisi, Georgia, on a quiet street below Mount Mtatsminda. Freedom Square is 950 m away and Freedom Square metro station 750 m.'],
-        ['How much does a room cost?', 'Rooms start from GEL 106 per night for one guest and GEL 129 for two, taxes included (autumn rates, 25% off). Prices depend on the room and dates; the Rooms page shows the exact total before you book.'],
+        ['How much does a room cost?', 'It depends on the room, the number of guests and your dates. Taxes are always included, and the Rooms page shows the exact price per night and the total before you book. While our book-direct offer runs, every room is discounted.'],
         ['What types of rooms are there?', 'Five: Single Room (15 m²), Double Room (18 m², king bed), Double or Twin (26 m², two single beds), Triple Room (26 m², three beds, balcony) and Deluxe Room (30 m², king bed, balcony). All have air conditioning, a private bathroom, a flat-screen TV and free Wi-Fi.'],
         ['Do you serve breakfast?', 'Yes, a buffet breakfast every morning. You can add it when you book, from GEL 11 per room per night.'],
         ['Is there parking?', 'Yes. Parking at the hotel is free for every guest, which is rare in Tbilisi\'s Old Town.'],

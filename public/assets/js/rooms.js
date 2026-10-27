@@ -174,7 +174,7 @@
       ? '<img src="' + esc(r.img) + '" alt="' + esc(r.alt) + '" loading="lazy" width="920" height="600">'
       : '<div class="room__placeholder">[Room photos coming soon]</div>';
     var left = r.stock > 0 && r.stock <= 3 ? '<span class="tag tag--left">' + (r.stock === 1 ? 'Last one' : r.stock + ' left') + '</span>' : '';
-    return '<div class="room__media">' + img + '<span class="tag tag--deal">−25%</span>' + left +
+    return '<div class="room__media">' + img + (M.offer ? '<span class="tag tag--deal">−' + M.offer + '%</span>' : '') + left +
       (sel ? '<span class="tag tag--picked">' + ICON.check.replace(/26/g, '14') + ' ' + sel + ' selected</span>' : '') + '</div>';
   }
 
@@ -207,7 +207,7 @@
             '<p class="small" style="font-size:14px">Air conditioning · Private bathroom · TV · Free Wi‑Fi · City &amp; garden view</p>' +
           '</div>' +
           '<div class="room__price">' +
-            '<div><span class="small">per room per night</span><div class="big"><s>' + gel(was) + '</s><strong>' + gel(price[0]) + '</strong></div><span class="small">' + gel(price[1]) + ' with breakfast · taxes included</span></div>' +
+            '<div><span class="small">per room per night</span><div class="big">' + (was > price[0] ? '<s>' + gel(was) + '</s>' : '') + '<strong>' + gel(price[0]) + '</strong></div><span class="small">' + gel(price[1]) + ' with breakfast · taxes included</span></div>' +
             '<div class="room__ctrl">' + control + '</div>' +
           '</div>' +
         '</div>' +

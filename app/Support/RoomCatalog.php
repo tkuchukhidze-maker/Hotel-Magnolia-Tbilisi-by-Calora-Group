@@ -13,7 +13,7 @@ class RoomCatalog
      */
     public static function all(bool $strict = false): array
     {
-        $rooms = config('hotel.rooms', []);
+        $rooms = self::withOfferApplied(config('hotel.rooms', []));
 
         // Pricing overrides are optional for public page rendering. An unavailable
         // DB must not take down the entire hotel website during an outage or a
@@ -48,6 +48,30 @@ class RoomCatalog
             $room['w1'] = $room['p1'][0];
             $room['w2'] = $room['p2'][0];
             $room['rates_overridden'] = true;
+        }
+        unset($room);
+
+        return $rooms;
+    }
+
+    /**
+     * Config prices are the offer prices. After the offer ends, charge the full
+     * price instead (w1/w2 for the room; the breakfast supplement scaled the same way),
+     * so the site never shows a discount that no longer exists.
+     */
+    private static function withOfferApplied(array $rooms): array
+    {
+        if (Offer::running()) {
+            return $rooms;
+        }
+
+        foreach ($rooms as &$room) {
+            foreach (['1', '2'] as $n) {
+                $p = $room['p'.$n];
+                $full = (int) ($room['w'.$n] ?? Offer::fullPrice($p[0]));
+                $room['p'.$n] = [$full, $full + Offer::fullPrice($p[1] - $p[0])];
+                $room['w'.$n] = $full;
+            }
         }
         unset($room);
 

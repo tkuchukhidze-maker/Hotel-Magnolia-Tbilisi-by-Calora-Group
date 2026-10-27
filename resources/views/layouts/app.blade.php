@@ -53,7 +53,12 @@
     <div class="mobile-book" role="region" aria-label="Quick booking">@yield('mobile-bar')</div>
 @else
     <div class="mobile-book" role="region" aria-label="Quick booking">
-        <span class="mobile-book__price">from <s>GEL 142</s><strong>GEL 106 <em>−{{ config('hotel.offer.discount') }}%</em></strong></span>
+        @php($from = collect(\App\Support\RoomCatalog::all())->min(fn ($r) => $r['p1'][0]))
+        @if ($promo['active'])
+        <span class="mobile-book__price">from <s>GEL {{ \App\Support\Offer::fullPrice($from) }}</s><strong>GEL {{ $from }} <em>−{{ $promo['discount'] }}%</em></strong></span>
+        @else
+        <span class="mobile-book__price">per night from<strong>GEL {{ $from }}</strong></span>
+        @endif
         <a class="btn btn--primary" href="{{ route('rooms') }}">Book Now</a>
     </div>
 @endif

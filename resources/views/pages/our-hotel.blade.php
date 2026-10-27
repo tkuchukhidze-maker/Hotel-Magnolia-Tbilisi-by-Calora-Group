@@ -61,7 +61,7 @@ $extras = [
 <div><dt>WHERE</dt><dd><a href="{{ config('hotel.contact.google_maps') }}">{{ config('hotel.contact.address') }}</a>, Old Town, Tbilisi</dd></div>
 <div><dt>NEARBY</dt><dd>Freedom Square 950 m · metro 750 m</dd></div>
 <div><dt>ROOMS</dt><dd>5 types, 15–30 m², 1–3 guests</dd></div>
-<div><dt>PRICES</dt><dd>From GEL 106 a night, taxes included</dd></div>
+<div><dt>PRICES</dt><dd>From GEL {{ collect(\App\Support\RoomCatalog::all())->min(fn ($r) => $r['p1'][0]) }} a night, taxes included</dd></div>
 <div><dt>INCLUDED</dt><dd>Free parking, Wi‑Fi, air conditioning</dd></div>
 <div><dt>SPACES</dt><dd>Rooftop terrace, garden, lobby</dd></div>
 <div><dt>FRONT DESK</dt><dd>24 hours · {{ config('hotel.contact.phone_display') }}</dd></div>

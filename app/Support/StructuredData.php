@@ -88,7 +88,7 @@ class StructuredData
                     $room['image'] = asset($r['img']);
                 }
 
-                return [
+                $offer = [
                     '@type' => 'Offer',
                     'name' => $r['name'],
                     'url' => route('rooms', ['room' => $id]),
@@ -105,6 +105,12 @@ class StructuredData
                     'offeredBy' => ['@id' => url('/').'#hotel'],
                     'itemOffered' => $room,
                 ];
+                // While the book-direct offer runs, the price above is valid only until it ends.
+                if (Offer::running()) {
+                    $offer['priceValidUntil'] = Offer::endsAt()->toDateString();
+                }
+
+                return $offer;
             })->values()->all(),
         ];
     }

@@ -56,6 +56,46 @@
     }
   }
 
+  // Offer countdowns ([data-countdown]). Time left = server deadline − server time,
+  // so a wrong clock on the guest's phone can't change it. Ticks on the second.
+  var timers = document.querySelectorAll('[data-countdown]');
+  if (timers.length) {
+    var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    var skew = 0;
+    var first = timers[0];
+    var serverNow = parseInt(first.getAttribute('data-now'), 10);
+    if (serverNow) skew = serverNow - Date.now();
+    var startedLive = false;
+    var tick = function () {
+      var now = Date.now() + skew;
+      var anyLive = false;
+      timers.forEach(function (el) {
+        var ends = parseInt(el.getAttribute('data-ends'), 10);
+        if (!ends) return;
+        var left = Math.max(0, Math.floor((ends - now) / 1000));
+        var d = Math.floor(left / 86400), h = Math.floor(left % 86400 / 3600), m = Math.floor(left % 3600 / 60), s = left % 60;
+        if (left > 0) anyLive = true;
+        var set = function (k, v) { var b = el.querySelector('[data-cd="' + k + '"]'); if (b && b.textContent !== v) b.textContent = v; };
+        set('d', pad(d)); set('h', pad(h)); set('m', pad(m)); set('s', pad(s));
+        var compact = el.querySelector('[data-cd-compact]');
+        if (compact) compact.textContent = (d ? d + 'd ' : '') + pad(h) + ':' + pad(m) + ':' + pad(s);
+        if (left === 0) {
+          el.classList.add('is-over');
+          var over = el.querySelector('.countdown__over');
+          if (over) over.hidden = false;
+        }
+      });
+      if (anyLive) startedLive = true;
+      if (!anyLive) {
+        // Ended while the page was open: reload once so prices show the full rate again.
+        if (startedLive) setTimeout(function () { window.location.reload(); }, 1500);
+        return;
+      }
+      setTimeout(tick, 1000 - (now % 1000) + 20);
+    };
+    tick();
+  }
+
   // Gallery filter (Our Hotel page)
   var chips = document.querySelectorAll('[data-filter]');
   var items = document.querySelectorAll('[data-cat]');

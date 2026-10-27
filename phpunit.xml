@@ -19,6 +19,8 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <!-- Keep the book-direct offer running in tests; OfferTest moves the deadline itself. -->
+        <env name="HOTEL_OFFER_ENDS" value="2099-12-31 23:59:59"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>

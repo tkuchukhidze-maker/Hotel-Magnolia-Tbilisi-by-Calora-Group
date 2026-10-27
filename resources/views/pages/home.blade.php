@@ -1,10 +1,10 @@
 @extends('layouts.app', ['overlay' => true, 'fullFooter' => true])
 @php($c = config('hotel.contact'))
-@php($offer = config('hotel.offer'))
 @php($rating = config('hotel.rating'))
 
 @section('title', 'Hotel Magnolia Tbilisi by Calora Group | Boutique Hotel, Old Tbilisi')
-@section('description', 'Small boutique hotel at 5 Kirile Ukleba St, Old Tbilisi, 950 m from Freedom Square. Rooms from GEL 106, free parking, rooftop terrace and a 127-year-old magnolia. Book direct, pay at the hotel.')
+@php($from = collect($rooms)->min(fn ($r) => $r['p1'][0]))
+@section('description', 'Small boutique hotel at 5 Kirile Ukleba St, Old Tbilisi, 950 m from Freedom Square. Rooms from GEL '.$from.', free parking, rooftop terrace and a 127-year-old magnolia. Book direct, pay at the hotel.')
 
 @push('head')
 {!! \App\Support\StructuredData::render(\App\Support\StructuredData::hotel()) !!}
@@ -45,7 +45,11 @@
 <label class="field"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18V8M3 14h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5"/></svg><span class="field__body"><span class="field__label">Room type</span><select name="room"><option value="">Any room</option>@foreach (config('hotel.rooms') as $id => $r)<option value="{{ $id }}">{{ $r['name'] }}</option>@endforeach</select></span></label>
 <button class="btn btn--dark" type="submit">Check Availability <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></button>
 </form>
-<p class="booking__note">{{ $offer['label'] }}: <strong>{{ $offer['discount'] }}% off every room</strong> when you book here · lowest price, guaranteed</p>
+@if ($promo['active'])
+<p class="booking__note">{{ $promo['label'] }}: <strong>{{ $promo['discount'] }}% off every room</strong> when you book by {{ $promo['ends_label'] }} · <a href="{{ route('offer') }}">see the offer</a></p>
+@else
+<p class="booking__note">Book here for our <strong>lowest price, guaranteed</strong> · pay at the hotel</p>
+@endif
 </section>
 
 <!-- TRUST -->
@@ -60,6 +64,21 @@
 </ul>
 <div class="ornament" aria-hidden="true"><svg width="34" height="28" stroke-width="3"><use href="#mg-flower"/></svg></div>
 </section>
+
+@if ($promo['active'])
+<!-- OFFER BAND -->
+<section class="container" aria-labelledby="offer-band-h" style="padding-top:40px">
+<div class="offer-band decor-host">
+<svg class="decor" width="300" height="250" stroke-width=".5" style="right:-50px;top:-40px;opacity:.22;color:var(--ivory)" aria-hidden="true"><use href="#mg-flower"/></svg>
+<div class="offer-band__text">
+<p class="eyebrow" style="color:var(--gold-light)">{{ $promo['label'] }} · book direct</p>
+<h2 id="offer-band-h" class="h3">{{ $promo['discount'] }}% off every room. <em>Until {{ $promo['ends_label'] }}.</em></h2>
+</div>
+@include('partials.countdown', ['variant' => 'light'])
+<a class="btn btn--light" href="{{ route('offer') }}">Get {{ $promo['discount'] }}% off</a>
+</div>
+</section>
+@endif
 
 <!-- MEET MAGNOLIA -->
 <section class="section decor-host" style="padding-top: 72px">
@@ -115,7 +134,7 @@
 <img src="{{ asset($r['img']) }}" alt="{{ $r['alt'] }}" loading="lazy" width="1280" height="853">
 <span class="room-card__body">
 <span><span class="room-card__name">{{ $r['name'] }}</span><span class="room-card__meta">{{ $r['cap'] }} guests · {{ $r['size'] }} · {{ strtolower($r['extra'] === 'Original art' ? $r['bed'] : $r['extra']) }}</span></span>
-<span class="price"><s>GEL {{ $r['w2'] }}</s><strong>GEL {{ $r['p2'][0] }}</strong></span>
+<span class="price">@if ($r['w2'] > $r['p2'][0])<s>GEL {{ $r['w2'] }}</s>@endif<strong>GEL {{ $r['p2'][0] }}</strong></span>
 </span>
 </a>
 @endforeach
@@ -135,7 +154,7 @@
 </div>
 <ul>
 <li><strong>Lowest price</strong><span>Found it cheaper elsewhere? Send it to us and we'll match it.</span></li>
-<li><strong>−{{ $offer['discount'] }}% this autumn</strong><span>On every room, until {{ $offer['ends'] }}.</span></li>
+@if ($promo['active'])<li><strong>−{{ $promo['discount'] }}% this autumn</strong><span>On every room you book by {{ $promo['ends_label'] }}. <a href="{{ route('offer') }}">The offer</a></span></li>@endif
 <li><strong>Nothing to pay now</strong><span>Pay at the hotel. Cancellation: {{ strtolower(config('hotel.policies.cancellation')) }}.</span></li>
 <li><strong>A real person</strong><span>Questions first? <a href="https://wa.me/{{ $c['whatsapp'] }}">WhatsApp us</a>.</span></li>
 </ul>
@@ -181,7 +200,7 @@
 <div class="cta-split__text">
 <p class="eyebrow">Your Tbilisi stay starts here</p>
 <h2 class="display" style="font-size:clamp(52px,6.5vw,100px)">Come on in.</h2>
-<p style="margin:0;font-size:18px;max-width:480px">{{ $offer['discount'] }}% off every room this autumn. Book now, pay when you arrive, cancel free if plans change.</p>
+<p style="margin:0;font-size:18px;max-width:480px">@if ($promo['active']){{ $promo['discount'] }}% off every room until {{ $promo['ends_label'] }}. @endif Book now, pay when you arrive, cancel free if plans change.</p>
 <div style="display:flex;flex-wrap:wrap;gap:12px"><a class="btn btn--light" href="{{ route('rooms') }}">Check Availability</a><a class="btn btn--outline-light" href="https://wa.me/{{ $c['whatsapp'] }}">WhatsApp us</a></div>
 </div>
 <div class="cta-split__media"><img src="{{ asset('assets/img/welcome-tray.webp') }}" alt="Tea, oranges and apples on a small black table under a gold-framed painting" loading="lazy"></div>

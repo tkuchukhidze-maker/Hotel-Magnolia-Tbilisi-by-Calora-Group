@@ -1,8 +1,9 @@
 @extends('layouts.app')
 @php($c = config('hotel.contact'))
 
-@section('title', 'Rooms & Prices from GEL 106 | Hotel Magnolia Tbilisi by Calora Group')
-@section('description', 'Five room types in Old Tbilisi, 15–30 m², from GEL 106 per night with taxes. Book one or several rooms direct, with free cancellation, and pay at the hotel.')
+@php($from = collect($rooms)->min(fn ($r) => $r['p1'][0]))
+@section('title', 'Rooms & Prices from GEL '.$from.' | Hotel Magnolia Tbilisi by Calora Group')
+@section('description', 'Five room types in Old Tbilisi, 15–30 m², from GEL '.$from.' per night with taxes. Book one or several rooms direct, with free cancellation, and pay at the hotel.')
 @section('crumb', 'Rooms & booking')
 @section('og_image', asset('assets/img/room-deluxe.webp'))
 
@@ -32,7 +33,7 @@
 </div>
 <div class="ages" data-ages hidden></div>
 <div class="search-summary">
-<span class="ticks"><span>✓ Free cancellation</span><span>✓ Pay at the hotel</span><span>✓ −{{ config('hotel.offer.discount') }}% autumn rate applied</span></span>
+<span class="ticks"><span>✓ Free cancellation</span><span>✓ Pay at the hotel</span>@if ($promo['active'])<span>✓ −{{ $promo['discount'] }}% book-direct rate until {{ $promo['ends_label'] }}</span>@else<span>✓ Lowest price, guaranteed</span>@endif</span>
 <span class="small">Bigger group than {{ config('hotel.max_adults') }} adults? <a href="https://wa.me/{{ $c['whatsapp'] }}">Message us</a>.</span>
 </div>
 </section>
@@ -53,7 +54,7 @@
 <p class="lead" style="font-size:16px">{{ $r['blurb'] }}</p>
 </div>
 <div class="room__price">
-<div><span class="small">per room per night</span><div class="big"><s>GEL {{ $r['cap'] === 1 ? $r['w1'] : $r['w2'] }}</s><strong>GEL {{ $r['cap'] === 1 ? $r['p1'][0] : $r['p2'][0] }}</strong></div><span class="small">GEL {{ $r['cap'] === 1 ? $r['p1'][1] : $r['p2'][1] }} with breakfast · taxes included</span></div>
+<div><span class="small">per room per night</span><div class="big">@if (($r['cap'] === 1 ? $r['w1'] : $r['w2']) > ($r['cap'] === 1 ? $r['p1'][0] : $r['p2'][0]))<s>GEL {{ $r['cap'] === 1 ? $r['w1'] : $r['w2'] }}</s>@endif<strong>GEL {{ $r['cap'] === 1 ? $r['p1'][0] : $r['p2'][0] }}</strong></div><span class="small">GEL {{ $r['cap'] === 1 ? $r['p1'][1] : $r['p2'][1] }} with breakfast · taxes included</span></div>
 <a class="btn btn--primary" href="tel:{{ $c['phone_tel'] }}">Call to book</a>
 </div>
 </div>
@@ -75,7 +76,7 @@
 @endsection
 
 @section('mobile-bar')
-<span class="mobile-book__price" data-mobile-label>per night from<strong data-mobile-price>GEL 106</strong></span>
+<span class="mobile-book__price" data-mobile-label>per night from<strong data-mobile-price>GEL {{ $from }}</strong></span>
 <a class="btn btn--primary" href="#booking-summary" data-mobile-cta>Choose rooms</a>
 @endsection
 
@@ -86,6 +87,7 @@ window.MAGNOLIA = {!! json_encode([
         'id' => $id,
         'img' => $r['img'] ? asset($r['img']) : '',
     ]))->values(),
+    'offer' => $promo['active'] ? $promo['discount'] : 0,
     'maxAdults' => config('hotel.max_adults'),
     'maxChildren' => config('hotel.max_children'),
     'childMaxAge' => config('hotel.child_max_age'),

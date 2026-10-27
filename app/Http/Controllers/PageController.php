@@ -17,6 +17,12 @@ class PageController extends Controller
         return view('pages.rooms', ['rooms' => RoomCatalog::all()]);
     }
 
+    /** Marketing landing page for the book-direct offer (countdown, savings, terms). */
+    public function offer(): View
+    {
+        return view('pages.offer', ['rooms' => RoomCatalog::all()]);
+    }
+
     public function ourHotel(): View
     {
         return view('pages.our-hotel');

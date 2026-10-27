@@ -24,11 +24,17 @@ class SeoController extends Controller
         $images = [
             'home' => ['hero-facade', 'magnolia-courtyard', 'lobby'],
             'rooms' => ['room-double', 'room-deluxe', 'room-twin'],
+            'offer' => ['rooftop-view', 'magnolia-courtyard'],
             'our-hotel' => ['lobby', 'rooftop-view', 'bathroom', 'aerial', 'entrance-door'],
             'explore' => ['rooftop-domes'],
         ];
 
-        foreach (self::PAGES as $name => [$freq, $priority]) {
+        $pages = self::PAGES;
+        if (\App\Support\Offer::running()) {
+            $pages = ['home' => $pages['home'], 'offer' => ['daily', '0.9']] + $pages;
+        }
+
+        foreach ($pages as $name => [$freq, $priority]) {
             $xml .= '  <url><loc>'.e(route($name)).'</loc><lastmod>'.$lastmod.'</lastmod>'
                 .'<changefreq>'.$freq.'</changefreq><priority>'.$priority.'</priority>';
             foreach ($images[$name] ?? [] as $img) {
