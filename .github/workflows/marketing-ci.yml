@@ -1,0 +1,41 @@
+name: Marketing assistant checks
+
+on:
+  push:
+    branches:
+      - feature/ai-hotel-marketing-assistant-mvp
+  pull_request:
+    paths:
+      - 'app/**'
+      - 'routes/**'
+      - 'config/**'
+      - 'database/**'
+      - 'resources/**'
+      - 'tests/**'
+      - 'composer.json'
+      - '.github/workflows/marketing-ci.yml'
+
+jobs:
+  php-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, fileinfo, pdo_sqlite, sqlite3
+          coverage: none
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Configure test environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          touch database/database.sqlite
+          php artisan migrate --force
+      - name: Run feature tests
+        run: php artisan test
+      - name: Check routes
+        run: php artisan route:list --path=admin/marketing
