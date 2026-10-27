@@ -2,7 +2,7 @@
 @php($c = config('hotel.contact'))
 
 @php($from = collect($rooms)->min(fn ($r) => $r['p1'][0]))
-@section('title', 'Rooms & Prices from GEL '.$from.' | Hotel Magnolia Tbilisi by Calora Group')
+@section('title', 'Rooms & Rates | Hotel Magnolia Tbilisi, Old Town')
 @section('description', 'Five room types in Old Tbilisi, 15–30 m², from GEL '.$from.' per night with taxes. Book one or several rooms direct, with free cancellation, and pay at the hotel.')
 @section('crumb', 'Rooms & booking')
 @section('og_image', \App\Support\Media::slot('room.deluxe')['src'])

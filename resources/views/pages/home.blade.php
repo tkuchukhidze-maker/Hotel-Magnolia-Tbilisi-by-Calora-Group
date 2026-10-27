@@ -2,7 +2,7 @@
 @php($c = config('hotel.contact'))
 @php($rating = config('hotel.rating'))
 
-@section('title', 'Hotel Magnolia Tbilisi by Calora Group | Boutique Hotel, Old Tbilisi')
+@section('title', 'Boutique Hotel in Old Tbilisi | Hotel Magnolia Tbilisi')
 @php($from = collect($rooms)->min(fn ($r) => $r['p1'][0]))
 @section('description', 'Small boutique hotel at 5 Kirile Ukleba St, Old Tbilisi, 950 m from Freedom Square. Rooms from GEL '.$from.', free parking, rooftop terrace and a 127-year-old magnolia. Book direct, pay at the hotel.')
 
@@ -12,8 +12,8 @@
     '@context' => 'https://schema.org',
     '@type' => 'WebSite',
     'name' => config('hotel.name'),
-    'url' => url('/'),
-    'publisher' => ['@id' => url('/').'#hotel'],
+    'url' => \App\Support\PublicSite::url('/'),
+    'publisher' => ['@id' => \App\Support\PublicSite::url('/').'#hotel'],
 ]) !!}
 @endpush
 
@@ -158,25 +158,6 @@
 <li><strong>Nothing to pay now</strong><span>Pay at the hotel. Cancellation: {{ strtolower(config('hotel.policies.cancellation')) }}.</span></li>
 <li><strong>A real person</strong><span>Questions first? <a href="https://wa.me/{{ $c['whatsapp'] }}">WhatsApp us</a>.</span></li>
 </ul>
-</div>
-</section>
-
-<!-- REVIEWS -->
-<section class="section section--sand decor-host" aria-labelledby="reviews-h">
-<svg class="decor decor--hide-sm" width="460" height="384" stroke-width=".35" style="right:-90px;top:-60px;opacity:.2;transform:rotate(18deg);color:var(--terracotta)" aria-hidden="true"><use href="#mg-flower"/></svg>
-<div class="container">
-<div class="section-head">
-<div class="stack" style="gap:16px">
-<p class="eyebrow">Good words from our guests</p>
-<h2 id="reviews-h" class="h2">In their own words.</h2>
-</div>
-<div class="rating"><span class="rating__score">{{ $rating['score'] }}</span><span style="display:flex;flex-direction:column;font-size:14px"><strong style="font-size:16px">{{ $rating['label'] }}</strong><span class="small">{{ $rating['source'] }} · {{ $rating['count'] }} reviews</span></span><a href="https://www.booking.com" style="font-weight:700;font-size:14px">Read all reviews</a></div>
-</div>
-<div class="reviews">
-@foreach (['Booking.com', 'Google', '[Source]'] as $source)
-<blockquote class="review"><span class="review__stars" aria-label="5 out of 5">★★★★★</span><p>“[Real guest review, copied word for word]”</p><footer>[Guest name] · [Country] · {{ $source }}, [month year]</footer></blockquote>
-@endforeach
-</div>
 </div>
 </section>
 
