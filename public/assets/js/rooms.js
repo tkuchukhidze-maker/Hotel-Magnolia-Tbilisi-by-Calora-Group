@@ -12,7 +12,6 @@
   var ROOMS = M.rooms || [];
   var MAX_ADULTS = M.maxAdults || 12;
   var MAX_KIDS = M.maxChildren || 6;
-  var CHILD_MAX_AGE = M.childMaxAge == null ? 17 : M.childMaxAge;
   var MAX_NIGHTS = M.maxNights || 30;
   var CSRF = (document.querySelector('meta[name="csrf-token"]') || {}).content;
   var BY_ID = {};
@@ -20,7 +19,6 @@
 
   var list = document.getElementById('room-list');
   var aside = document.getElementById('booking-summary');
-  var agesEl = document.querySelector('[data-ages]');
   var checkinEl = document.getElementById('checkin');
   var mobileLabel = document.querySelector('[data-mobile-label]');
   var mobileCta = document.querySelector('[data-mobile-cta]');
@@ -34,7 +32,8 @@
   var state = {
     adults: clamp(int(params.get('adults'), 2), 1, MAX_ADULTS),
     kids: clamp(int(params.get('children'), 0), 0, MAX_KIDS),
-    ages: [],
+    extraBeds: {},
+    filter: 'all',
     nights: 2,
     checkin: params.get('checkin') || '',
     qty: {},
@@ -45,11 +44,9 @@
     result: null,
     form: {}
   };
-  (params.get('ages') || '').split(',').forEach(function (a, i) {
-    var n = parseInt(a, 10);
-    if (i < state.kids && !isNaN(n)) state.ages[i] = clamp(n, 0, CHILD_MAX_AGE);
-  });
-  var checkout = params.get('checkout');
+
+
+    var checkout = params.get('checkout');
   if (state.checkin && checkout) {
     var n0 = Math.round((new Date(checkout) - new Date(state.checkin)) / 86400000);
     if (n0 > 0) state.nights = clamp(n0, 1, MAX_NIGHTS);
@@ -74,11 +71,10 @@
     if (!iso) return '';
     return new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
   }
-  function ageLabel(a) { return a === 0 ? 'under 1' : a + (a === 1 ? ' year' : ' years'); }
 
   function items() {
     return ROOMS.filter(function (r) { return state.qty[r.id] > 0; })
-      .map(function (r) { return { room: r.id, qty: state.qty[r.id] }; });
+      .map(function (r) { return { room: r.id, qty: state.qty[r.id], extra_beds: state.extraBeds[r.id] || 0 }; });
   }
   function roomsCount() { return items().reduce(function (s, i) { return s + i.qty; }, 0); }
 
@@ -92,7 +88,7 @@
       var p = single ? r.p1 : r.p2;
       var per = rate === 'bf' ? p[1] : p[0];
       q.lines.push({ room: r.id, name: r.name, qty: i.qty, nightly: per, subtotal: per * i.qty });
-      q.capacity += r.cap * i.qty;
+      q.capacity += r.cap * i.qty + (i.extra_beds || 0);
       q.nightly += per * i.qty;
     });
     q.total = q.nightly * state.nights;
@@ -131,10 +127,9 @@
     check: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>'
   };
 
-  /* ---------- Search bar: steppers + children's ages ---------- */
+  /* ---------- Search, no child-age questions ---------- */
   function setText(sel, txt) { var el = document.querySelector(sel); if (el) el.textContent = txt; }
   function setDisabled(sel, v) { var el = document.querySelector(sel); if (el) el.disabled = v; }
-
   function renderSearch() {
     setText('[data-value="adults"]', state.adults);
     setText('[data-value="kids"]', state.kids);
@@ -147,75 +142,85 @@
     setDisabled('[data-action="nights-"]', locked || state.nights <= 1);
     setDisabled('[data-action="nights+"]', locked || state.nights >= MAX_NIGHTS);
     if (checkinEl) checkinEl.disabled = locked;
-
-    if (!agesEl) return;
-    agesEl.hidden = state.kids === 0;
-    // Rebuild only when the number of children changes, so an open select keeps focus.
-    if (agesEl.getAttribute('data-count') !== String(state.kids)) {
-      agesEl.setAttribute('data-count', String(state.kids));
-      var opts = '';
-      for (var a = 0; a <= CHILD_MAX_AGE; a++) opts += '<option value="' + a + '">' + (a === 0 ? 'Under 1' : a) + '</option>';
-      var html = '<p class="ages__title">How old are the children on the day of arrival?</p><div class="ages__grid">';
-      for (var i = 0; i < state.kids; i++) {
-        html += '<label class="input">Child ' + (i + 1) + ' age<select data-age="' + i + '"><option value="">Choose age</option>' + opts + '</select></label>';
-      }
-      agesEl.innerHTML = html + '</div>';
-    }
-    agesEl.querySelectorAll('[data-age]').forEach(function (sel) {
-      var i = int(sel.getAttribute('data-age'), 0);
-      sel.value = state.ages[i] == null ? '' : String(state.ages[i]);
-      sel.disabled = locked;
-    });
   }
 
-  /* ---------- Room list ---------- */
-  function media(r, sel) {
-    var img = r.img
-      ? '<img src="' + esc(r.img) + '" alt="' + esc(r.alt) + '" loading="lazy" width="920" height="600">'
-      : '<div class="room__placeholder">[Room photos coming soon]</div>';
-    var left = ''; // No date-specific inventory: do not imply rooms are almost sold out
-    return '<div class="room__media">' + img + left +
-      (sel ? '<span class="tag tag--picked">' + ICON.check.replace(/26/g, '14') + ' ' + sel + ' selected</span>' : '') + '</div>';
+    /* ---------- Room gallery, tariffs and occupancy ---------- */
+  var galleryModal = document.getElementById('room-gallery-modal');
+  var galleryRoom = null, galleryIndex = 0;
+  function photos(r) { return r.photos || []; }
+  function renderGallery() {
+    if (!galleryModal || !galleryRoom) return;
+    var ps = photos(galleryRoom);
+    if (!ps.length) return;
+    var p = ps[galleryIndex % ps.length];
+    galleryModal.querySelector('[data-gallery-image]').src = p.src;
+    galleryModal.querySelector('[data-gallery-image]').alt = p.alt || galleryRoom.name;
+    galleryModal.querySelector('[data-gallery-title]').textContent = galleryRoom.name;
+    galleryModal.querySelector('[data-gallery-caption]').textContent = (p.caption || galleryRoom.name) + ' · ' + (galleryIndex + 1) + ' / ' + ps.length;
+    galleryModal.querySelector('[data-gallery-prev]').hidden = ps.length < 2;
+    galleryModal.querySelector('[data-gallery-next]').hidden = ps.length < 2;
   }
-
+  function openGallery(r, index) {
+    if (!galleryModal || !photos(r).length) return;
+    galleryRoom = r; galleryIndex = index;
+    renderGallery(); galleryModal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    galleryModal.querySelector('[data-gallery-close]').focus();
+  }
+  function closeGallery() {
+    if (!galleryModal) return;
+    galleryModal.hidden = true; galleryRoom = null;
+    document.body.style.overflow = '';
+  }
+  function media(r, count) {
+    var ps = photos(r);
+    if (!ps.length) return '<div class="room__media room__media--empty"><div class="room__placeholder">Photos of this room are being prepared. Please ask our team for pictures.</div></div>';
+    return '<div class="room__media"><button type="button" class="room__gallery-trigger" data-action="gallery" data-id="' + esc(r.id) + '" aria-label="View all photos of ' + esc(r.name) + '">' +
+      '<img src="' + esc(ps[0].src) + '" alt="' + esc(ps[0].alt || r.name) + '" loading="lazy" width="920" height="600">' +
+      '<span class="room__view-photos">View photos' + (ps.length > 1 ? ' (' + ps.length + ')' : '') + ' ↗</span></button>' +
+      (ps.length > 1 ? '<div class="room__thumbnails">' + ps.slice(1, 4).map(function (p, i) {
+        return '<button type="button" data-action="gallery" data-id="' + esc(r.id) + '" data-index="' + (i + 1) + '" aria-label="View photo ' + (i + 2) + '"><img src="' + esc(p.src) + '" alt="' + esc(p.alt || r.name) + '" loading="lazy"></button>';
+      }).join('') + '</div>' : '') +
+      (count ? '<span class="tag tag--picked">' + count + ' selected</span>' : '') + '</div>';
+  }
+  function tariff(r, oneGuest, breakfast) {
+    var p = oneGuest ? r.p1 : r.p2;
+    var original = oneGuest ? r.was1 : r.was2;
+    return '<div class="room__tariff">' +
+      '<span>' + (oneGuest ? '1 guest' : r.max_guests + (r.max_guests === 1 ? ' guest' : ' guests')) +
+      (breakfast ? ' · Buffet breakfast' : ' · Room only') + '</span>' +
+      '<span><s>' + gel(original[breakfast ? 1 : 0]) + '</s> <b>' + gel(p[breakfast ? 1 : 0]) + '</b></span></div>';
+  }
   function roomCard(r) {
-    var q = state.qty[r.id] || 0;
-    var single = guests() === 1 && r.cap === 1;
-    var price = single || (guests() === 1 && roomsCount() <= 1) ? r.p1 : r.p2;
-    var was = price === r.p1 ? r.w1 : r.w2;
-    var stock = r.stock || 0;
-    var control;
-    if (stock === 0) {
-      control = '<p class="small" style="font-weight:700">Please ask about this room. <a href="' + esc(M.whatsapp) + '">Ask us</a></p>';
-    } else if (q === 0) {
-      control = '<button type="button" class="btn btn--primary" data-action="qty+" data-id="' + r.id + '">Add this room</button>';
-    } else {
-      control = '<div class="qty" role="group" aria-label="Number of ' + esc(r.name) + 's">' +
-        '<button type="button" class="round-btn" data-action="qty-" data-id="' + r.id + '" aria-label="One ' + esc(r.name) + ' less">−</button>' +
-        '<span class="qty__value"><strong>' + q + '</strong> ' + (q === 1 ? 'room' : 'rooms') + '</span>' +
-        '<button type="button" class="round-btn" data-action="qty+" data-id="' + r.id + '" aria-label="One more ' + esc(r.name) + '"' + (q >= stock ? ' disabled' : '') + '>+</button>' +
-      '</div>' +
-      (q >= stock ? '<span class="small">For more rooms, please contact us.</span>' : '');
-    }
-    return '<article class="room' + (q ? ' is-selected' : '') + '" id="room-' + r.id + '">' +
-      '<div class="room__main">' + media(r, q) +
-        '<div class="room__body">' +
-          '<div class="room__info">' +
-            '<h2 class="room__name">' + esc(r.name) + '</h2>' +
-            '<ul class="meta"><li>' + ICON.guests + (r.cap === 1 ? '1 guest' : 'Up to ' + r.cap + ' guests') + '</li><li>' + ICON.size + esc(r.size) + '</li><li>' + ICON.bed + esc(r.bed) + '</li><li>' + ICON.plus + esc(r.extra) + '</li></ul>' +
-            '<p class="lead" style="font-size:16px">' + esc(r.blurb) + '</p>' +
-            '<p class="small" style="font-size:14px">Air conditioning · Private bathroom · TV · Free Wi‑Fi · City &amp; garden view</p>' +
-          '</div>' +
-          '<div class="room__price">' +
-            '<div><span class="small">per room per night</span><div class="big"><s>' + gel(was) + '</s><strong>' + gel(price[0]) + '</strong></div><span class="small">' + gel(price[1]) + ' with breakfast · taxes included</span></div>' +
-            '<div class="room__ctrl">' + control + '</div>' +
-          '</div>' +
-        '</div>' +
-      '</div>' +
-    '</article>';
+    var q = state.qty[r.id] || 0, stock = r.stock || 0;
+    var bedCount = state.extraBeds[r.id] || 0;
+    var control = stock === 0
+      ? '<a class="btn btn--outline" href="' + esc(M.whatsapp) + '">Ask about this room</a>'
+      : q === 0 ? '<button class="btn btn--primary" type="button" data-action="qty+" data-id="' + esc(r.id) + '">Choose this room</button>'
+      : '<div class="qty" role="group" aria-label="Number of ' + esc(r.name) + 's">' +
+        '<button type="button" class="round-btn" data-action="qty-" data-id="' + esc(r.id) + '" aria-label="Remove room">−</button>' +
+        '<span class="qty__value">' + q + ' ' + (q === 1 ? 'room' : 'rooms') + '</span>' +
+        '<button type="button" class="round-btn" data-action="qty+" data-id="' + esc(r.id) + '" aria-label="Add room"' + (q >= stock ? ' disabled' : '') + '>+</button></div>';
+    var beds = q ? '<div class="room__extras"><label><input type="checkbox" data-extra-bed="' + esc(r.id) + '"' + (bedCount > 0 ? ' checked' : '') +
+      '> Request 1 extra bed for this room type</label><p>On request, subject to hotel approval and an additional charge. The supplement is not included below.</p></div>' : '';
+    return '<article class="room' + (q ? ' is-selected' : '') + '" id="room-' + esc(r.id) + '">' +
+      '<div class="room__main">' + media(r, q) + '<div class="room__body"><div class="room__info">' +
+      '<h2 class="room__name">' + esc(r.name) + '</h2>' +
+      '<ul class="meta"><li>' + ICON.guests + 'Min ' + r.min_guests + ' · Max ' + r.max_guests + ' guests (standard beds)</li>' +
+      '<li>' + ICON.size + esc(r.size) + '</li><li>' + ICON.bed + esc(r.bed) + '</li></ul>' +
+      '<p class="lead" style="font-size:16px">' + esc(r.blurb) + '</p>' +
+      '<p class="small">' + (r.views || []).map(esc).join(' · ') + ' · ' + (r.amenities || []).map(esc).join(' · ') + '</p>' +
+      '<div class="room__tariffs"><p class="room__rates-label">Sample rates · per room / night · taxes included</p>' +
+      tariff(r, false, false) + tariff(r, false, true) +
+      (r.max_guests > 1 ? tariff(r, true, false) + tariff(r, true, true) : '') + '</div>' +
+      '</div><div class="room__price">' +
+      '<div><span class="small">From per room / night</span><div class="big"><strong>' + gel(r.p1[0]) + '</strong></div>' +
+      '<span class="small">Prices may vary by dates. Cancellation and final pricing confirmed by our team.</span></div>' +
+      '<div class="room__ctrl">' + control + '</div>' + beds +
+      '</div></div></div></article>';
   }
 
-  /* ---------- Details form & confirmation (replace the list) ---------- */
+    /* ---------- Details form & confirmation (replace the list) ---------- */
   function detailsForm(q) {
     var f = state.form;
     return '<div class="checkout">' +
@@ -259,10 +264,6 @@
   }
 
   /* ---------- Summary (sticky on desktop) ---------- */
-  function agesMissing() {
-    for (var i = 0; i < state.kids; i++) if (state.ages[i] == null) return true;
-    return false;
-  }
 
   function summary(q) {
     var stepIdx = { choose: 1, details: 2, done: 3 }[state.step];
@@ -277,7 +278,6 @@
         '<div><span>Dates</span><strong>' + (state.checkin ? fmtDate(state.checkin) + ' → ' + fmtDate(addDays(state.checkin, state.nights)) : 'Choose check-in') + '</strong></div>' +
         '<div><span>Stay</span><strong>' + nightsLabel() + '</strong></div>' +
         '<div><span>Guests</span><strong>' + guestsLabel() + '</strong></div>' +
-        (state.kids && !agesMissing() ? '<div><span>Children\'s ages</span><strong>' + state.ages.slice(0, state.kids).map(ageLabel).join(', ') + '</strong></div>' : '') +
       '</div>';
 
     if (state.step === 'done') return html;
@@ -316,6 +316,7 @@
       } else {
         html += '<p class="small" style="margin:0">' + (state.rate === 'bf' ? 'With buffet breakfast' : 'Room only') + '</p>';
       }
+      if (items().some(function (i) { return i.extra_beds > 0; })) html += '<p class="small" style="font-weight:700">Extra bed requested · not included in quote; supplement subject to approval.</p>';
       html += '<div class="summary">' +
         '<div><span>' + gel(q.nightly) + ' × ' + nightsLabel() + '</span><span>' + gel(q.total) + '</span></div>' +
         '<div class="muted"><span>Taxes &amp; fees</span><span>Included</span></div>' +
@@ -325,7 +326,7 @@
     }
 
     if (state.step === 'choose') {
-      var why = !q.rooms ? 'Add at least one room' : !enough ? 'Add room for everyone first' : agesMissing() ? 'Add the children\'s ages above' : '';
+      var why = !q.rooms ? 'Add at least one room' : !enough ? 'Add room for everyone first' : '';
       html += '<button type="button" class="btn btn--primary btn--block" data-action="next"' + (why ? ' disabled' : '') + '>' + (why || 'Continue · ' + gel(q.total)) + '</button>';
     }
     return html;
@@ -338,7 +339,7 @@
     var layout = list.parentElement;
     if (layout) layout.classList.toggle('is-checkout', state.step !== 'choose');
 
-    if (state.step === 'choose') list.innerHTML = ROOMS.map(roomCard).join('');
+    if (state.step === 'choose') list.innerHTML = ROOMS.filter(function (r) { return state.filter === 'all' || state.filter === r.id; }).map(roomCard).join('');
     else if (state.step === 'details') list.innerHTML = detailsForm(q);
     else list.innerHTML = doneView();
     aside.innerHTML = summary(q);
@@ -400,7 +401,7 @@
     if (a === 'adults+' && state.adults < MAX_ADULTS) state.adults++;
     else if (a === 'adults-' && state.adults > 1) state.adults--;
     else if (a === 'kids+' && state.kids < MAX_KIDS) state.kids++;
-    else if (a === 'kids-' && state.kids > 0) { state.kids--; state.ages.length = state.kids; }
+    else if (a === 'kids-' && state.kids > 0) { state.kids--; }
     else if (a === 'nights+' && state.nights < MAX_NIGHTS) state.nights++;
     else if (a === 'nights-' && state.nights > 1) state.nights--;
     else if (a === 'qty+' && r) {
@@ -414,36 +415,49 @@
     }
     else if (a === 'qty-' && r) {
       state.qty[id] = Math.max(0, (state.qty[id] || 0) - 1);
+      if (state.qty[id] === 0) state.extraBeds[id] = 0;
       render();
       var c2 = document.querySelector('#room-' + id + ' [data-action="qty-"]') || document.querySelector('#room-' + id + ' [data-action="qty+"]');
       if (c2) c2.focus({ preventScroll: true });
       return;
     }
+    else if (a === 'gallery' && r) { openGallery(r, int(btn.getAttribute('data-index'), 0)); return; }
+    else if (a === 'gallery-close') { closeGallery(); return; }
+    else if (a === 'gallery-next' && galleryRoom) { galleryIndex = (galleryIndex + 1) % photos(galleryRoom).length; renderGallery(); return; }
+    else if (a === 'gallery-prev' && galleryRoom) { galleryIndex = (galleryIndex - 1 + photos(galleryRoom).length) % photos(galleryRoom).length; renderGallery(); return; }
     else if (a === 'suggest') {
       var best = suggest();
       if (!best) return;
-      state.qty = {};
+      state.qty = {}; state.extraBeds = {};
       best.its.forEach(function (i) { state.qty[i.room] = i.qty; });
     }
     else if (a === 'rate') state.rate = btn.getAttribute('data-rate');
     else if (a === 'next') { state.step = 'details'; state.error = ''; render(); focusIn(list, 'input'); return; }
     else if (a === 'back') { rememberForm(); state.step = 'choose'; state.error = ''; render(); focusIn(list, '.room.is-selected button, .room button'); return; }
-    else if (a === 'restart') { state.step = 'choose'; state.qty = {}; state.result = null; render(); focusIn(document.getElementById('search'), 'input, button'); return; }
+    else if (a === 'restart') { state.step = 'choose'; state.qty = {}; state.extraBeds = {}; state.result = null; render(); focusIn(document.getElementById('search'), 'input, button'); return; }
     else return;
     render();
   });
 
-  if (agesEl) {
-    agesEl.addEventListener('change', function (e) {
-      var sel = e.target.closest('[data-age]');
-      if (!sel) return;
-      var i = int(sel.getAttribute('data-age'), 0);
-      state.ages[i] = sel.value === '' ? null : int(sel.value, 0);
-      render();
-    });
-  }
+  var filter = document.getElementById('room-type-filter');
+  if (filter) filter.addEventListener('change', function () {
+    state.filter = filter.value; render();
+  });
+  list.addEventListener('change', function (e) {
+    var checkbox = e.target.closest('[data-extra-bed]');
+    if (!checkbox) return;
+    var id = checkbox.getAttribute('data-extra-bed');
+    state.extraBeds[id] = checkbox.checked ? 1 : 0;
+    render();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && galleryModal && !galleryModal.hidden) closeGallery();
+    if (!galleryRoom) return;
+    if (e.key === 'ArrowRight') { galleryIndex = (galleryIndex + 1) % photos(galleryRoom).length; renderGallery(); }
+    if (e.key === 'ArrowLeft') { galleryIndex = (galleryIndex - 1 + photos(galleryRoom).length) % photos(galleryRoom).length; renderGallery(); }
+  });
 
-  if (checkinEl) {
+    if (checkinEl) {
     checkinEl.min = today();
     if (state.checkin && state.checkin < today()) state.checkin = '';
     if (state.checkin) checkinEl.value = state.checkin;
@@ -478,7 +492,7 @@
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
       body: JSON.stringify({
         items: items(), rate: state.rate, checkin: state.checkin, nights: state.nights,
-        adults: state.adults, children: state.kids, children_ages: state.ages.slice(0, state.kids),
+        adults: state.adults, children: state.kids,
         first_name: f.first_name.trim(), last_name: f.last_name.trim(), email: f.email.trim(),
         phone: f.phone.trim(),
         arrival: f.arrival || null, notes: f.notes || null, privacy: true
