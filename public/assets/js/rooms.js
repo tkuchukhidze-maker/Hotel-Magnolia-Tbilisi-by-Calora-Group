@@ -68,8 +68,8 @@
   function guests() { return state.adults + state.kids; }
   function guestsLabel() { return plural(state.adults, 'adult', 'adults') + (state.kids ? ', ' + plural(state.kids, 'child', 'children') : ''); }
   function nightsLabel() { return plural(state.nights, 'night', 'nights'); }
-  function today() { return new Date().toISOString().slice(0, 10); }
-  function addDays(iso, d) { var x = new Date(iso + 'T00:00:00'); x.setDate(x.getDate() + d); return x.toISOString().slice(0, 10); }
+  function today() { var d = new Date(); return [d.getFullYear(), String(d.getMonth()+1).padStart(2,'0'), String(d.getDate()).padStart(2,'0')].join('-'); }
+  function addDays(iso, d) { var x = new Date(iso + 'T12:00:00'); x.setDate(x.getDate()+d); return [x.getFullYear(),String(x.getMonth()+1).padStart(2,'0'),String(x.getDate()).padStart(2,'0')].join('-'); }
   function fmtDate(iso) {
     if (!iso) return '';
     return new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
@@ -173,7 +173,7 @@
     var img = r.img
       ? '<img src="' + esc(r.img) + '" alt="' + esc(r.alt) + '" loading="lazy" width="920" height="600">'
       : '<div class="room__placeholder">[Room photos coming soon]</div>';
-    var left = r.stock > 0 && r.stock <= 3 ? '<span class="tag tag--left">' + (r.stock === 1 ? 'Last one' : r.stock + ' left') + '</span>' : '';
+    var left = ''; // No date-specific inventory: do not imply rooms are almost sold out
     return '<div class="room__media">' + img + '<span class="tag tag--deal">−25%</span>' + left +
       (sel ? '<span class="tag tag--picked">' + ICON.check.replace(/26/g, '14') + ' ' + sel + ' selected</span>' : '') + '</div>';
   }
@@ -186,7 +186,7 @@
     var stock = r.stock || 0;
     var control;
     if (stock === 0) {
-      control = '<p class="small" style="font-weight:700">Fully booked for now. <a href="' + esc(M.whatsapp) + '">Ask us</a></p>';
+      control = '<p class="small" style="font-weight:700">Please ask about this room. <a href="' + esc(M.whatsapp) + '">Ask us</a></p>';
     } else if (q === 0) {
       control = '<button type="button" class="btn btn--primary" data-action="qty+" data-id="' + r.id + '">Add this room</button>';
     } else {
@@ -195,7 +195,7 @@
         '<span class="qty__value"><strong>' + q + '</strong> ' + (q === 1 ? 'room' : 'rooms') + '</span>' +
         '<button type="button" class="round-btn" data-action="qty+" data-id="' + r.id + '" aria-label="One more ' + esc(r.name) + '"' + (q >= stock ? ' disabled' : '') + '>+</button>' +
       '</div>' +
-      (q >= stock ? '<span class="small">That\'s all we have of this type.</span>' : '');
+      (q >= stock ? '<span class="small">For more rooms, please contact us.</span>' : '');
     }
     return '<article class="room' + (q ? ' is-selected' : '') + '" id="room-' + r.id + '">' +
       '<div class="room__main">' + media(r, q) +
@@ -220,7 +220,7 @@
     var f = state.form;
     return '<div class="checkout">' +
       '<h2 class="h3" style="margin:0">Your details</h2>' +
-      '<p class="small">We only use these to look after your booking.</p>' +
+      '<p class="small">This is a booking request, not an instant confirmation. We'll check availability and contact you.</p>' +
       '<form class="stack" style="gap:12px" data-details novalidate>' +
         (state.checkin ? '' :
           '<label class="input">Check-in date *<input name="checkin" type="date" min="' + today() + '" required></label>') +
@@ -232,22 +232,13 @@
           '<label class="input">Email *<input name="email" type="email" autocomplete="email" required maxlength="160" value="' + esc(f.email) + '"></label>' +
           '<label class="input">Phone / WhatsApp *<input name="phone" type="tel" autocomplete="tel" required placeholder="+995 5XX XX XX XX" maxlength="40" value="' + esc(f.phone) + '"></label>' +
         '</div>' +
-        '<div class="address-field"><label for="address-input">Home address (optional)</label>' +
-          '<div data-address-host><input id="address-input" name="address_text" type="text" autocomplete="street-address" maxlength="255" placeholder="Start typing your address" value="' + esc(f.address) + '" style="font:500 16px var(--font-text);border:1px solid #D9C7AE;border-radius:12px;padding:12px 14px;background:#fff;color:var(--cocoa);width:100%;box-sizing:border-box"></div>' +
-          '<p class="address-field__picked" data-address-picked' + (f.address ? '' : ' hidden') + '>✓ ' + esc(f.address) + '</p>' +
-          '<input type="hidden" name="address" value="' + esc(f.address) + '"><input type="hidden" name="city" value="' + esc(f.city) + '"><input type="hidden" name="postal_code" value="' + esc(f.postal_code) + '">' +
-        '</div>' +
         '<div class="form-grid">' +
-          '<label class="input">Country *<input name="country" type="text" autocomplete="country-name" list="countries" required maxlength="80" value="' + esc(f.country) + '"></label>' +
-          '<label class="input">Arrival time<select name="arrival">' + ['I don\'t know yet', 'Morning', 'Afternoon', 'Evening', 'Late night'].map(function (o) { return '<option' + (f.arrival === o ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select></label>' +
-        '</div>' +
-        '<datalist id="countries">' + ['Georgia', 'Armenia', 'Azerbaijan', 'Turkey', 'Israel', 'Russia', 'Ukraine', 'Kazakhstan', 'Germany', 'Poland', 'United Kingdom', 'France', 'Italy', 'Spain', 'Netherlands', 'United States', 'Saudi Arabia', 'United Arab Emirates', 'Iran', 'India', 'China'].map(function (c) { return '<option value="' + c + '">'; }).join('') + '</datalist>' +
-        '<label class="input">Anything we should know? (optional)<textarea name="notes" rows="2" maxlength="1000" placeholder="' + (state.kids ? 'A baby cot, rooms next to each other, late arrival…' : 'Rooms next to each other, late arrival, a quiet room…') + '">' + esc(f.notes) + '</textarea></label>' +
+          '<label class="input">Anything we should know? (optional)<textarea name="notes" rows="2" maxlength="1000" placeholder="' + (state.kids ? 'A baby cot, rooms next to each other, late arrival…' : 'Rooms next to each other, late arrival, a quiet room…') + '">' + esc(f.notes) + '</textarea></label>' +
         '<label style="display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.5;cursor:pointer"><input name="privacy" type="checkbox" required style="width:20px;height:20px;margin-top:1px;flex:none;accent-color:var(--terracotta)"' + (f.privacy ? ' checked' : '') + '><span>I agree that Hotel Magnolia Tbilisi by Calora Group uses my details to handle this booking, as described in the <a href="' + esc(M.privacyUrl) + '" target="_blank" rel="noopener">privacy policy</a>. *</span></label>' +
         '<p class="small" data-error role="alert"' + (state.error ? '' : ' hidden') + ' style="color:var(--terracotta);font-weight:700">' + esc(state.error) + '</p>' +
         '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
           '<button type="button" class="btn btn--outline" data-action="back">← Change rooms</button>' +
-          '<button type="submit" class="btn btn--primary" style="flex-grow:1"' + (state.sending ? ' disabled aria-busy="true"' : '') + '>' + (state.sending ? 'Sending…' : 'Confirm booking · ' + gel(q.total)) + '</button>' +
+          '<button type="submit" class="btn btn--primary" style="flex-grow:1"' + (state.sending ? ' disabled aria-busy="true"' : '') + '>' + (state.sending ? 'Sending…' : 'Send booking request · ' + gel(q.total)) + '</button>' +
         '</div>' +
         '<p class="small">No card needed. You\'ll pay at the hotel.</p>' +
       '</form>' +
@@ -259,10 +250,10 @@
     var lines = (res.items || []).map(function (l) { return '<li>' + l.qty + ' × ' + esc(l.name) + '</li>'; }).join('');
     return '<div class="checkout stack" role="status" style="gap:14px;align-items:flex-start">' +
       '<span class="done-icon">' + ICON.check + '</span>' +
-      '<h2 class="h3" style="margin:0">You\'re booked. <em>See you in Tbilisi.</em></h2>' +
+      '<h2 class="h3" style="margin:0">You\'re booked. <em>We'll be in touch.</em></h2>' +
       '<p class="lead" style="font-size:16px">' + fmtDate(res.checkin) + ' → ' + fmtDate(res.checkout) + ' · ' + guestsLabel() + '</p>' +
       '<ul class="checks" style="grid-template-columns:1fr">' + lines + '</ul>' +
-      '<p class="lead" style="font-size:16px">Total ' + gel(res.total) + ', paid at the hotel. Booking ref <strong>' + esc(res.reference) + '</strong>.</p>' +
+      '<p class="lead" style="font-size:16px">Quoted total ' + gel(res.total) + ', payable after confirmation. Request ref <strong>' + esc(res.reference) + '</strong>.</p>' +
       '<p class="small">We\'ll confirm by email or WhatsApp shortly. Questions? <a href="' + esc(M.whatsapp) + '">WhatsApp us</a>.</p>' +
       '<button type="button" class="btn btn--outline" data-action="restart">Make another booking</button>' +
     '</div>';
@@ -276,7 +267,7 @@
 
   function summary(q) {
     var stepIdx = { choose: 1, details: 2, done: 3 }[state.step];
-    var steps = ['Rooms', 'Your details', 'Done'].map(function (s, i) {
+    var steps = ['Rooms', 'Your details', 'Request sent'].map(function (s, i) {
       return '<li class="' + (stepIdx >= i + 1 ? 'is-active' : '') + '"' + (stepIdx === i + 1 ? ' aria-current="step"' : '') + '>' + s + '</li>';
     }).join('');
     var need = guests();
@@ -320,7 +311,7 @@
       var bf = quote(items(), 'bf'), ro = quote(items(), 'room');
       if (state.step === 'choose') {
         html += '<div role="group" aria-label="Choose your rate" class="stack" style="gap:8px">' +
-          '<button type="button" class="rate" data-action="rate" data-rate="room" aria-pressed="' + (state.rate === 'room') + '"><span><strong>Room only</strong><small>Free cancellation · pay at the hotel</small></span><strong>' + gel(ro.nightly) + '</strong></button>' +
+          '<button type="button" class="rate" data-action="rate" data-rate="room" aria-pressed="' + (state.rate === 'room') + '"><span><strong>Room only</strong><small>Terms confirmed by the hotel</small></span><strong>' + gel(ro.nightly) + '</strong></button>' +
           '<button type="button" class="rate" data-action="rate" data-rate="bf" aria-pressed="' + (state.rate === 'bf') + '"><span><strong>With buffet breakfast</strong><small>+' + gel(bf.nightly - ro.nightly) + ' per night, all rooms</small></span><strong>' + gel(bf.nightly) + '</strong></button>' +
         '</div>';
       } else {
@@ -330,13 +321,13 @@
         '<div><span>' + gel(q.nightly) + ' × ' + nightsLabel() + '</span><span>' + gel(q.total) + '</span></div>' +
         '<div class="muted"><span>Taxes &amp; fees</span><span>Included</span></div>' +
         '<div class="total"><strong>Total</strong><strong>' + gel(q.total) + '</strong></div>' +
-        '<p class="ok-note">You pay nothing now. Cancellation: ' + esc((M.cancellation || '').toLowerCase()) + '.</p>' +
+        '<p class="ok-note">No payment now. Final terms and availability are subject to hotel confirmation.</p>' +
       '</div>';
     }
 
     if (state.step === 'choose') {
       var why = !q.rooms ? 'Add at least one room' : !enough ? 'Add room for everyone first' : agesMissing() ? 'Add the children\'s ages above' : '';
-      html += '<button type="button" class="btn btn--primary btn--block" data-action="next"' + (why ? ' disabled' : '') + '>' + (why || 'Continue · ' + gel(q.total)) + '</button>';
+      html += '<button type="button" class="btn btn--primary btn--block" data-action="next"' + (why ? ' disabled' : '') + '>' + (why || 'Continue ·  + gel(q.total)) + '</button>';
     }
     return html;
   }
@@ -352,14 +343,14 @@
     else if (state.step === 'details') list.innerHTML = detailsForm(q);
     else list.innerHTML = doneView();
     aside.innerHTML = summary(q);
-    if (state.step === 'details') mountAddress();
+    // No address lookup required for an initial booking request.
 
     if (mobileLabel) {
       mobileLabel.innerHTML = q.rooms
         ? plural(q.rooms, 'room', 'rooms') + ' · ' + nightsLabel() + '<strong data-mobile-price>' + gel(q.total) + '</strong>'
         : 'per night from<strong data-mobile-price>' + gel(Math.min.apply(null, ROOMS.map(function (r) { return guests() === 1 ? r.p1[0] : r.p2[0]; }))) + '</strong>';
     }
-    if (mobileCta) mobileCta.textContent = state.step === 'details' ? 'Your booking' : q.rooms ? 'Review & book' : 'Choose rooms';
+    if (mobileCta) mobileCta.textContent = state.step === 'details' ? 'Send request' : q.rooms ? 'Review request' : 'Choose rooms';
   }
 
   function focusIn(el, sel) {
@@ -392,13 +383,7 @@
   function rememberForm() {
     var form = list.querySelector('[data-details]');
     if (!form) return;
-    // A typed (not picked) address in the plain input is kept as-is.
-    var typed = form.elements.namedItem('address_text');
-    if (typed && typed.value.trim() && typed.value.trim() !== (state.form.address || '')) {
-      state.form.address = typed.value.trim(); state.form.city = ''; state.form.postal_code = '';
-      form.elements.namedItem('address').value = state.form.address;
-    }
-    ['first_name', 'last_name', 'email', 'phone', 'country', 'arrival', 'notes', 'address', 'city', 'postal_code'].forEach(function (k) {
+    ['first_name', 'last_name', 'email', 'phone', 'arrival', 'notes'].forEach(function (k) {
       var el = form.elements.namedItem(k);
       if (el) state.form[k] = el.value;
     });
@@ -478,12 +463,11 @@
     }
     var f = state.form;
     var missing = [];
-    if (!state.checkin) missing.push('check-in date');
+    if (!state.checkin || state.checkin < today()) missing.push('a valid check-in date');
     if (!(f.first_name || '').trim()) missing.push('first name');
     if (!(f.last_name || '').trim()) missing.push('last name');
     if (!/^\S+@\S+\.\S+$/.test((f.email || '').trim())) missing.push('a valid email');
     if (!/^[0-9+()\-\s]{6,}$/.test((f.phone || '').trim())) missing.push('a phone number');
-    if (!(f.country || '').trim()) missing.push('country');
     if (missing.length) state.error = 'Please add your ' + missing.join(', ') + '.';
     else if (!f.privacy) state.error = 'Please agree to the privacy policy to book.';
     if (missing.length || !f.privacy) { render(); focusIn(list, '[data-error]'); return; }
@@ -496,8 +480,7 @@
         items: items(), rate: state.rate, checkin: state.checkin, nights: state.nights,
         adults: state.adults, children: state.kids, children_ages: state.ages.slice(0, state.kids),
         first_name: f.first_name.trim(), last_name: f.last_name.trim(), email: f.email.trim(),
-        phone: f.phone.trim(), country: f.country.trim(),
-        address: f.address || null, city: f.city || null, postal_code: f.postal_code || null,
+        phone: f.phone.trim(),
         arrival: f.arrival || null, notes: f.notes || null, privacy: true
       })
     }).then(function (res) {
