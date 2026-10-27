@@ -6,7 +6,6 @@ use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
@@ -25,8 +24,8 @@ class AdminController extends Controller
     public function login(Request $request)
     {
         $data = $request->validate(['email' => ['required','email'], 'password' => ['required','string']]);
-        $email = (string) env('MAGNOLIA_ADMIN_EMAIL', '');
-        $hash = (string) env('MAGNOLIA_ADMIN_PASSWORD_HASH', '');
+        $email = (string) config('hotel_admin.email', '');
+        $hash = (string) config('hotel_admin.password_hash', '');
         if ($email === '' || $hash === '' || !hash_equals(strtolower($email), strtolower($data['email'])) || !Hash::check($data['password'], $hash)) {
             return back()->withErrors(['email' => 'Invalid credentials or admin account not configured.'])->onlyInput('email');
         }
