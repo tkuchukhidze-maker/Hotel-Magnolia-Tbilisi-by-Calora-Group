@@ -78,7 +78,7 @@ class BookingMail
             'SITE_URL' => $e(url('/')),
             'MARK_URL' => $e(asset('assets/img/email/magnolia-mark.png')),
             'ADMIN_URL' => $e(url('/admin')),
-            'BOOKED_AT' => $e($b->created_at?->setTimezone('Asia/Tbilisi')->format('j M Y, H:i') ?? ''),
+            'BOOKED_AT' => $e($b->created_at?->copy()->setTimezone('Asia/Tbilisi')->format('j M Y, H:i') ?? ''),
         ];
     }
 
@@ -93,7 +93,8 @@ class BookingMail
     /** Merge vars in the format Mandrill's X-MC-MergeVars header expects. */
     public static function mergeVarsHeader(Booking $b): string
     {
-        return json_encode(self::vars($b), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?: '{}';
+        // ASCII-only JSON (\u escapes) so the header is never MIME-encoded on the way to Mailchimp.
+        return json_encode(self::vars($b), JSON_UNESCAPED_SLASHES) ?: '{}';
     }
 
     /** "From [14:00]" → "14:00"; placeholders are dropped. */
