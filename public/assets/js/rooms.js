@@ -174,7 +174,7 @@
       ? '<img src="' + esc(r.img) + '" alt="' + esc(r.alt) + '" loading="lazy" width="920" height="600">'
       : '<div class="room__placeholder">[Room photos coming soon]</div>';
     var left = ''; // No date-specific inventory: do not imply rooms are almost sold out
-    return '<div class="room__media">' + img + '<span class="tag tag--deal">−25%</span>' + left +
+    return '<div class="room__media">' + img + left +
       (sel ? '<span class="tag tag--picked">' + ICON.check.replace(/26/g, '14') + ' ' + sel + ' selected</span>' : '') + '</div>';
   }
 
@@ -232,8 +232,7 @@
           '<label class="input">Email *<input name="email" type="email" autocomplete="email" required maxlength="160" value="' + esc(f.email) + '"></label>' +
           '<label class="input">Phone / WhatsApp *<input name="phone" type="tel" autocomplete="tel" required placeholder="+995 5XX XX XX XX" maxlength="40" value="' + esc(f.phone) + '"></label>' +
         '</div>' +
-        '<div class="form-grid">' +
-          '<label class="input">Anything we should know? (optional)<textarea name="notes" rows="2" maxlength="1000" placeholder="' + (state.kids ? 'A baby cot, rooms next to each other, late arrival…' : 'Rooms next to each other, late arrival, a quiet room…') + '">' + esc(f.notes) + '</textarea></label>' +
+        '<label class="input">Anything we should know? (optional)<textarea name="notes" rows="2" maxlength="1000" placeholder="' + (state.kids ? 'A baby cot, rooms next to each other, late arrival…' : 'Rooms next to each other, late arrival, a quiet room…') + '">' + esc(f.notes) + '</textarea></label>' +
         '<label style="display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.5;cursor:pointer"><input name="privacy" type="checkbox" required style="width:20px;height:20px;margin-top:1px;flex:none;accent-color:var(--terracotta)"' + (f.privacy ? ' checked' : '') + '><span>I agree that Hotel Magnolia Tbilisi by Calora Group uses my details to handle this booking, as described in the <a href="' + esc(M.privacyUrl) + '" target="_blank" rel="noopener">privacy policy</a>. *</span></label>' +
         '<p class="small" data-error role="alert"' + (state.error ? '' : ' hidden') + ' style="color:var(--terracotta);font-weight:700">' + esc(state.error) + '</p>' +
         '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
