@@ -13,6 +13,11 @@
   var cells = Array.prototype.slice.call(cal.querySelectorAll('.pc-day'));
   var selectable = cells.filter(function (c) { return c.getAttribute('data-past') !== '1'; });
   var sel = new Set();
+  var panelVisible = false;
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (en) { panelVisible = en[0].isIntersecting; var fl = document.getElementById('pc-float'); if (fl) fl.hidden = !sel.size || panelVisible; })
+      .observe(document.getElementById('pc-form'));
+  }
   var anchor = null;
 
   var countEl = document.getElementById('pc-count');
@@ -57,6 +62,11 @@
     applyBtn.textContent = ready ? 'Apply to ' + (rangeTyped() ? 'range' : n + ' ' + (n === 1 ? 'night' : 'nights')) : 'Apply';
     preview();
     try { sessionStorage.setItem(PC.key, JSON.stringify(dates)); } catch (e) {}
+    var fl = document.getElementById('pc-float');
+    if (fl) {
+      fl.hidden = !n || panelVisible;
+      document.getElementById('pc-float-text').textContent = n + ' ' + (n === 1 ? 'night' : 'nights') + ' selected';
+    }
   }
 
   function setRange(a, b, add, base) {

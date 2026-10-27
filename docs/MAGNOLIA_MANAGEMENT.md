@@ -44,3 +44,11 @@ OAuth credentials must be securely stored, with least privilege. Google services
 - PMS/live inventory is missing.
 - Extra-bed supplements, Triple Room 3-guest tariff, complete room photo galleries, and cancellation policies require verification.
 - Promotions are inactive drafts and do not modify real checkout prices.
+
+## Prices, photos and services (admin)
+
+- **Prices** (`/admin/rates`): drag across the calendar to pick nights (Ctrl/⌘ adds, Shift extends, a weekday name picks every such day; on phones tap nights). Then *Set price*, *± %* or *± GEL* for one or more rate plans and room types at once, or *Reset to normal* to remove the special price. "Or type a longer date range" covers several months, optionally only some weekdays.
+- **Photos** (`/admin/photos`): replace each room's photo and the large page photos; manage the Our Hotel gallery (upload several, description, caption, category, wide, hide, order, delete). Photos are shrunk in the browser and saved as WebP.
+  - Storage: set `HOTEL_MEDIA_DISK`. On a single server `public` works (run `php artisan storage:link`). **On Laravel Cloud attach an Object Storage bucket and use its disk name**, otherwise uploads disappear on the next deploy.
+- **Services** (`/admin/services`): *Included* services appear on the Our Hotel page. *Paid extras* (price per booking / night / guest / guest-night / room-night) appear on the booking page; the server prices them, they are saved on the booking and listed in the booking email.
+- Deploy: run `php artisan migrate --force` (adds `site_photos`, `hotel_services`, and `extras` on bookings; the current gallery and amenities are copied in).

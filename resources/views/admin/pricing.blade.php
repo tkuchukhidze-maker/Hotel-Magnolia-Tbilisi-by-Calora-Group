@@ -57,8 +57,8 @@
  aria-label="{{ $d['weekday'] }} {{ $d['day'] }}: {{ $p['two'] }} GEL for 2 guests, {{ $p['one'] }} for 1 ({{ $p['source'] }} price)">
 <span class="pc-num">{{ $d['day'] }}</span>
 <span class="pc-src pc-src--{{ $p['source'] }}" title="{{ ['day' => 'Special price for this night', 'month' => 'Month price', 'plan' => 'Default price', 'base' => 'Basic room price'][$p['source']] }}"></span>
-<span class="pc-two">{{ number_format($p['two']) }} ₾</span>
-<span class="pc-one">1 guest {{ number_format($p['one']) }}</span>
+<span class="pc-two">{{ number_format($p['two']) }}<span class="pc-cur"> ₾</span></span>
+<span class="pc-one"><span class="pc-lbl">1 guest </span><span class="pc-lbl-s">1·</span>{{ number_format($p['one']) }}</span>
 <span class="pc-new" aria-hidden="true"></span>
 </div>
 @endforeach
@@ -130,6 +130,7 @@
 </form>
 </aside>
 </div>
+<div class="pc-float" id="pc-float" hidden><span id="pc-float-text"></span><a class="a-btn a-btn--sm" href="#pc-form">Change prices ↓</a></div>
 
 <div class="a-grid-2">
 <section class="a-card">
