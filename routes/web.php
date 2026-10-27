@@ -3,6 +3,8 @@
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminMailController;
+use App\Http\Controllers\AdminOffersController;
+use App\Http\Controllers\UnsubscribeController;
 use App\Http\Controllers\AdminMediaController;
 use App\Http\Controllers\AdminServicesController;
 use App\Http\Controllers\AdminPricingController;
@@ -26,6 +28,9 @@ Route::post('/bookings', [BookingController::class, 'store'])
     ->middleware('throttle:10,1')
     ->name('bookings.store');
 
+Route::get('/unsubscribe/{token}', [UnsubscribeController::class, 'show'])->name('unsubscribe.show');
+Route::post('/unsubscribe/{token}', [UnsubscribeController::class, 'store'])->middleware('throttle:20,1')->name('unsubscribe.store');
+
 Route::get('/booking-prices', [PublicPricingController::class, 'preview'])
     ->middleware('throttle:30,1')->name('booking-prices.preview');
 
@@ -36,6 +41,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::patch('/bookings/{booking}/status', [AdminController::class, 'bookingStatus'])->name('bookings.status');
+    Route::post('/bookings/{booking}/cancel', [AdminController::class, 'cancelBooking'])->name('bookings.cancel');
+
+    // Offer emails to past guests
+    Route::get('/offers', [AdminOffersController::class, 'index'])->name('offers.index');
+    Route::post('/offers/preview', [AdminOffersController::class, 'preview'])->name('offers.preview');
+    Route::post('/offers/test', [AdminOffersController::class, 'test'])->middleware('throttle:10,1')->name('offers.test');
+    Route::post('/offers/send', [AdminOffersController::class, 'send'])->middleware('throttle:3,1')->name('offers.send');
+    Route::get('/offers/{id}', [AdminOffersController::class, 'show'])->whereNumber('id')->name('offers.show');
     Route::put('/rooms/{room}/rates', [AdminController::class, 'roomRate'])->name('rooms.rate');
     Route::post('/promotions', [AdminController::class, 'promotion'])->name('promotions.store');
     Route::get('/rates', [AdminPricingController::class, 'index'])->name('pricing.index');
