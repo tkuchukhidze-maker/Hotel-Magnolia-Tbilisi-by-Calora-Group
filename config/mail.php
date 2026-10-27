@@ -43,7 +43,8 @@ return [
             'url' => env('MAIL_URL'),
             'host' => env('MAIL_HOST', '127.0.0.1'),
             'port' => env('MAIL_PORT', 2525),
-            'username' => env('MAIL_USERNAME'),
+            // Mailchimp Transactional accepts any username; without one Laravel skips login and Mailchimp answers "Relay access denied".
+            'username' => env('MAIL_USERNAME') ?: (env('MAIL_PASSWORD') ? 'Hotel Magnolia Tbilisi' : null),
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
