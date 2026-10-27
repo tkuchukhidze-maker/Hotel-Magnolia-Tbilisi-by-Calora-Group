@@ -57,8 +57,14 @@ class SiteTest extends TestCase
             ->assertStatus(301)
             ->assertRedirect('https://magnoliatbilisi.com/our-hotel?utm_source=google');
 
-        $this->withServerVariables(['HTTP_HOST' => 'magnoliatbilisi.com', 'SERVER_NAME' => 'magnoliatbilisi.com', 'HTTPS' => 'on'])
-            ->get('/our-hotel')
+    }
+
+    public function test_live_branded_domain_can_be_indexed(): void
+    {
+        config(['hotel.public_url' => 'https://magnoliatbilisi.com', 'hotel.custom_domain_ready' => true]);
+        app()->instance('env', 'production');
+
+        $this->get('https://magnoliatbilisi.com/our-hotel')
             ->assertOk()
             ->assertSee('name="robots" content="index, follow, max-image-preview:large"', false);
     }
