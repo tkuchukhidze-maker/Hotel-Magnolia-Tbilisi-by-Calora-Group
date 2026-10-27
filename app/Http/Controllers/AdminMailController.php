@@ -26,7 +26,22 @@ class AdminMailController extends Controller
             'mandrill' => $mailer === 'smtp' && str_contains($host, 'mandrillapp.com'),
             'sends' => ! in_array($mailer, ['log', 'array'], true),
             'to' => (string) config('hotel.bookings_email'),
+            // Only shapes, never the secret itself: helps spot a placeholder or a stray space.
+            'user_set' => trim((string) config('mail.mailers.smtp.username')) !== '',
+            'key_check' => self::keyCheck((string) config('mail.mailers.smtp.password')),
+            'port' => (string) config('mail.mailers.smtp.port'),
+            'scheme' => (string) (config('mail.mailers.smtp.scheme') ?? ''),
         ];
+    }
+
+    private static function keyCheck(string $key): string
+    {
+        if ($key === '') return 'missing';
+        if (str_starts_with($key, 'YOUR_')) return 'still the placeholder';
+        if ($key !== trim($key) || str_contains($key, '"') || str_contains($key, "'")) return 'has spaces or quotes around it';
+        if (! str_starts_with($key, 'md-')) return 'does not start with md-';
+
+        return 'looks like a Mandrill key ('.strlen($key).' characters)';
     }
 
     public function test(Request $request)

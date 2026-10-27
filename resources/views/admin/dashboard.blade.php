@@ -47,6 +47,7 @@
 <section id="email" class="panel"><h2>Email delivery</h2>
 <p>@if ($mail['mandrill'])<strong style="color:#2F6B45">✓ Mailchimp Transactional (Mandrill)</strong>@elseif ($mail['sends'])<strong>{{ strtoupper($mail['mailer']) }}</strong> via {{ $mail['host'] }}@else<strong style="color:#A3261B">Not sending</strong> — emails are only written to the log (MAIL_MAILER={{ $mail['mailer'] }}).@endif
  · From: {{ $mail['from'] }} · Booking alerts go to: {{ $mail['to'] }}</p>
+<p style="font-size:13px;color:#7A6156">SMTP check: username {{ $mail['user_set'] ? 'set' : 'MISSING' }} · API key {{ $mail['key_check'] }} · port {{ $mail['port'] }}{{ $mail['scheme'] ? ' · scheme '.$mail['scheme'] : '' }}</p>
 <form class="promotion-form" method="post" action="{{ route('admin.mail.test') }}">@csrf
 <label>Send a test email to<input type="email" name="to" value="{{ $mail['to'] }}" required></label>
 <button type="submit">Send test email</button></form></section>
