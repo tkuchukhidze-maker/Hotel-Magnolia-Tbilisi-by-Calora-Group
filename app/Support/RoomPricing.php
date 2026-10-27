@@ -34,6 +34,11 @@ class RoomPricing
         }
     }
 
+    public static function plansAsNames(): array
+    {
+        return collect(self::plans())->pluck('name', 'code')->all();
+    }
+
     public static function totalForRoom(string $roomType, string $planCode, int $occupancy, string $checkin, int $nights): array
     {
         if ($nights < 1 || $nights > (int) config('hotel.max_nights', 30)) {
