@@ -90,11 +90,12 @@ return [
     ],
 
     // Booking limits. Larger groups are asked to contact the hotel.
-    // 'stock' on each room = how many rooms of that type can be booked at once.
+    // 'stock' is a maximum quantity per request, NOT live availability for specific dates.
+    // Extra beds are requests only; no supplement is quoted until staff approval.
     'max_adults' => 12,
     'max_children' => 6,
-    'child_max_age' => 17,
     'max_nights' => 30,
+    'extra_bed_rate' => null, // Staff must confirm the supplement before confirming a booking.
 
     'rooms' => [
         'double' => [
@@ -103,6 +104,14 @@ return [
             'cap' => 2, 'size' => '18 m²', 'bed' => 'King bed', 'extra' => 'Skylight',
             'blurb' => 'Skylight above, king bed below. Simple, quiet and our best value for two.',
             'stock' => 7,
+            'min_guests' => 1, 'max_guests' => 2, 'max_extra_beds' => 1,
+            'extra_bed_on_request' => true,
+            'views' => ['Garden view', 'City view'],
+            'amenities' => ['Air conditioning', 'Private bathroom', 'Flat-screen TV', 'Free Wi-Fi'],
+            'photos' => [
+                ['src' => 'assets/img/room-double.webp', 'alt' => 'Double Room interior with skylight and king bed', 'caption' => 'Double Room'],
+            ],
+            'was1' => [142, 155], 'was2' => [172, 189],
             'p2' => [129, 142], 'w2' => 172, 'p1' => [106, 117], 'w1' => 142,
         ],
         'deluxe' => [
@@ -111,6 +120,14 @@ return [
             'cap' => 2, 'size' => '30 m²', 'bed' => 'King bed', 'extra' => 'Balcony',
             'blurb' => 'Our biggest room, with a balcony. Space to unpack properly and stay a while.',
             'stock' => 4,
+            'min_guests' => 1, 'max_guests' => 2, 'max_extra_beds' => 1,
+            'extra_bed_on_request' => true,
+            'views' => ['Garden view', 'City view'],
+            'amenities' => ['Air conditioning', 'Private bathroom', 'Flat-screen TV', 'Free Wi-Fi'],
+            'photos' => [
+                ['src' => 'assets/img/room-deluxe.webp', 'alt' => 'Deluxe Room with king bed and balcony', 'caption' => 'Deluxe Room'],
+            ],
+            'was1' => [172, 189], 'was2' => [202, 222],
             'p2' => [152, 166], 'w2' => 202, 'p1' => [129, 142], 'w1' => 172,
         ],
         'twin' => [
@@ -119,6 +136,14 @@ return [
             'cap' => 2, 'size' => '26 m²', 'bed' => '2 single beds', 'extra' => 'Original art',
             'blurb' => 'Two beds, blue walls and a painting of Georgian haystacks to wake up to.',
             'stock' => 3, // [confirm real number]
+            'min_guests' => 1, 'max_guests' => 2, 'max_extra_beds' => 1,
+            'extra_bed_on_request' => true,
+            'views' => ['Garden view', 'City view'],
+            'amenities' => ['Air conditioning', 'Private bathroom', 'Flat-screen TV', 'Free Wi-Fi'],
+            'photos' => [
+                ['src' => 'assets/img/room-twin.webp', 'alt' => 'Double or Twin Room with two single beds', 'caption' => 'Double or Twin Room'],
+            ],
+            'was1' => [152, 166], 'was2' => [182, 200],
             'p2' => [137, 150], 'w2' => 182, 'p1' => [114, 125], 'w1' => 152,
         ],
         'triple' => [
@@ -127,6 +152,12 @@ return [
             'cap' => 3, 'size' => '26 m²', 'bed' => '3 single beds', 'extra' => 'Balcony',
             'blurb' => 'Three beds and a balcony, for families or friends travelling together.',
             'stock' => 2, // [confirm real number]
+            'min_guests' => 1, 'max_guests' => 3, 'max_extra_beds' => 1,
+            'extra_bed_on_request' => true,
+            'views' => ['Garden view', 'City view'],
+            'amenities' => ['Air conditioning', 'Private bathroom', 'Flat-screen TV', 'Free Wi-Fi'],
+            'photos' => [],
+            'was1' => [222, 244], 'was2' => [253, 277],
             'p2' => [190, 208], 'w2' => 253, 'p1' => [167, 183], 'w1' => 222,
         ],
         'single' => [
@@ -135,6 +166,12 @@ return [
             'cap' => 1, 'size' => '15 m²', 'bed' => 'Single bed', 'extra' => 'Quiet',
             'blurb' => 'A small, calm room of your own, close to everything.',
             'stock' => 4,
+            'min_guests' => 1, 'max_guests' => 1, 'max_extra_beds' => 1,
+            'extra_bed_on_request' => true,
+            'views' => ['Garden view', 'City view'],
+            'amenities' => ['Air conditioning', 'Private bathroom', 'Flat-screen TV', 'Free Wi-Fi'],
+            'photos' => [],
+            'was1' => [142, 155], 'was2' => [142, 155],
             'p2' => [106, 117], 'w2' => 142, 'p1' => [106, 117], 'w1' => 142,
         ],
     ],
