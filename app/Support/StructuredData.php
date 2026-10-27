@@ -78,7 +78,7 @@ class StructuredData
                     'name' => $r['name'],
                     'description' => $r['blurb'],
                     'containedInPlace' => ['@id' => url('/').'#hotel'],
-                    'occupancy' => ['@type' => 'QuantitativeValue', 'maxValue' => $r['cap'], 'unitText' => 'guests'],
+                    'occupancy' => ['@type' => 'QuantitativeValue', 'minValue' => $r['min_guests'] ?? 1, 'maxValue' => $r['max_guests'] ?? $r['cap'], 'unitText' => 'guests'],
                     'bed' => $r['bed'],
                     'floorSize' => ['@type' => 'QuantitativeValue', 'value' => (int) $r['size'], 'unitCode' => 'MTK'],
                     'amenityFeature' => collect(['Air conditioning', 'Private bathroom', 'Flat-screen TV', 'Free Wi-Fi', $r['extra']])
@@ -101,7 +101,6 @@ class StructuredData
                         'unitCode' => 'DAY',
                         'valueAddedTaxIncluded' => true,
                     ],
-                    'availability' => 'https://schema.org/InStock',
                     'offeredBy' => ['@id' => url('/').'#hotel'],
                     'itemOffered' => $room,
                 ];
