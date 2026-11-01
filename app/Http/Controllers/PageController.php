@@ -3,17 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\View\View;
+use App\Support\RoomCatalog;
 
 class PageController extends Controller
 {
     public function home(): View
     {
-        return view('pages.home', ['rooms' => config('hotel.rooms')]);
+        return view('pages.home', ['rooms' => RoomCatalog::all()]);
     }
 
     public function rooms(): View
     {
-        return view('pages.rooms', ['rooms' => config('hotel.rooms')]);
+        return view('pages.rooms', ['rooms' => RoomCatalog::all()]);
     }
 
     public function ourHotel(): View

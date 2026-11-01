@@ -189,7 +189,7 @@
     return '<div class="room__tariff">' +
       '<span>' + (oneGuest ? '1 guest' : Math.min(2, r.max_guests) + (r.max_guests === 1 ? ' guest' : ' guests')) +
       (breakfast ? ' · Buffet breakfast' : ' · Room only') + '</span>' +
-      '<span><s>' + gel(original[breakfast ? 1 : 0]) + '</s> <b>' + gel(p[breakfast ? 1 : 0]) + '</b> <small>−25%</small></span></div>';
+      '<span>' + (r.rates_overridden ? '' : '<s>' + gel(original[breakfast ? 1 : 0]) + '</s> ') + '<b>' + gel(p[breakfast ? 1 : 0]) + '</b>' + (r.rates_overridden ? '' : ' <small>−25%</small>') + '</span></div>';
   }
   function roomCard(r) {
     var q = state.qty[r.id] || 0, stock = r.stock || 0;
@@ -211,7 +211,7 @@
       '<p class="lead" style="font-size:16px">' + esc(r.blurb) + '</p>' +
       '<p class="small">' + (r.views || []).map(esc).join(' · ') + ' · ' + (r.amenities || []).map(esc).join(' · ') + '</p>' +
       (r.id === 'triple' ? '<p class="small">Rates shown are for 1–2 guests. The hotel will confirm the price for 3 guests.</p>' : '') +
-      '<div class="room__tariffs"><p class="room__rates-label">Sample rates · per room / night · taxes included</p>' +
+      '<div class="room__tariffs"><p class="room__rates-label">' + (r.rates_overridden ? 'Current configured rates' : 'Sample rates') + ' · per room / night · taxes included</p>' +
       tariff(r, false, false) + tariff(r, false, true) +
       (r.max_guests > 1 ? tariff(r, true, false) + tariff(r, true, true) : '') + '</div>' +
       '</div><div class="room__price">' +
