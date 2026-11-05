@@ -18,7 +18,7 @@ class NewsTest extends TestCase
             ->assertSee('hreflang="ka"', false)
             ->assertSee('assets/img/news/tornike-kuchukhidze-cmo.jpg', false)
             ->assertDontSee('class="mobile-book"', false)
-            ->assertSee('tornike-kuchukhidze-cmo-share-en.jpg', false)->assertSee('class="news-brands"', false)->assertSee('<h3>Chateau Mere</h3>', false);
+            ->assertSee('tornike-kuchukhidze-cmo-cover-en.jpg', false)->assertSee('class="news-brands"', false)->assertSee('<h3>Chateau Mere</h3>', false);
 
         $this->get(route('news.cmo.ka'))->assertOk()
             ->assertSee('<html lang="ka">', false)

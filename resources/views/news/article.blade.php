@@ -28,7 +28,7 @@
 @section('title', $title.' | Hotel Magnolia')
 @section('description', $dek)
 @section('crumb', $t('სიახლეები', 'News'))
-@section('og_image', asset('assets/img/news/tornike-kuchukhidze-cmo-share-'.$locale.'.jpg'))
+@section('og_image', asset('assets/img/news/tornike-kuchukhidze-cmo-cover-'.$locale.'.jpg'))
 
 @push('head')
 <link rel="alternate" hreflang="en" href="{{ \App\Support\PublicSite::url(route('news.cmo', [], false)) }}">
