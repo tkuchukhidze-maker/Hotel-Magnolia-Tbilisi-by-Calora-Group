@@ -12,6 +12,7 @@
 <a href="{{ route('our-hotel') }}">Our Hotel &amp; Gallery</a>
 <a href="{{ route('explore') }}">Explore Tbilisi</a>
 <a href="{{ route('contact') }}">Contact &amp; FAQ</a>
+<a href="{{ route('news.cmo') }}">News</a>
 </nav>
 <address><a href="{{ $c['google_maps'] }}">{{ $c['address'] }}<br>Old Town, Tbilisi, Georgia</a><br><a href="tel:{{ $c['phone_tel'] }}">{{ $c['phone_display'] }}</a><br><a href="mailto:{{ $c['email'] }}">{{ $c['email_display'] }}</a></address>
 <div class="footer-col">

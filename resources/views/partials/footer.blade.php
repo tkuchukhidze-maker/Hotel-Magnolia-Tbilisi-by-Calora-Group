@@ -9,6 +9,7 @@
 <a href="{{ route('our-hotel') }}">Our Hotel</a>
 <a href="{{ route('explore') }}">Explore Tbilisi</a>
 <a href="{{ route('contact') }}">Contact &amp; FAQ</a>
+<a href="{{ route('news.cmo') }}">News</a>
 </nav>
 <address style="font-style:normal"><a href="{{ $c['google_maps'] }}">{{ $c['address'] }}, Tbilisi</a> · <a href="tel:{{ $c['phone_tel'] }}">{{ $c['phone_display'] }}</a> · <a href="https://wa.me/{{ $c['whatsapp'] }}">WhatsApp</a></address>
 </div>

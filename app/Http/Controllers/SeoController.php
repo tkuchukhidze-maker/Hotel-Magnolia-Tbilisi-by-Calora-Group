@@ -13,6 +13,8 @@ class SeoController extends Controller
         'our-hotel' => ['monthly', '0.7'],
         'explore' => ['monthly', '0.6'],
         'contact' => ['monthly', '0.6'],
+        'news.cmo' => ['monthly', '0.5'],
+        'news.cmo.ka' => ['monthly', '0.5'],
     ];
 
     public function sitemap(): Response

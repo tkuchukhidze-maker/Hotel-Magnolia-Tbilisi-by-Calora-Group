@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 final class PublicSite
 {
     public const PUBLIC_ROUTES = [
-        'home', 'rooms', 'offer', 'our-hotel', 'explore', 'contact', 'privacy',
+        'home', 'rooms', 'offer', 'our-hotel', 'explore', 'contact', 'privacy', 'news.cmo', 'news.cmo.ka',
         'sitemap', 'robots', 'llms',
     ];
 
