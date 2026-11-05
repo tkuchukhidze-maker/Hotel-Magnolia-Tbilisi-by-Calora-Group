@@ -17,18 +17,6 @@
     <ul class="news-brands">
       <li class="news-brand">
         <svg class="news-brand__mark" stroke-width="1.3" aria-hidden="true"><use href="#mg-mark"/></svg>
-        <p class="news-brand__city">ქუთაისი</p>
-        <h3>ქუთაისის სახლში</h3>
-        <p>„ქუთაისის სახლის“ შემთხვევაში აქცენტი კეთდება იმერულ გასტრონომიაზე, ავთენტურ გარემოსა და განსხვავებულ კულტურულ საღამოებზე.</p>
-      </li>
-      <li class="news-brand">
-        <svg class="news-brand__mark" stroke-width="1.3" aria-hidden="true"><use href="#mg-mark"/></svg>
-        <p class="news-brand__city">თბილისი</p>
-        <h3>თბილისის სახლში</h3>
-        <p>„თბილისის სახლის“ მიმართულებით პრიორიტეტი ქართული სტუმართმოყვარეობის თანამედროვე ქალაქური გამოცდილების განვითარებაა.</p>
-      </li>
-      <li class="news-brand">
-        <svg class="news-brand__mark" stroke-width="1.3" aria-hidden="true"><use href="#mg-mark"/></svg>
         <p class="news-brand__city">თბილისი</p>
         <h3>Hotel Magnolia</h3>
         <p>Hotel Magnolia-სთვის განსაკუთრებული მნიშვნელობა ექნება ციფრული სერვისების, სტუმართან კომუნიკაციისა და სასტუმროს ინდივიდუალური პოზიციონირების გაძლიერებას.</p>
@@ -38,6 +26,18 @@
         <p class="news-brand__city">კახეთი</p>
         <h3>შატო მერე</h3>
         <p>„შატო მერეს“ განვითარების ხედვა კი კახეთის ღვინის კულტურის, გასტრონომიისა და გამორჩეული დასვენების გამოცდილების ერთიან ბრენდულ კონცეფციაში გაერთიანებას მოიცავს.</p>
+      </li>
+      <li class="news-brand">
+        <svg class="news-brand__mark" stroke-width="1.3" aria-hidden="true"><use href="#mg-mark"/></svg>
+        <p class="news-brand__city">ქუთაისი</p>
+        <h3>ქუთაისის სახლში</h3>
+        <p>„ქუთაისის სახლის“ შემთხვევაში აქცენტი კეთდება იმერულ გასტრონომიაზე, ავთენტურ გარემოსა და განსხვავებულ კულტურულ საღამოებზე.</p>
+      </li>
+      <li class="news-brand">
+        <svg class="news-brand__mark" stroke-width="1.3" aria-hidden="true"><use href="#mg-mark"/></svg>
+        <p class="news-brand__city">თბილისი</p>
+        <h3>თბილისის სახლში</h3>
+        <p>„თბილისის სახლის“ მიმართულებით პრიორიტეტი ქართული სტუმართმოყვარეობის თანამედროვე ქალაქური გამოცდილების განვითარებაა.</p>
       </li>
     </ul>
     <h2>ძლიერი გუნდი, კრეატიულობა და საერთო მიზანი</h2>
