@@ -19,18 +19,6 @@
     <ul class="news-brands">
       <li class="news-brand">
         <svg class="news-brand__mark" stroke-width="1.3" aria-hidden="true"><use href="#mg-mark"/></svg>
-        <p class="news-brand__city">Kutaisi</p>
-        <h3>Kutaisis Sakhlshi</h3>
-        <p>At <strong>Kutaisis Sakhlshi</strong>, the focus is on Imeretian cuisine, an authentic setting and distinctive cultural evenings.</p>
-      </li>
-      <li class="news-brand">
-        <svg class="news-brand__mark" stroke-width="1.3" aria-hidden="true"><use href="#mg-mark"/></svg>
-        <p class="news-brand__city">Tbilisi</p>
-        <h3>Tbilisis Sakhlshi</h3>
-        <p>For <strong>Tbilisis Sakhlshi</strong>, the priority is a modern, urban take on Georgian hospitality.</p>
-      </li>
-      <li class="news-brand">
-        <svg class="news-brand__mark" stroke-width="1.3" aria-hidden="true"><use href="#mg-mark"/></svg>
         <p class="news-brand__city">Tbilisi</p>
         <h3>Hotel Magnolia</h3>
         <p>For <strong>Hotel Magnolia</strong>, digital services, guest communication and a stronger individual positioning for the hotel will be key.</p>
@@ -40,6 +28,18 @@
         <p class="news-brand__city">Kakheti</p>
         <h3>Chateau Mere</h3>
         <p>The vision for <strong>Chateau Mere</strong> brings Kakheti's wine culture, gastronomy and an exceptional stay together in one brand concept.</p>
+      </li>
+      <li class="news-brand">
+        <svg class="news-brand__mark" stroke-width="1.3" aria-hidden="true"><use href="#mg-mark"/></svg>
+        <p class="news-brand__city">Kutaisi</p>
+        <h3>Kutaisis Sakhlshi</h3>
+        <p>At <strong>Kutaisis Sakhlshi</strong>, the focus is on Imeretian cuisine, an authentic setting and distinctive cultural evenings.</p>
+      </li>
+      <li class="news-brand">
+        <svg class="news-brand__mark" stroke-width="1.3" aria-hidden="true"><use href="#mg-mark"/></svg>
+        <p class="news-brand__city">Tbilisi</p>
+        <h3>Tbilisis Sakhlshi</h3>
+        <p>For <strong>Tbilisis Sakhlshi</strong>, the priority is a modern, urban take on Georgian hospitality.</p>
       </li>
     </ul>
 
