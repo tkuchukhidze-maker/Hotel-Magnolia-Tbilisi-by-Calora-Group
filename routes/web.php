@@ -23,6 +23,8 @@ Route::get('/our-hotel', [PageController::class, 'ourHotel'])->name('our-hotel')
 Route::get('/explore', [PageController::class, 'explore'])->name('explore');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
+Route::get('/news/tornike-kuchukhidze-cmo', [\App\Http\Controllers\NewsController::class, 'cmo'])->name('news.cmo');
+Route::get('/ka/news/tornike-kuchukhidze-cmo', [\App\Http\Controllers\NewsController::class, 'cmoKa'])->name('news.cmo.ka');
 
 Route::post('/bookings', [BookingController::class, 'store'])
     ->middleware('throttle:10,1')
