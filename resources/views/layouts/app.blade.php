@@ -75,6 +75,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     @include('partials.footer')
 @endif
 
+@unless ($hideMobileBar ?? false)
 @hasSection('mobile-bar')
     <div class="mobile-book" role="region" aria-label="Quick booking">@yield('mobile-bar')</div>
 @else
@@ -88,6 +89,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <a class="btn btn--primary" href="{{ route('rooms') }}">Book Now</a>
     </div>
 @endif
+@endunless
 
 @include('partials.maps-config')
 <script src="{{ asset('assets/js/main.js') }}?v={{ filemtime(public_path('assets/js/main.js')) }}" defer></script>

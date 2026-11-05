@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app', ['hideMobileBar' => true])
 
 @php
     $ka = $locale === 'ka';
@@ -54,7 +54,7 @@
 .news-dek{font-size:clamp(18px,2vw,21px);line-height:1.6;color:var(--muted);margin:0;max-width:44em}
 .news-date{font-size:14px;color:var(--muted);margin:18px 0 0}
 .news-photo{margin:clamp(32px,5vw,56px) auto 0;max-width:1180px}
-.news-photo img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;border-radius:var(--radius-lg)}
+.news-photo img{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;display:block;border-radius:var(--radius-lg)}
 .news-photo figcaption{font-size:13px;color:var(--muted);margin-top:10px}
 .news-body{max-width:44rem;margin:0 auto;padding:clamp(40px,6vw,72px) 0 24px}
 .news-body p{font-size:18px;line-height:1.85;color:var(--text);margin:0 0 20px}

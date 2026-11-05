@@ -16,7 +16,8 @@ class NewsTest extends TestCase
             ->assertSee('Tornike Kuchukhidze Appointed CMO', false)
             ->assertSee('"@type":"NewsArticle"', false)
             ->assertSee('hreflang="ka"', false)
-            ->assertSee('assets/img/news/tornike-kuchukhidze-cmo.jpg', false);
+            ->assertSee('assets/img/news/tornike-kuchukhidze-cmo.jpg', false)
+            ->assertDontSee('class="mobile-book"', false);
 
         $this->get(route('news.cmo.ka'))->assertOk()
             ->assertSee('<html lang="ka">', false)

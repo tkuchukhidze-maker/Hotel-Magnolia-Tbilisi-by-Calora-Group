@@ -61,7 +61,6 @@
     <p>Through the strategic vision of the group's CEO, its marketing leadership and a multi-skilled team working together, the companies aim to build brands that stand out in a competitive market through their own character, a creative approach and high-quality hospitality.</p>
   </div>
   <div class="news-end">
-    <a class="btn btn--primary" href="{{ route('rooms') }}">Book your stay at Hotel Magnolia</a>
     <a class="li" href="https://www.linkedin.com/in/tornike-kutchukhidze-692984354/">Tornike Kuchukhidze on LinkedIn</a>
   </div>
 </div>
