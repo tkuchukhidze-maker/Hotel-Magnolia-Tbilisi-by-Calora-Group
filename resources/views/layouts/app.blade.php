@@ -75,6 +75,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     @include('partials.footer')
 @endif
 
+@unless ($hideMobileBar ?? false)
 @hasSection('mobile-bar')
     <div class="mobile-book" role="region" aria-label="Quick booking">@yield('mobile-bar')</div>
 @else
@@ -85,6 +86,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         @else
         <span class="mobile-book__price">per night from<strong>GEL {{ $from }}</strong></span>
         @endif
+@endunless
         <a class="btn btn--primary" href="{{ route('rooms') }}">Book Now</a>
     </div>
 @endif
