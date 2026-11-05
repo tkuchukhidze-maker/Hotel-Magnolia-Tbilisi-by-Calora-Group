@@ -86,10 +86,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         @else
         <span class="mobile-book__price">per night from<strong>GEL {{ $from }}</strong></span>
         @endif
-@endunless
         <a class="btn btn--primary" href="{{ route('rooms') }}">Book Now</a>
     </div>
 @endif
+@endunless
 
 @include('partials.maps-config')
 <script src="{{ asset('assets/js/main.js') }}?v={{ filemtime(public_path('assets/js/main.js')) }}" defer></script>
