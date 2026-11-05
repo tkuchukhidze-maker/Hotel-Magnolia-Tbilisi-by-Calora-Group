@@ -28,13 +28,15 @@
 @section('title', $title.' | Hotel Magnolia')
 @section('description', $dek)
 @section('crumb', $t('სიახლეები', 'News'))
-@section('og_image', asset($image))
+@section('og_image', asset('assets/img/news/tornike-kuchukhidze-cmo-share-'.$locale.'.jpg'))
 
 @push('head')
 <link rel="alternate" hreflang="en" href="{{ \App\Support\PublicSite::url(route('news.cmo', [], false)) }}">
 <link rel="alternate" hreflang="ka" href="{{ \App\Support\PublicSite::url(route('news.cmo.ka', [], false)) }}">
 <link rel="alternate" hreflang="x-default" href="{{ \App\Support\PublicSite::url(route('news.cmo', [], false)) }}">
 <meta property="og:type" content="article">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="article:published_time" content="{{ $published }}T14:00:00+04:00">
 <script type="application/ld+json">{!! json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) !!}</script>
 @if ($ka)

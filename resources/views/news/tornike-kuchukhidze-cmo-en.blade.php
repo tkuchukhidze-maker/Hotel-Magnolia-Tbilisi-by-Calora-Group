@@ -37,9 +37,9 @@
       </li>
       <li class="news-brand">
         <svg class="news-brand__mark" stroke-width="1.3" aria-hidden="true"><use href="#mg-mark"/></svg>
-        <p class="news-brand__city">Tbilisi</p>
-        <h3>Tbilisis Sakhlshi</h3>
-        <p>For <strong>Tbilisis Sakhlshi</strong>, the priority is a modern, urban take on Georgian hospitality.</p>
+        <p class="news-brand__city">Batumi</p>
+        <h3>Batumis Sakhlshi</h3>
+        <p>At <strong>Batumis Sakhlshi</strong>, food and show come together: Georgian music evenings, live performances, Roma shows and Italian and Spanish themed programmes.</p>
       </li>
     </ul>
 
