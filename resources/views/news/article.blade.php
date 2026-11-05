@@ -62,6 +62,15 @@
 .news-body ul{margin:0 0 20px;padding-left:1.2em;color:var(--text);font-size:18px;line-height:1.75}
 .news-body li{margin:8px 0}
 .news-body strong{color:var(--cocoa)}
+.news-body .news-brands{list-style:none;padding:0;margin:36px -24px 36px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.news-body .news-brand{margin:0 !important}
+.news-brand{position:relative;background:var(--sand);border:1px solid var(--line);border-radius:var(--radius);padding:26px 24px 24px;margin:0;display:flex;flex-direction:column;gap:8px}
+.news-brand__mark{width:30px;height:30px;color:var(--terracotta)}
+.news-brand__city{font-size:12px !important;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--terracotta) !important;margin:4px 0 0 !important;line-height:1.4 !important}
+.news-brand h3{font-family:var(--news-display);font-weight:600;font-size:{{ $ka ? '22px' : '28px' }};line-height:1.2;color:var(--cocoa);margin:0}
+.news-brand p{font-size:16px !important;line-height:1.7 !important;margin:0 !important;color:var(--text)}
+.news-brand p strong{color:inherit;font-weight:inherit}
+@media (max-width:700px){.news-body .news-brands{grid-template-columns:1fr;margin-inline:0}}
 .news-quote{padding:clamp(56px,8vw,96px) 0}
 .news-quote .wrap{max-width:52rem;margin:0 auto;position:relative}
 .news-quote .branch{position:absolute;right:-20px;top:-40px;width:220px;height:110px;color:var(--terracotta);opacity:.35}
